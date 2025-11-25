@@ -1,4 +1,4 @@
-package com.lender;
+package com.golfLender;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

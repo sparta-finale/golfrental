@@ -1,4 +1,4 @@
-package com.lender.common.entity;
+package com.golfLender.common.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

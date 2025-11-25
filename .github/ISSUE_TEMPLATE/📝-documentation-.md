@@ -1,5 +1,5 @@
 ---
-name: "\U0001F4DD Documentation "
+name: "\U0001F4DD Documentation"
 about: 문서 보완이나 개선이 필요할 때 사용하는 템플릿입니다.
 title: "[docs]"
 labels: "\U0001F4DD docs"

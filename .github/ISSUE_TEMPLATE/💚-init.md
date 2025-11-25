@@ -1,7 +1,7 @@
 ---
 name: "💚 Init"
 about: 초기 세팅에 대한 템플릿입니다.
-title: "[init] "
+title: "[init]"
 labels: "💚 init"
 assignees: ''
 

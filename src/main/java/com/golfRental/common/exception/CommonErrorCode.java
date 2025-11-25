@@ -1,4 +1,4 @@
-package com.golfLender.common.exception;
+package com.golfRental.common.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

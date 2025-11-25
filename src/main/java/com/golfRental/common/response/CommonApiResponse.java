@@ -1,7 +1,7 @@
-package com.golfLender.common.response;
+package com.golfRental.common.response;
 
 
-import com.golfLender.common.exception.ErrorCode;
+import com.golfRental.common.exception.ErrorCode;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;

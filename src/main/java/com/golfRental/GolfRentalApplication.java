@@ -1,13 +1,13 @@
-package com.golfLender;
+package com.golfRental;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class LenderApplication {
+public class GolfRentalApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(LenderApplication.class, args);
+        SpringApplication.run(GolfRentalApplication.class, args);
     }
 
 }

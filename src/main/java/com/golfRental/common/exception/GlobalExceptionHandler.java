@@ -1,6 +1,6 @@
-package com.golfLender.common.exception;
+package com.golfRental.common.exception;
 
-import com.golfLender.common.response.CommonApiResponse;
+import com.golfRental.common.response.CommonApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

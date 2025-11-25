@@ -1,4 +1,4 @@
-package com.golfLender.common.response;
+package com.golfRental.common.response;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

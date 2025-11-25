@@ -1,10 +1,10 @@
-package com.golfLender;
+package com.golfRental;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class LenderApplicationTests {
+class golfRentalApplicationTests {
 
     @Test
     void contextLoads() {

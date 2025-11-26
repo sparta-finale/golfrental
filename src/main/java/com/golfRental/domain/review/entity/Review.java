@@ -1,0 +1,41 @@
+package com.golfRental.domain.review.entity;
+
+import com.golfRental.common.entity.BaseEntity;
+import com.golfRental.domain.user.entity.User;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Getter
+@Table(name = "reviews")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Review extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(name = "equipment_score", nullable = false)
+    private Integer equipmentScore;  // 1~5점
+
+    @Column(name = "user_score", nullable = false)
+    private Integer userScore;  // 1~5점
+
+    @Column(nullable = false, length = 1000)
+    private String content;
+
+    @Builder
+    private Review(User user, Integer equipmentScore, Integer userScore, String content) {
+        this.user = user;
+        this.equipmentScore = equipmentScore;
+        this.userScore = userScore;
+        this.content = content;
+    }
+}

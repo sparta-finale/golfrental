@@ -1,5 +1,5 @@
 ---
-name: "♻️ Refactoring "
+name: "♻️ Refactoring"
 about: 기능 변경 없이 코드 품질을 개선하기 위한 리팩토링 이슈 템플릿입니다.
 title: "[refactor]"
 labels: "♻️ refactor"

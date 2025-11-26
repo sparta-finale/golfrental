@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_MYSQL_URL:jdbc:mysql://127.0.0.1:3306/test_db?useSSL=false&allowPublicKeyRetrieval=true}
+    driver-class-name: com.mysql.cj.jdbc.Driver # MySQL JDBC 드라이버 명시
+    username: ${SPRING_DATASOURCE_MYSQL_USERNAME}
+    password: ${SPRING_DATASOURCE_MYSQL_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect # MySQL 방언 설정
+
+
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}

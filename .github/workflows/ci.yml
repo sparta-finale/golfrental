@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
+      - name: Configure DB Connection
+        run: |
+          echo "SPRING_DATASOURCE_MYSQL_URL=jdbc:mysql://127.0.0.1:3306/test_db?useSSL=false&allowPublicKeyRetrieval=true" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_MYSQL_USERNAME=root" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_MYSQL_PASSWORD=root" >> $GITHUB_ENV
+          
+          echo "SPRING_DATASOURCE_JWT_KEY=JUeuMQYOTYa1zq2TSHmzZz5BnHf8hHQnkGeT9aRuAAr05a32bspdCHH8B+3sNcfOV5tYe5yfyypgF9lWV68zEA==" >> $GITHUB_ENV
+
+      - name: Grant execute permission for Gradlew
+        run: chmod +x gradlew
+
+      - name: Compile and Build Application
+        run: ./gradlew build -x test --no-daemon
+
+      - name: Run Unit and Integration Tests
+        run: ./gradlew clean test --no-daemon

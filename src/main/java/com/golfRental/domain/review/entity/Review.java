@@ -3,6 +3,8 @@ package com.golfRental.domain.review.entity;
 import com.golfRental.common.entity.BaseEntity;
 import com.golfRental.domain.user.entity.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,11 +24,15 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Min(value = 1, message = "점수는 1점 이상이어야 합니다.")
+    @Max(value = 5, message = "점수는 5점 이하여야 합니다.")
     @Column(name = "equipment_score", nullable = false)
-    private Integer equipmentScore;  // 1~5점
+    private Integer equipmentScore;
 
+    @Min(value = 1, message = "점수는 1점 이상이어야 합니다.")
+    @Max(value = 5, message = "점수는 5점 이하여야 합니다.")
     @Column(name = "user_score", nullable = false)
-    private Integer userScore;  // 1~5점
+    private Integer userScore;
 
     @Column(nullable = false, length = 1000)
     private String content;

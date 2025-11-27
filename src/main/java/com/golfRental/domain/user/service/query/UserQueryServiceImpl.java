@@ -1,5 +1,6 @@
 package com.golfRental.domain.user.service.query;
 
+import com.golfRental.domain.user.dto.response.UserGetInfoResponse;
 import com.golfRental.domain.user.dto.response.UserGetMyInfoResponse;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.exception.UserErrorCode;
@@ -19,8 +20,8 @@ public class UserQueryServiceImpl implements UserQueryService {
     private final UserRepository userRepository;
 
     @Override
-    public UserGetMyInfoResponse getMyInfo(Long userId) {
-        User user = findById(userId);
+    public UserGetMyInfoResponse getMyInfo(Long myId) {
+        User user = findById(myId);
 
         UserGetMyInfoResponse userGetMyInfoResponse = UserGetMyInfoResponse.builder()
                 .email(user.getEmail())
@@ -31,6 +32,21 @@ public class UserQueryServiceImpl implements UserQueryService {
                 .build();
 
         return userGetMyInfoResponse;
+    }
+
+    @Override
+    public UserGetInfoResponse getInfo(Long userId) {
+        User user = findById(userId);
+
+        UserGetInfoResponse userGetInfoResponse = UserGetInfoResponse.builder()
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .nickname(user.getNickname())
+                .build();
+
+        return userGetInfoResponse;
     }
 
     @Override

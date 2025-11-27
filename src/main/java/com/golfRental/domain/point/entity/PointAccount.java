@@ -19,7 +19,7 @@ public class PointAccount extends BaseEntity {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, updatable = true)
+    @JoinColumn(name = "user_id", nullable = false, updatable = false, unique = true)
     private User user;
 
     @Column(nullable = false)

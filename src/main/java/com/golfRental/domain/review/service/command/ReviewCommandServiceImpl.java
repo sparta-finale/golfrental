@@ -5,7 +5,7 @@ import com.golfRental.domain.review.dto.response.ReviewResponse;
 import com.golfRental.domain.review.entity.Review;
 import com.golfRental.domain.review.repository.ReviewRepository;
 import com.golfRental.domain.user.entity.User;
-import com.golfRental.domain.user.service.query.UserQueryService;
+import com.golfRental.domain.user.service.command.UserCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,11 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewCommandServiceImpl implements ReviewCommandService {
 
     private final ReviewRepository reviewRepository;
-    private final UserQueryService userQueryService;
+    private final UserCommandService userCommandService;
 
     @Override
     public ReviewResponse createReview(Long userId, ReviewCreateRequest request) {
-        User user = userQueryService.findById(userId);
+        User user = userCommandService.findById(userId);
         Review review = request.toEntity(user);
         Review savedReview = reviewRepository.save(review);
         return ReviewResponse.from(savedReview);

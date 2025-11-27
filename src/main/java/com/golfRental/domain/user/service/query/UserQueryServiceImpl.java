@@ -1,5 +1,6 @@
 package com.golfRental.domain.user.service.query;
 
+import com.golfRental.domain.user.dto.response.UserGetMyInfoResponse;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.exception.UserErrorCode;
 import com.golfRental.domain.user.exception.UserException;
@@ -16,6 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserQueryServiceImpl implements UserQueryService {
 
     private final UserRepository userRepository;
+
+    @Override
+    public UserGetMyInfoResponse getMyInfo(Long userId) {
+        User user = findById(userId);
+
+        UserGetMyInfoResponse userGetMyInfoResponse = UserGetMyInfoResponse.builder()
+                .email(user.getEmail())
+                .name(user.getName())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .nickname(user.getNickname())
+                .build();
+
+        return userGetMyInfoResponse;
+    }
 
     @Override
     public boolean existsByEmail(String email) {
@@ -36,6 +52,13 @@ public class UserQueryServiceImpl implements UserQueryService {
     public User findByEmail(String email) {
         return userRepository.findByEmailAndDeletedAtIsNull(email).orElseThrow(
                 () -> new UserException(UserErrorCode.USER_INVALID_EMAIL)
+        );
+    }
+
+    @Override
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new UserException(UserErrorCode.USER_INVALID_ID)
         );
     }
 }

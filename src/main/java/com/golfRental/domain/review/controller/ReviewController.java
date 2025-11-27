@@ -7,5 +7,9 @@ import org.springframework.http.ResponseEntity;
 
 public interface ReviewController {
 
-    ResponseEntity<CommonApiResponse<ReviewResponse>> createReview(ReviewCreateRequest request);
+    //리뷰 생성
+    ResponseEntity<CommonApiResponse<ReviewResponse>> createReview(
+            Long reservationId,
+            ReviewCreateRequest request
+    );
 }

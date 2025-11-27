@@ -16,13 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ReviewCommandServiceImpl implements ReviewCommandService {
 
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
 
     @Override
-    @Transactional
     public ReviewResponse createReview(ReviewCreateRequest request) {
 
         User user = userRepository.findById(request.userId())

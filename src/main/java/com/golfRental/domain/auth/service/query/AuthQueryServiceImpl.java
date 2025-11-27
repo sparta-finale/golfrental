@@ -27,16 +27,11 @@ public class AuthQueryServiceImpl implements AuthQueryService {
     @Override
     public AuthLoginResponse login(AuthLoginRequest authLoginRequest) {
 
-        if (!userQueryService.existsByEmail(authLoginRequest.getEmail())) {
-            log.warn("로그인 실패 - 잘못된 이메일 - email: {}", authLoginRequest.getEmail());
-            throw new AuthException(AuthErrorCode.INVALID_EMAIL);
-        }
-
         User user = userQueryService.findByEmail(authLoginRequest.getEmail());
 
         if (!passwordEncoder.matches(authLoginRequest.getPassword(), user.getPassword())) {
-            log.warn("로그인 실패 - 잘못된 비밀번호 - password: {}", authLoginRequest.getPassword());
-            throw new AuthException(AuthErrorCode.INVALID_PASSWORD);
+            log.warn("로그인 실패 - 잘못된 비밀번호 - email: {}", authLoginRequest.getEmail());
+            throw new AuthException(AuthErrorCode.AUTH_INVALID_PASSWORD);
         }
 
         String accessToken = jwtUtil.createToken(user.getId(), user.getRole());

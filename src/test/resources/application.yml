@@ -16,5 +16,6 @@ spring:
 
 
 jwt:
-  secret:
-    key: ${JWT_SECRET_KEY}
+  secret: ${JWT_SECRET_KEY:dGVzdC1zZWNyZXQta2V5LWZvci1qdW5pdC10ZXN0LWVudmlyb25tZW50LXRoaXMtaXMtbG9uZy1lbm91Z2gtc2VjcmV0LWtleQ==}
+  access-token-validity: 3600000
+  refresh-token-validity: 604800000

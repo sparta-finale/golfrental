@@ -21,7 +21,7 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
     @Override
     public ReservationGetResponse findById(Long reservationId, Long currentUserId) {
 
-        Reservation reservation = reservationRepository.findById(reservationId)
+        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
                 .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
 
         // 권한 검증

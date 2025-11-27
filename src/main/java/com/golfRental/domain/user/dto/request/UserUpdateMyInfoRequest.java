@@ -17,7 +17,7 @@ public class UserUpdateMyInfoRequest {
     @NotBlank(message = "이름은 필수 입력값입니다.")
     @Size(min = 2, max = 50, message = "이름은 2~50자 사이여야 합니다.")
     @Pattern(regexp = ValidationRegex.USERNAME_REGEX, message = "이름 내 공백은 불가합니다.")
-    private String name;
+    private String username;
 
     @NotBlank(message = "전화번호는 필수 입력값입니다.")
     @Pattern(regexp = ValidationRegex.PHONE_NUMBER_REGEX, message = "전화번호 형식은 01012345678 형태여야 합니다.")

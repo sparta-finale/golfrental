@@ -1,8 +1,12 @@
 package com.golfRental.domain.user.service.query;
 
+import com.golfRental.domain.user.dto.response.UserGetMyInfoResponse;
 import com.golfRental.domain.user.entity.User;
 
 public interface UserQueryService {
+
+    // 내 정보 조회
+    UserGetMyInfoResponse getMyInfo(Long userId);
 
     boolean existsByEmail(String email);
 
@@ -11,4 +15,6 @@ public interface UserQueryService {
     boolean existsByPhoneNumber(String phoneNumber);
 
     User findByEmail(String email);
+
+    User findById(Long userId);
 }

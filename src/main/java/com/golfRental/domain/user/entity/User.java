@@ -52,4 +52,14 @@ public class User extends BaseEntity {
         this.nickname = nickname;
         this.role = UserRole.ROLE_USER;
     }
+
+    public void updateMyInfo(
+            String email, String name, String phoneNumber, String address, String nickname
+    ) {
+        this.email = email;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+        this.nickname = nickname;
+    }
 }

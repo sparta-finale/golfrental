@@ -48,4 +48,7 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+
+    // 환경변수를 테스트 JVM에 전달
+    environment System.getenv()
 }

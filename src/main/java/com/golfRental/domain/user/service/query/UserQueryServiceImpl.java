@@ -57,7 +57,7 @@ public class UserQueryServiceImpl implements UserQueryService {
 
     @Override
     public User findById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
+        return userRepository.findByIdAndDeletedAtIsNull(userId).orElseThrow(
                 () -> new UserException(UserErrorCode.USER_INVALID_ID)
         );
     }

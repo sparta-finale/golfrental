@@ -3,7 +3,7 @@ package com.golfRental.domain.user.dto.response;
 import lombok.Builder;
 
 @Builder
-public record UserGetMyInfoResponse(
+public record UserUpdateMyInfoResponse(
         String email,
         String username,
         String phoneNumber,

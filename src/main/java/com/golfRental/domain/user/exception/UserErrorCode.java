@@ -12,7 +12,7 @@ public enum UserErrorCode implements ErrorCode {
     // findByEmail
     USER_INVALID_EMAIL(HttpStatus.BAD_REQUEST, "해당 이메일을 가진 유저를 찾을 수 없습니다."),
 
-    // findById, getMyInfo
+    // findById, getMyInfo, getInfo
     USER_INVALID_ID(HttpStatus.BAD_REQUEST, "해당 ID를 가진 유저를 찾을 수 없습니다."),
 
     // updateMyInfo

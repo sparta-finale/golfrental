@@ -1,5 +1,6 @@
 package com.golfRental.domain.user.service.query;
 
+import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,5 +28,10 @@ public class UserQueryServiceImpl implements UserQueryService {
     @Override
     public boolean existsByPhoneNumber(String phoneNumber) {
         return userRepository.existsByPhoneNumber(phoneNumber);
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmailAndDeletedAtIsNull(email);
     }
 }

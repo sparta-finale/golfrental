@@ -6,7 +6,6 @@ import com.golfRental.domain.auth.dto.request.AuthSignupRequest;
 import com.golfRental.domain.auth.dto.response.AuthLoginResponse;
 import com.golfRental.domain.auth.message.AuthSuccessMessage;
 import com.golfRental.domain.auth.service.command.AuthCommandService;
-import com.golfRental.domain.auth.service.query.AuthQueryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthControllerImpl implements AuthController {
 
     private final AuthCommandService authCommandService;
-    private final AuthQueryService authQueryService;
 
     @Override
     @PostMapping("/signup")
@@ -38,7 +36,7 @@ public class AuthControllerImpl implements AuthController {
     public ResponseEntity<CommonApiResponse<AuthLoginResponse>> login(
             @Valid @RequestBody AuthLoginRequest authLoginRequest
     ) {
-        AuthLoginResponse authLoginResponse = authQueryService.login(authLoginRequest);
+        AuthLoginResponse authLoginResponse = authCommandService.login(authLoginRequest);
 
         return CommonApiResponse.success(authLoginResponse, AuthSuccessMessage.LOGIN);
     }

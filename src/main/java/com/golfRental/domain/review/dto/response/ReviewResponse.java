@@ -1,9 +1,11 @@
 package com.golfRental.domain.review.dto.response;
 
 import com.golfRental.domain.review.entity.Review;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
+@Builder
 public record ReviewResponse(
         Long id,
         Long userId,
@@ -14,14 +16,14 @@ public record ReviewResponse(
         LocalDateTime updatedAt
 ) {
     public static ReviewResponse from(Review review) {
-        return new ReviewResponse(
-                review.getId(),
-                review.getUser().getId(),
-                review.getUser().getUsername(),
-                review.getUserScore(),
-                review.getContent(),
-                review.getCreatedAt(),
-                review.getUpdatedAt()
-        );
+        return ReviewResponse.builder()
+                .id(review.getId())
+                .userId(review.getUser().getId())
+                .userName(review.getUser().getUsername())
+                .userScore(review.getUserScore())
+                .content(review.getContent())
+                .createdAt(review.getCreatedAt())
+                .updatedAt(review.getUpdatedAt())
+                .build();
     }
 }

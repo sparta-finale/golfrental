@@ -1,12 +1,16 @@
 package com.golfRental.domain.user.service.query;
 
+import com.golfRental.domain.user.dto.response.UserGetInfoResponse;
 import com.golfRental.domain.user.dto.response.UserGetMyInfoResponse;
 import com.golfRental.domain.user.entity.User;
 
 public interface UserQueryService {
 
     // 내 정보 조회
-    UserGetMyInfoResponse getMyInfo(Long userId);
+    UserGetMyInfoResponse getMyInfo(Long myId);
+
+    // 유저 정보 조회
+    UserGetInfoResponse getInfo(Long userId);
 
     boolean existsByEmail(String email);
 

@@ -5,6 +5,7 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 
+@Builder
 public record ReviewResponse(
         Long id,
         Long userId,
@@ -14,10 +15,6 @@ public record ReviewResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    @Builder
-    public ReviewResponse {
-    }
-
     public static ReviewResponse from(Review review) {
         return ReviewResponse.builder()
                 .id(review.getId())

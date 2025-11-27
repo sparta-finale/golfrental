@@ -1,5 +1,7 @@
 package com.golfRental.domain.user.service.query;
 
+import com.golfRental.domain.user.entity.User;
+
 public interface UserQueryService {
 
     boolean existsByEmail(String email);
@@ -7,4 +9,6 @@ public interface UserQueryService {
     boolean existsByNickname(String nickname);
 
     boolean existsByPhoneNumber(String phoneNumber);
+
+    User findByEmail(String email);
 }

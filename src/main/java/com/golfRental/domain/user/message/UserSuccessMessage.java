@@ -6,7 +6,7 @@ public final class UserSuccessMessage {
 
     public static final String UPDATE_MY_INFO = "내 정보 수정에 성공하였습니다.";
 
-    public static final String GET_INFO = "유저 정보 수정에 성공하였습니다.";
+    public static final String GET_INFO = "유저 정보 조회에 성공하였습니다.";
 
     private UserSuccessMessage() {
     }

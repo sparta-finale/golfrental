@@ -35,14 +35,14 @@ public class UserCommandServiceImpl implements UserCommandService {
         }
 
         user.updateMyInfo(
-                userUpdateMyInfoRequest.getEmail(), userUpdateMyInfoRequest.getName(),
+                userUpdateMyInfoRequest.getEmail(), userUpdateMyInfoRequest.getUsername(),
                 userUpdateMyInfoRequest.getPhoneNumber(), userUpdateMyInfoRequest.getAddress(),
                 userUpdateMyInfoRequest.getNickname()
         );
 
         UserUpdateMyInfoResponse userUpdateMyInfoResponse = UserUpdateMyInfoResponse.builder()
                 .email(user.getEmail())
-                .name(user.getName())
+                .username(user.getUsername())
                 .phoneNumber(user.getPhoneNumber())
                 .address(user.getAddress())
                 .nickname(user.getNickname())

@@ -47,7 +47,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
         User user = User.builder()
                 .email(authSignupRequest.getEmail())
                 .password(encodedPassword)
-                .name(authSignupRequest.getUsername())
+                .username(authSignupRequest.getUsername())
                 .phoneNumber(authSignupRequest.getPhoneNumber())
                 .address(authSignupRequest.getAddress())
                 .nickname(authSignupRequest.getNickname())

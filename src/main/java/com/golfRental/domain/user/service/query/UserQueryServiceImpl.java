@@ -24,7 +24,7 @@ public class UserQueryServiceImpl implements UserQueryService {
 
         UserGetMyInfoResponse userGetMyInfoResponse = UserGetMyInfoResponse.builder()
                 .email(user.getEmail())
-                .name(user.getName())
+                .username(user.getUsername())
                 .phoneNumber(user.getPhoneNumber())
                 .address(user.getAddress())
                 .nickname(user.getNickname())

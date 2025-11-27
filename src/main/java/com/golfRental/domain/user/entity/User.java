@@ -25,9 +25,9 @@ public class User extends BaseEntity {
     private String password;
 
     @Column(nullable = false, unique = false, length = 60)
-    private String name;
+    private String username;
 
-    @Column(nullable = true, unique = true, length = 30)
+    @Column(nullable = false, unique = true, length = 30)
     private String phoneNumber;
 
     @Column(nullable = false, unique = false, length = 60)
@@ -42,11 +42,11 @@ public class User extends BaseEntity {
 
     @Builder
     private User(
-            String email, String password, String name, String phoneNumber, String address, String nickname
+            String email, String password, String username, String phoneNumber, String address, String nickname
     ) {
         this.email = email;
         this.password = password;
-        this.name = name;
+        this.username = username;
         this.phoneNumber = phoneNumber;
         this.address = address;
         this.nickname = nickname;
@@ -54,10 +54,10 @@ public class User extends BaseEntity {
     }
 
     public void updateMyInfo(
-            String email, String name, String phoneNumber, String address, String nickname
+            String email, String username, String phoneNumber, String address, String nickname
     ) {
         this.email = email;
-        this.name = name;
+        this.username = username;
         this.phoneNumber = phoneNumber;
         this.address = address;
         this.nickname = nickname;

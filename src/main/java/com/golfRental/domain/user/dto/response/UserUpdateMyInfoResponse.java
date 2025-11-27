@@ -5,7 +5,7 @@ import lombok.Builder;
 @Builder
 public record UserUpdateMyInfoResponse(
         String email,
-        String name,
+        String username,
         String phoneNumber,
         String address,
         String nickname

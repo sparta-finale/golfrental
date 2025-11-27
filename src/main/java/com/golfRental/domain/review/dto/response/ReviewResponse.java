@@ -17,7 +17,7 @@ public record ReviewResponse(
         return new ReviewResponse(
                 review.getId(),
                 review.getUser().getId(),
-                review.getUser().getName(),
+                review.getUser().getUsername(),
                 review.getUserScore(),
                 review.getContent(),
                 review.getCreatedAt(),

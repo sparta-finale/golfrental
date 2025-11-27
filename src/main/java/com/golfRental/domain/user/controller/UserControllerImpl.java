@@ -3,6 +3,7 @@ package com.golfRental.domain.user.controller;
 import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.user.dto.request.UserUpdateMyInfoRequest;
+import com.golfRental.domain.user.dto.response.UserGetInfoResponse;
 import com.golfRental.domain.user.dto.response.UserGetMyInfoResponse;
 import com.golfRental.domain.user.dto.response.UserUpdateMyInfoResponse;
 import com.golfRental.domain.user.message.UserSuccessMessage;
@@ -43,5 +44,15 @@ public class UserControllerImpl implements UserController {
         );
 
         return CommonApiResponse.success(userUpdateMyInfoResponse, UserSuccessMessage.UPDATE_MY_INFO);
+    }
+
+    @Override
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<CommonApiResponse<UserGetInfoResponse>> getInfo(
+            @PathVariable Long userId
+    ) {
+        UserGetInfoResponse userGetInfoResponse = userQueryService.getInfo(userId);
+
+        return CommonApiResponse.success(userGetInfoResponse, UserSuccessMessage.GET_INFO);
     }
 }

@@ -15,7 +15,6 @@ public enum AuthErrorCode implements ErrorCode {
     AUTH_DUPLICATE_PHONE_NUMBER(HttpStatus.CONFLICT, "이미 사용 중인 전화번호입니다."),
 
     // Login
-    AUTH_INVALID_EMAIL(HttpStatus.BAD_REQUEST, "잘못된 이메일입니다."),
     AUTH_INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
 
     private final HttpStatus httpStatus;

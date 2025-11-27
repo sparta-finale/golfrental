@@ -51,7 +51,7 @@ public class Reservation extends BaseEntity {
     private User guestUser;
 
     @Builder
-    public Reservation(LocalDateTime reservationStartAt, LocalDateTime reservationEndAt, Integer price, Integer deposit, ReservationStatus status, User hostUser, User guestUser) {
+    private Reservation(LocalDateTime reservationStartAt, LocalDateTime reservationEndAt, Integer price, Integer deposit, ReservationStatus status, User hostUser, User guestUser) {
         this.reservationStartAt = reservationStartAt;
         this.reservationEndAt = reservationEndAt;
         this.price = price;

@@ -26,11 +26,6 @@ public class Review extends BaseEntity {
 
     @Min(value = 1, message = "점수는 1점 이상이어야 합니다.")
     @Max(value = 5, message = "점수는 5점 이하여야 합니다.")
-    @Column(name = "equipment_score", nullable = false)
-    private Integer equipmentScore;
-
-    @Min(value = 1, message = "점수는 1점 이상이어야 합니다.")
-    @Max(value = 5, message = "점수는 5점 이하여야 합니다.")
     @Column(name = "user_score", nullable = false)
     private Integer userScore;
 
@@ -38,9 +33,8 @@ public class Review extends BaseEntity {
     private String content;
 
     @Builder
-    private Review(User user, Integer equipmentScore, Integer userScore, String content) {
+    private Review(User user, Integer userScore, String content) {
         this.user = user;
-        this.equipmentScore = equipmentScore;
         this.userScore = userScore;
         this.content = content;
     }

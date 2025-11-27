@@ -36,7 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 
-
+/docs
 src/main/resources/application-local.yml
 
 .env

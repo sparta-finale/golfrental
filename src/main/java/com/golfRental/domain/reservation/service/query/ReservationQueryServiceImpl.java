@@ -42,4 +42,10 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
                 .status(reservation.getStatus())
                 .build();
     }
+
+    @Override
+    public Reservation findById(Long reservationId) {
+        return reservationRepository.findByIdWithDetails(reservationId)
+                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+    }
 }

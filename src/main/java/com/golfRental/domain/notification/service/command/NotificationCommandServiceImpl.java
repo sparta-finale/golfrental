@@ -4,7 +4,6 @@ import com.golfRental.domain.notification.dto.request.NotificationCreateRequest;
 import com.golfRental.domain.notification.dto.response.NotificationResponse;
 import com.golfRental.domain.notification.entity.Notification;
 import com.golfRental.domain.notification.repository.NotificationRepository;
-import com.golfRental.domain.notification.serviece.command.NotificationCommandService;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;

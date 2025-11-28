@@ -1,0 +1,11 @@
+package com.golfRental.domain.notification.exception;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public class NotificationException extends RuntimeException {
+
+    private final NotificationErrorCode errorCode;
+}

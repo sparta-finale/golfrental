@@ -1,6 +1,10 @@
 package com.golfRental.domain.post.service.command;
 
+import com.golfRental.domain.post.dto.request.PostCreateRequest;
+import com.golfRental.domain.post.entity.Post;
 import com.golfRental.domain.post.repository.PostRepository;
+import com.golfRental.domain.user.entity.User;
+import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,4 +17,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostCommandServiceImpl implements PostCommandService {
 
     private final PostRepository postRepository;
+    private final UserQueryService userQueryService;
+
+    // 이후 추가적으로 이미지, 카테고리 들어가야 함
+    @Override
+    public void createPost(Long userId, PostCreateRequest postCreateRequest) {
+        User user = userQueryService.findById(userId);
+
+        Post post = Post.builder()
+                .title(postCreateRequest.getTitle())
+                .content(postCreateRequest.getContent())
+                .methodOfReceive(postCreateRequest.getMethodOfReceive())
+                .methodOfReturn(postCreateRequest.getMethodOfReturn())
+                .price(postCreateRequest.getPrice())
+                .deposit(postCreateRequest.getDeposit())
+                .dailyRate(postCreateRequest.getDailyRate())
+                .user(user)
+                .build();
+
+        postRepository.save(post);
+    }
 }

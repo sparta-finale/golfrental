@@ -1,6 +1,7 @@
 package com.golfRental.domain.reservation.entity;
 
 import com.golfRental.common.entity.BaseEntity;
+import com.golfRental.domain.post.entity.Post;
 import com.golfRental.domain.reservation.enums.ReservationStatus;
 import com.golfRental.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -37,10 +38,9 @@ public class Reservation extends BaseEntity {
     @Column(nullable = false, length = 20)
     private ReservationStatus status;
 
-// Post 연관관계는 이후 feature 단계에서 추가 예정
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "post_id", nullable = false)
-//    private Post post;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "host_user_id", nullable = false)
@@ -51,12 +51,13 @@ public class Reservation extends BaseEntity {
     private User guestUser;
 
     @Builder
-    private Reservation(LocalDateTime reservationStartAt, LocalDateTime reservationEndAt, Integer price, Integer deposit, ReservationStatus status, User hostUser, User guestUser) {
+    private Reservation(LocalDateTime reservationStartAt, LocalDateTime reservationEndAt, Integer price, Integer deposit, ReservationStatus status, Post post, User hostUser, User guestUser) {
         this.reservationStartAt = reservationStartAt;
         this.reservationEndAt = reservationEndAt;
         this.price = price;
         this.deposit = deposit;
         this.status = status;
+        this.post = post;
         this.hostUser = hostUser;
         this.guestUser = guestUser;
     }

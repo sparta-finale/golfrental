@@ -5,6 +5,7 @@ import com.golfRental.domain.category.dto.request.CategoryCreateRequest;
 import com.golfRental.domain.category.dto.response.CategoryCreateResponse;
 import com.golfRental.domain.category.message.CategorySuccessMessage;
 import com.golfRental.domain.category.service.command.CategoryCommandService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +25,7 @@ public class CategoryControllerImpl implements CategoryController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CommonApiResponse<CategoryCreateResponse>> createCategory(
-            @RequestBody CategoryCreateRequest request
+            @Valid @RequestBody CategoryCreateRequest request
     ) {
         CategoryCreateResponse response = categoryCommandService.createCategory(request);
 

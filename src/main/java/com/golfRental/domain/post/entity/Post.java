@@ -57,7 +57,7 @@ public class Post extends BaseEntity {
 //    private Category category;
 
     @Builder
-    public Post(
+    private Post(
             String title, String content, MethodOfReceiveReturn methodOfReceive,
             MethodOfReceiveReturn methodOfReturn, BigDecimal price, BigDecimal deposit,
             BigDecimal dailyRate, User user

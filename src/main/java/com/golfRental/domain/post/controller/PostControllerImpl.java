@@ -3,6 +3,7 @@ package com.golfRental.domain.post.controller;
 import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
+import com.golfRental.domain.post.dto.response.PostCreateResponse;
 import com.golfRental.domain.post.message.PostSuccessMessage;
 import com.golfRental.domain.post.service.command.PostCommandService;
 import jakarta.validation.Valid;
@@ -25,12 +26,12 @@ public class PostControllerImpl implements PostController {
 
     @Override
     @PostMapping("/posts")
-    public ResponseEntity<CommonApiResponse<Void>> createPost(
+    public ResponseEntity<CommonApiResponse<PostCreateResponse>> createPost(
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestBody PostCreateRequest postCreateRequest
     ) {
-        postCommandService.createPost(authUser.getUserId(), postCreateRequest);
+        PostCreateResponse postCreateResponse = postCommandService.createPost(authUser.getUserId(), postCreateRequest);
 
-        return CommonApiResponse.created(null, PostSuccessMessage.POST_CREATED);
+        return CommonApiResponse.created(postCreateResponse, PostSuccessMessage.POST_CREATED);
     }
 }

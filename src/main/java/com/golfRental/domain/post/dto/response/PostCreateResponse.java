@@ -2,13 +2,14 @@ package com.golfRental.domain.post.dto.response;
 
 import com.golfRental.domain.post.enums.MethodOfReceiveReturn;
 import com.golfRental.domain.post.enums.TradeStatus;
-import com.golfRental.domain.user.entity.User;
 import lombok.Builder;
 
 import java.math.BigDecimal;
 
 @Builder
 public record PostCreateResponse(
+
+        Long id,
         String title,
         String content,
         MethodOfReceiveReturn methodOfReceive,
@@ -17,6 +18,9 @@ public record PostCreateResponse(
         BigDecimal deposit,
         BigDecimal dailyRate,
         TradeStatus tradeStatus,
-        User user
+        Long userId,
+        String username,
+        String address,
+        String nickname
 ) {
 }

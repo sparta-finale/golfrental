@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @Slf4j
 @RestController
@@ -32,6 +35,13 @@ public class PostControllerImpl implements PostController {
     ) {
         PostCreateResponse postCreateResponse = postCommandService.createPost(authUser.getUserId(), postCreateRequest);
 
-        return CommonApiResponse.created(postCreateResponse, PostSuccessMessage.POST_CREATED);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(postCreateResponse.id())
+                .toUri();
+
+        return ResponseEntity.created(location)
+                .body(CommonApiResponse.created(postCreateResponse, PostSuccessMessage.POST_CREATED).getBody());
     }
 }

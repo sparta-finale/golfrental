@@ -39,6 +39,7 @@ public class PostCommandServiceImpl implements PostCommandService {
         Post savedPost = postRepository.save(post);
 
         return PostCreateResponse.builder()
+                .id(savedPost.getId())
                 .title(savedPost.getTitle())
                 .content(savedPost.getContent())
                 .methodOfReceive(savedPost.getMethodOfReceive())
@@ -47,7 +48,10 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .deposit(savedPost.getDeposit())
                 .dailyRate(savedPost.getDailyRate())
                 .tradeStatus(savedPost.getTradeStatus())
-                .user(savedPost.getUser())
+                .userId(userId)
+                .username(user.getUsername())
+                .address(user.getAddress())
+                .nickname(user.getNickname())
                 .build();
     }
 }

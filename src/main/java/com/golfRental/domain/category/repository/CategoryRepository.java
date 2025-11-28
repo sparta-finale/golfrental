@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    @Query("COUNT(c) > 0 " +
+    @Query("SELECT COUNT(c) > 0 " +
             "FROM Category c " +
             "WHERE c.name = :name " +
             "AND c.deletedAt IS NULL")

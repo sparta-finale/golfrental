@@ -13,6 +13,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
            "JOIN FETCH r.post " +
            "JOIN FETCH r.hostUser " +
            "JOIN FETCH r.guestUser " +
-           "WHERE r.id = :reservationId")
+           "WHERE r.id = :reservationId " +
+           "AND r.deletedAt IS NULL")
     Optional<Reservation> findByIdWithDetails(@Param("reservationId") Long reservationId);
 }

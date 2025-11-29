@@ -1,6 +1,7 @@
 package com.golfRental.domain.post.entity;
 
 import com.golfRental.common.entity.BaseEntity;
+import com.golfRental.domain.category.entity.Category;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.enums.MethodOfReceiveReturn;
 import com.golfRental.domain.post.enums.TradeStatus;
@@ -54,14 +55,15 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    private Category category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @Builder
     private Post(
             String title, String content, MethodOfReceiveReturn methodOfReceive,
             MethodOfReceiveReturn methodOfReturn, BigDecimal price, BigDecimal deposit,
-            BigDecimal dailyRate, User user
+            BigDecimal dailyRate, User user, Category category
     ) {
         this.title = title;
         this.content = content;
@@ -72,9 +74,10 @@ public class Post extends BaseEntity {
         this.dailyRate = dailyRate;
         this.tradeStatus = TradeStatus.BEFORE_TRANSACTION;
         this.user = user;
+        this.category = category;
     }
 
-    public void update(PostUpdateRequest postUpdateRequest) {
+    public void update(PostUpdateRequest postUpdateRequest, Category category) {
         this.title = postUpdateRequest.getTitle();
         this.content = postUpdateRequest.getContent();
         this.methodOfReceive = postUpdateRequest.getMethodOfReceive();
@@ -82,6 +85,7 @@ public class Post extends BaseEntity {
         this.price = postUpdateRequest.getPrice();
         this.deposit = postUpdateRequest.getDeposit();
         this.dailyRate = postUpdateRequest.getDailyRate();
+        this.category = category;
     }
 
     public void updateStatus(TradeStatus tradeStatus) {

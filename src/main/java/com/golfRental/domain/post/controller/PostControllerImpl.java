@@ -114,6 +114,6 @@ public class PostControllerImpl implements PostController {
     ) {
         postCommandService.deletePost(authUser.getUserId(), postId);
 
-        return CommonApiResponse.success(null, PostSuccessMessage.POST_DELETED);
+        return CommonApiResponse.deleteSuccess(PostSuccessMessage.POST_DELETED);
     }
 }

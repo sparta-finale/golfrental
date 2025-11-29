@@ -99,7 +99,7 @@ public class PostControllerImpl implements PostController {
     public ResponseEntity<CommonApiResponse<PostUpdateStatusResponse>> updateStatusPost(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long postId,
-            @RequestBody PostUpdateStatusRequest postUpdateStatusRequest
+            @Valid @RequestBody PostUpdateStatusRequest postUpdateStatusRequest
     ) {
         PostUpdateStatusResponse postUpdateStatusResponse = postCommandService.updateStatusPost(authUser.getUserId(), postId, postUpdateStatusRequest);
 

@@ -44,6 +44,8 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .username(post.getUser().getUsername())
                 .address(post.getUser().getAddress())
                 .nickname(post.getUser().getNickname())
+                .categoryId(post.getCategory().getId())
+                .categoryName(post.getCategory().getName())
                 .build());
 
         return SliceResponse.fromSlice(content);
@@ -51,9 +53,7 @@ public class PostQueryServiceImpl implements PostQueryService {
 
     @Override
     public PostGetsResponse getPost(Long postId) {
-        Post post = postRepository.findByIdWithUser(postId).orElseThrow(
-                () -> new PostException(PostErrorCode.POST_INVALID_ID)
-        );
+        Post post = findById(postId);
 
         return PostGetsResponse.builder()
                 .id(post.getId())
@@ -69,6 +69,8 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .username(post.getUser().getUsername())
                 .address(post.getUser().getAddress())
                 .nickname(post.getUser().getNickname())
+                .categoryId(post.getCategory().getId())
+                .categoryName(post.getCategory().getName())
                 .build();
     }
 
@@ -92,6 +94,8 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .username(post.getUser().getUsername())
                 .address(post.getUser().getAddress())
                 .nickname(post.getUser().getNickname())
+                .categoryId(post.getCategory().getId())
+                .categoryName(post.getCategory().getName())
                 .build());
 
         return SliceResponse.fromSlice(contents);

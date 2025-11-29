@@ -1,5 +1,7 @@
 package com.golfRental.domain.post.service.command;
 
+import com.golfRental.domain.category.entity.Category;
+import com.golfRental.domain.category.service.query.CategoryQueryService;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
@@ -27,11 +29,13 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     private final PostRepository postRepository;
     private final UserQueryService userQueryService;
+    private final CategoryQueryService categoryQueryService;
 
     // 이후 추가적으로 이미지, 카테고리 들어가야 함
     @Override
     public PostCreateResponse createPost(Long userId, PostCreateRequest postCreateRequest) {
         User user = userQueryService.findById(userId);
+        Category category = categoryQueryService.findById(postCreateRequest.getCategoryId());
 
         Post post = Post.builder()
                 .title(postCreateRequest.getTitle())
@@ -42,6 +46,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .deposit(postCreateRequest.getDeposit())
                 .dailyRate(postCreateRequest.getDailyRate())
                 .user(user)
+                .category(category)
                 .build();
 
         Post savedPost = postRepository.save(post);
@@ -60,14 +65,17 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .username(user.getUsername())
                 .address(user.getAddress())
                 .nickname(user.getNickname())
+                .categoryId(category.getId())
+                .categoryName(category.getName())
                 .build();
     }
 
     @Override
     public PostUpdateResponse updatePost(Long userId, Long postId, PostUpdateRequest postUpdateRequest) {
         Post post = findPostAndCheckOwner(userId, postId);
+        Category category = categoryQueryService.findById(postUpdateRequest.getCategoryId());
 
-        post.update(postUpdateRequest);
+        post.update(postUpdateRequest, category);
 
         return PostUpdateResponse.builder()
                 .id(post.getId())
@@ -83,6 +91,8 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .username(post.getUser().getUsername())
                 .address(post.getUser().getAddress())
                 .nickname(post.getUser().getNickname())
+                .categoryId(post.getCategory().getId())
+                .categoryName(post.getCategory().getName())
                 .build();
     }
 

@@ -40,8 +40,7 @@ public class CategoryQueryServiceImpl implements CategoryQueryService {
     @Override
     public CategoryGetResponse getCategory(Long categoryId) {
 
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
+        Category category = findById(categoryId);
 
         return CategoryGetResponse.builder()
                 .categoryId(category.getId())
@@ -51,7 +50,14 @@ public class CategoryQueryServiceImpl implements CategoryQueryService {
 
     @Override
     public Category findById(Long categoryId) {
-        return categoryRepository.findById(categoryId)
+
+        Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
+
+        if (category.getDeletedAt() != null) {
+            throw new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND);
+        }
+
+        return category;
     }
 }

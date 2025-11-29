@@ -51,13 +51,7 @@ public class CategoryQueryServiceImpl implements CategoryQueryService {
     @Override
     public Category findById(Long categoryId) {
 
-        Category category = categoryRepository.findById(categoryId)
+        return categoryRepository.findByIdAndDeletedAtIsNull(categoryId)
                 .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
-
-        if (category.getDeletedAt() != null) {
-            throw new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND);
-        }
-
-        return category;
     }
 }

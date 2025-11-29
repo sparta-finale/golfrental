@@ -51,6 +51,14 @@ public class SecurityConfig {
                                 "/api/v1/login")
                         .permitAll()
 
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/categories"
+                        ).permitAll()
+
+                        // 관리자 전용 API
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/admin/**"
+                        ).hasRole("ADMIN")
 
                         .requestMatchers("/test").hasAuthority(UserRole.Authority.ADMIN) // `/test`는 ADMIN만 허용
                         .requestMatchers("/open").permitAll() // `/open`은 아무나 접근 가능

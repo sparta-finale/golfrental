@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query("SELECT COUNT(c) > 0 " +
@@ -12,4 +14,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
             "WHERE c.name = :name " +
             "AND c.deletedAt IS NULL")
     boolean existsByNameAndNotDeleted(@Param("name") String name);
+
+    List<Category> findAllByDeletedAtIsNullOrderByNameAsc();
 }

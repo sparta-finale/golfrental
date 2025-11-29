@@ -8,4 +8,6 @@ public interface NotificationCommandService {
     NotificationResponse createNotification(NotificationCreateRequest request);
 
     void markAsRead(Long notificationId, Long userId);
+
+    void deleteNotification(Long notificationId, Long userId);
 }

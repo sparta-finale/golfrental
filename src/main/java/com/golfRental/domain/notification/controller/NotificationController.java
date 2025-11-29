@@ -13,4 +13,14 @@ public interface NotificationController {
             AuthUser authUser,
             Pageable pageable
     );
+
+    ResponseEntity<CommonApiResponse<Void>> markAsRead(
+            AuthUser authUser,
+            Long notificationId
+    );
+
+    ResponseEntity<CommonApiResponse<Void>> deleteNotification(
+            AuthUser authUser,
+            Long notificationId
+    );
 }

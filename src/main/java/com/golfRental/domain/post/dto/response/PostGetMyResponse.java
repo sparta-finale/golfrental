@@ -20,6 +20,8 @@ public record PostGetMyResponse(
         Long userId,
         String username,
         String address,
-        String nickname
+        String nickname,
+        Long categoryId,
+        String categoryName
 ) {
 }

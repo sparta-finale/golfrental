@@ -21,6 +21,8 @@ public record PostCreateResponse(
         Long userId,
         String username,
         String address,
-        String nickname
+        String nickname,
+        Long categoryId,
+        String categoryName
 ) {
 }

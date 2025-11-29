@@ -5,6 +5,7 @@ import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
+import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
 import com.golfRental.domain.post.dto.response.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -65,5 +66,17 @@ public interface PostController {
     ResponseEntity<CommonApiResponse<PostUpdateResponse>> updatePost(
             AuthUser authUser,
             Long postId, PostUpdateRequest postUpdateRequest
+    );
+
+    /**
+     * 게시글 거래 상태 수정 API
+     *
+     * @param authUser 토큰 정보
+     * @param postId   게시물 ID
+     * @return PostUpdateStatusResponse
+     */
+    ResponseEntity<CommonApiResponse<PostUpdateStatusResponse>> updateStatusPost(
+            AuthUser authUser,
+            Long postId, PostUpdateStatusRequest postUpdateStatusRequest
     );
 }

@@ -13,7 +13,10 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("""
-                    SELECT p FROM Post p JOIN FETCH p.user WHERE p.deletedAt IS NULL
+                    SELECT p FROM Post p 
+                                JOIN FETCH p.user
+                                JOIN FETCH p.category 
+                    WHERE p.deletedAt IS NULL
                     ORDER BY
                         CASE p.tradeStatus
                             WHEN 'BEFORE_TRANSACTION' THEN 0
@@ -23,11 +26,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             """)
     Slice<Post> findAllOrderByStatus(Pageable pageable);
 
-    @Query("SELECT p FROM Post p JOIN FETCH p.user WHERE p.id = :postId AND p.deletedAt IS NULL")
+    @Query("SELECT p FROM Post p JOIN FETCH p.user JOIN FETCH p.category WHERE p.id = :postId AND p.deletedAt IS NULL")
     Optional<Post> findByIdWithUser(@Param("postId") Long postId);
 
     @Query("""
-                    SELECT p FROM Post p JOIN FETCH p.user WHERE p.user = :user AND p.deletedAt IS NULL
+                    SELECT p FROM Post p 
+                                JOIN FETCH p.user 
+                                JOIN FETCH p.category 
+                    WHERE p.user = :user AND p.deletedAt IS NULL
                     ORDER BY
                         CASE p.tradeStatus
                             WHEN 'BEFORE_TRANSACTION' THEN 0

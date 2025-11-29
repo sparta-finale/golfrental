@@ -7,13 +7,8 @@ import com.golfRental.domain.post.dto.request.PostCreateRequest;
 import com.golfRental.domain.post.dto.response.PostCreateResponse;
 import com.golfRental.domain.post.dto.response.PostGetAllResponse;
 import com.golfRental.domain.post.dto.response.PostGetsResponse;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 public interface PostController {
 
@@ -25,8 +20,7 @@ public interface PostController {
      * @return PostCreateResponse
      */
     ResponseEntity<CommonApiResponse<PostCreateResponse>> createPost(
-            @AuthenticationPrincipal AuthUser authUser,
-            @Valid @RequestBody PostCreateRequest postCreateRequest
+            AuthUser authUser, PostCreateRequest postCreateRequest
     );
 
     /**
@@ -41,10 +35,7 @@ public interface PostController {
     ResponseEntity<CommonApiResponse<SliceResponse<PostGetAllResponse>>> getAll(
             // 카테고리 추가 예정
 
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "createdAt") String sort,
-            @RequestParam(defaultValue = "DESC") Sort.Direction direction
+            int page, int size, String sort, Sort.Direction direction
     );
 
     /**
@@ -54,7 +45,7 @@ public interface PostController {
      * @return PostGetsResponse
      */
     ResponseEntity<CommonApiResponse<PostGetsResponse>> getPost(
-            @PathVariable Long postId
+            Long postId
     );
 
     ;

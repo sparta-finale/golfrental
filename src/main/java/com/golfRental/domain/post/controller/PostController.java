@@ -6,6 +6,7 @@ import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
 import com.golfRental.domain.post.dto.response.PostCreateResponse;
 import com.golfRental.domain.post.dto.response.PostGetAllResponse;
+import com.golfRental.domain.post.dto.response.PostGetMyResponse;
 import com.golfRental.domain.post.dto.response.PostGetsResponse;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -48,5 +49,18 @@ public interface PostController {
             Long postId
     );
 
-    ;
+    /**
+     * 나의 게시물 조회 API
+     *
+     * @param authUser  토큰 정보
+     * @param page      페이지 번호
+     * @param size      데이터 개수
+     * @param sort      정렬 기준
+     * @param direction 정렬 방향
+     * @return SliceResponse<PostGetMyResponse>
+     */
+    ResponseEntity<CommonApiResponse<SliceResponse<PostGetMyResponse>>> getMyPost(
+            AuthUser authUser,
+            int page, int size, String sort, Sort.Direction direction
+    );
 }

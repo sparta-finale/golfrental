@@ -6,6 +6,7 @@ import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
 import com.golfRental.domain.post.dto.response.PostCreateResponse;
 import com.golfRental.domain.post.dto.response.PostGetAllResponse;
+import com.golfRental.domain.post.dto.response.PostGetMyResponse;
 import com.golfRental.domain.post.dto.response.PostGetsResponse;
 import com.golfRental.domain.post.message.PostSuccessMessage;
 import com.golfRental.domain.post.service.command.PostCommandService;
@@ -75,5 +76,22 @@ public class PostControllerImpl implements PostController {
         PostGetsResponse postGetsResponse = postQueryService.getPost(postId);
 
         return CommonApiResponse.success(postGetsResponse, PostSuccessMessage.POST_GETS);
+    }
+
+    @Override
+    @GetMapping("/posts/my")
+    public ResponseEntity<CommonApiResponse<SliceResponse<PostGetMyResponse>>> getMyPost(
+            @AuthenticationPrincipal AuthUser authUser,
+
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sort,
+            @RequestParam(defaultValue = "DESC") Sort.Direction direction
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
+
+        SliceResponse<PostGetMyResponse> posts = postQueryService.getMyPost(authUser.getUserId(), pageable);
+
+        return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_MY);
     }
 }

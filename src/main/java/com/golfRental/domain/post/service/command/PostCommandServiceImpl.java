@@ -115,7 +115,7 @@ public class PostCommandServiceImpl implements PostCommandService {
     }
 
     private Post findPostAndCheckOwner(Long userId, Long postId) {
-        Post post = postRepository.findByIdWithUser(postId).orElseThrow(
+        Post post = postRepository.findByIdWithUserAndCategory(postId).orElseThrow(
                 () -> new PostException(PostErrorCode.POST_INVALID_ID)
         );
 

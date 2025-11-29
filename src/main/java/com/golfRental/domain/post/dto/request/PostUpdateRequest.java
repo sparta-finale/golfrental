@@ -38,6 +38,6 @@ public class PostUpdateRequest {
     @Min(value = 0, message = "금액은 0원 이상 입력해야 합니다.")
     private BigDecimal dailyRate;
 
-    @NotNull(message = "카테고리는 필수 입력값입니다.")
+    @NotNull(message = "카테고리 아이디는 필수 입력값입니다.")
     private Long categoryId;
 }

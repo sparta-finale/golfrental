@@ -27,7 +27,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Slice<Post> findAllOrderByStatus(Pageable pageable);
 
     @Query("SELECT p FROM Post p JOIN FETCH p.user JOIN FETCH p.category WHERE p.id = :postId AND p.deletedAt IS NULL")
-    Optional<Post> findByIdWithUser(@Param("postId") Long postId);
+    Optional<Post> findByIdWithUserAndCategory(@Param("postId") Long postId);
 
     @Query("""
                     SELECT p FROM Post p 

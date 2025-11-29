@@ -19,8 +19,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                             WHEN 'BEFORE_TRANSACTION' THEN 0
                             WHEN 'TRADING' THEN 1
                             WHEN 'TRANSACTION_COMPLETED' THEN 2
-                        END ASC,
-                        p.createdAt DESC
+                        END ASC
             """)
     Slice<Post> findAllOrderByStatus(Pageable pageable);
 
@@ -34,8 +33,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                             WHEN 'BEFORE_TRANSACTION' THEN 0
                             WHEN 'TRADING' THEN 1
                             WHEN 'TRANSACTION_COMPLETED' THEN 2
-                        END ASC,
-                        p.createdAt DESC
+                        END ASC
             """)
     Slice<Post> findAllByUserOrderByStatus(@Param("user") User user, Pageable pageable);
 }

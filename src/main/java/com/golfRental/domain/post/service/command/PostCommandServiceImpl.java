@@ -1,8 +1,12 @@
 package com.golfRental.domain.post.service.command;
 
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
+import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.dto.response.PostCreateResponse;
+import com.golfRental.domain.post.dto.response.PostUpdateResponse;
 import com.golfRental.domain.post.entity.Post;
+import com.golfRental.domain.post.exception.PostErrorCode;
+import com.golfRental.domain.post.exception.PostException;
 import com.golfRental.domain.post.repository.PostRepository;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
@@ -10,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -52,6 +58,35 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .username(user.getUsername())
                 .address(user.getAddress())
                 .nickname(user.getNickname())
+                .build();
+    }
+
+    @Override
+    public PostUpdateResponse updatePost(Long userId, Long postId, PostUpdateRequest postUpdateRequest) {
+        Post post = postRepository.findByIdWithUser(postId).orElseThrow(
+                () -> new PostException(PostErrorCode.POST_INVALID_ID)
+        );
+
+        if (!Objects.equals(post.getUser().getId(), userId)) {
+            throw new PostException(PostErrorCode.POST_NOT_EQUAL_CREATOR);
+        }
+
+        post.update(postUpdateRequest);
+
+        return PostUpdateResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .methodOfReceive(post.getMethodOfReceive())
+                .methodOfReturn(post.getMethodOfReturn())
+                .price(post.getPrice())
+                .deposit(post.getDeposit())
+                .dailyRate(post.getDailyRate())
+                .tradeStatus(post.getTradeStatus())
+                .userId(post.getUser().getId())
+                .username(post.getUser().getUsername())
+                .address(post.getUser().getAddress())
+                .nickname(post.getUser().getNickname())
                 .build();
     }
 }

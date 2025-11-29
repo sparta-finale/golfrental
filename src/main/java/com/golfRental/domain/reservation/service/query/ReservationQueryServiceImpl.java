@@ -17,12 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReservationQueryServiceImpl implements ReservationQueryService {
 
     private final ReservationRepository reservationRepository;
-
+    
     @Override
     public ReservationGetResponse findById(Long reservationId, Long currentUserId) {
 
-        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
-                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+        Reservation reservation = getReservationOrThrow(reservationId);
 
         // 권한 검증
         if (!reservation.getHostUser().getId().equals(currentUserId) &&
@@ -45,6 +44,10 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
 
     @Override
     public Reservation findById(Long reservationId) {
+        return getReservationOrThrow(reservationId);
+    }
+
+    private Reservation getReservationOrThrow(Long reservationId) {
         return reservationRepository.findByIdWithDetails(reservationId)
                 .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
     }

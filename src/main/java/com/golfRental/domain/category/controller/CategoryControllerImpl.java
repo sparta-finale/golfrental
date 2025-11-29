@@ -2,9 +2,11 @@ package com.golfRental.domain.category.controller;
 
 import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.domain.category.dto.request.CategoryCreateRequest;
+import com.golfRental.domain.category.dto.request.CategoryUpdateRequest;
 import com.golfRental.domain.category.dto.response.CategoryCreateResponse;
 import com.golfRental.domain.category.dto.response.CategoryGetAllResponse;
 import com.golfRental.domain.category.dto.response.CategoryGetResponse;
+import com.golfRental.domain.category.dto.response.CategoryUpdateResponse;
 import com.golfRental.domain.category.message.CategorySuccessMessage;
 import com.golfRental.domain.category.service.command.CategoryCommandService;
 import com.golfRental.domain.category.service.query.CategoryQueryService;
@@ -60,6 +62,21 @@ public class CategoryControllerImpl implements CategoryController {
         return CommonApiResponse.success(
                 categoryGetResponse,
                 CategorySuccessMessage.CATEGORY_GET_SUCCESS
+        );
+    }
+
+    @Override
+    @PutMapping("/admin/categories/{categoryId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CommonApiResponse<CategoryUpdateResponse>> updateCategory(
+            @PathVariable Long categoryId,
+            @Valid @RequestBody CategoryUpdateRequest request
+    ) {
+        CategoryUpdateResponse response = categoryCommandService.updateCategory(categoryId, request);
+
+        return CommonApiResponse.success(
+                response,
+                CategorySuccessMessage.CATEGORY_UPDATED
         );
     }
 }

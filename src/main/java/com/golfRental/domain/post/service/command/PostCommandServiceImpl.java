@@ -67,9 +67,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 () -> new PostException(PostErrorCode.POST_INVALID_ID)
         );
 
-        User user = userQueryService.findById(userId);
-
-        if (!Objects.equals(post.getUser(), user)) {
+        if (!Objects.equals(post.getUser().getId(), userId)) {
             throw new PostException(PostErrorCode.POST_NOT_EQUAL_CREATOR);
         }
 

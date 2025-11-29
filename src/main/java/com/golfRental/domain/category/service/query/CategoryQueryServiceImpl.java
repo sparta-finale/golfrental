@@ -1,7 +1,10 @@
 package com.golfRental.domain.category.service.query;
 
 import com.golfRental.domain.category.dto.response.CategoryGetAllResponse;
+import com.golfRental.domain.category.dto.response.CategoryGetResponse;
 import com.golfRental.domain.category.entity.Category;
+import com.golfRental.domain.category.exception.CategoryErrorCode;
+import com.golfRental.domain.category.exception.CategoryException;
 import com.golfRental.domain.category.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,5 +35,23 @@ public class CategoryQueryServiceImpl implements CategoryQueryService {
                                 .build()
                 )
                 .toList();
+    }
+
+    @Override
+    public CategoryGetResponse getCategory(Long categoryId) {
+
+        Category category = findById(categoryId);
+
+        return CategoryGetResponse.builder()
+                .categoryId(category.getId())
+                .name(category.getName())
+                .build();
+    }
+
+    @Override
+    public Category findById(Long categoryId) {
+
+        return categoryRepository.findByIdAndDeletedAtIsNull(categoryId)
+                .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
     }
 }

@@ -1,7 +1,9 @@
 package com.golfRental.domain.category.service.command;
 
 import com.golfRental.domain.category.dto.request.CategoryCreateRequest;
+import com.golfRental.domain.category.dto.request.CategoryUpdateRequest;
 import com.golfRental.domain.category.dto.response.CategoryCreateResponse;
+import com.golfRental.domain.category.dto.response.CategoryUpdateResponse;
 import com.golfRental.domain.category.entity.Category;
 import com.golfRental.domain.category.exception.CategoryErrorCode;
 import com.golfRental.domain.category.exception.CategoryException;
@@ -35,6 +37,25 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
         return CategoryCreateResponse.builder()
                 .categoryId(saved.getId())
                 .name(saved.getName())
+                .build();
+    }
+
+    @Override
+    public CategoryUpdateResponse updateCategory(Long categoryId, CategoryUpdateRequest request) {
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
+
+        boolean exists = categoryRepository.existsByNameAndNotDeleted(request.getName());
+        if (exists && !category.getName().equals(request.getName())) {
+            throw new CategoryException(CategoryErrorCode.CATEGORY_DUPLICATED_NAME);
+        }
+
+        category.updateName(request.getName());
+
+        return CategoryUpdateResponse.builder()
+                .categoryId(category.getId())
+                .name(category.getName())
                 .build();
     }
 }

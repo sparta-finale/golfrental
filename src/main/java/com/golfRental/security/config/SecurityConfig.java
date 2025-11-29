@@ -18,8 +18,8 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 
 @Configuration
 @RequiredArgsConstructor
-@EnableWebSecurity  // Spring Security 활성화
-@EnableMethodSecurity(securedEnabled = true)  // @Secured 활성화
+@EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -31,18 +31,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilterBefore(jwtAuthenticationFilter, SecurityContextHolderAwareRequestFilter.class) // JwtAuthenticationFilter를 스프링 시큐리티 인증 프로세스 전에 진행
+                .addFilterBefore(jwtAuthenticationFilter, SecurityContextHolderAwareRequestFilter.class)
 
-                // JWT 사용 시 불필요한 기능들 비활성화
-                .formLogin(AbstractHttpConfigurer::disable)      // [SSR] 서버가 로그인 HTML 폼 렌더링
-                .httpBasic(AbstractHttpConfigurer::disable)      // [SSR] 인증 팝업
-                .logout(AbstractHttpConfigurer::disable)         // [SSR] 서버가 세션 무효화 후 리다이렉트
-                .rememberMe(AbstractHttpConfigurer::disable)     // 서버가 쿠키 발급하여 자동 로그인
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
+                .rememberMe(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(auth -> auth
 
@@ -51,20 +51,20 @@ public class SecurityConfig {
                                 "/api/v1/login")
                         .permitAll()
 
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/v1/categories"
-                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/categories")
+                        .permitAll()
 
-                        // 관리자 전용 API
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/v1/admin/**"
-                        ).hasRole("ADMIN")
+                        .requestMatchers("/open")
+                        .permitAll()
 
-                        .requestMatchers("/test").hasAuthority(UserRole.Authority.ADMIN) // `/test`는 ADMIN만 허용
-                        .requestMatchers("/open").permitAll() // `/open`은 아무나 접근 가능
-                        .anyRequest().authenticated() // 다른 요청들은 authentication 필요
+                        .requestMatchers("/api/v1/admin/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers("/test")
+                        .hasAuthority(UserRole.Authority.ADMIN)
+
+                        .anyRequest().authenticated()
                 )
                 .build();
     }
 }
-

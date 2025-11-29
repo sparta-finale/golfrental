@@ -2,11 +2,14 @@ package com.golfRental.domain.post.service.query;
 
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.post.dto.response.PostGetAllResponse;
+import com.golfRental.domain.post.dto.response.PostGetMyResponse;
 import com.golfRental.domain.post.dto.response.PostGetsResponse;
 import com.golfRental.domain.post.entity.Post;
 import com.golfRental.domain.post.exception.PostErrorCode;
 import com.golfRental.domain.post.exception.PostException;
 import com.golfRental.domain.post.repository.PostRepository;
+import com.golfRental.domain.user.entity.User;
+import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostQueryServiceImpl implements PostQueryService {
 
     private final PostRepository postRepository;
+    private final UserQueryService userQueryService;
 
     @Override
     public SliceResponse<PostGetAllResponse> getAll(Pageable pageable) {
@@ -66,6 +70,31 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .address(post.getUser().getAddress())
                 .nickname(post.getUser().getNickname())
                 .build();
+    }
+
+    @Override
+    public SliceResponse<PostGetMyResponse> getMyPost(Long userId, Pageable pageable) {
+        User user = userQueryService.findById(userId);
+
+        Slice<Post> posts = postRepository.findAllByUserOrderByStatus(user, pageable);
+
+        Slice<PostGetMyResponse> contents = posts.map(post -> PostGetMyResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .methodOfReceive(post.getMethodOfReceive())
+                .methodOfReturn(post.getMethodOfReturn())
+                .price(post.getPrice())
+                .deposit(post.getDeposit())
+                .dailyRate(post.getDailyRate())
+                .tradeStatus(post.getTradeStatus())
+                .userId(post.getUser().getId())
+                .username(post.getUser().getUsername())
+                .address(post.getUser().getAddress())
+                .nickname(post.getUser().getNickname())
+                .build());
+
+        return SliceResponse.fromSlice(contents);
     }
 
     @Override

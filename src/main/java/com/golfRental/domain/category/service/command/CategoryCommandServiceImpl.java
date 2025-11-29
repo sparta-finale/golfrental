@@ -58,4 +58,13 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
                 .name(category.getName())
                 .build();
     }
+
+    @Override
+    public void deleteCategory(Long categoryId) {
+
+        Category category = categoryRepository.findByIdAndDeletedAtIsNull(categoryId)
+                .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
+
+        category.softDelete();
+    }
 }

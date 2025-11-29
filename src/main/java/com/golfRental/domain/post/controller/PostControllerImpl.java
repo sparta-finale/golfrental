@@ -12,9 +12,9 @@ import com.golfRental.domain.post.service.query.PostQueryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -53,14 +53,8 @@ public class PostControllerImpl implements PostController {
     @GetMapping("/posts")
     public ResponseEntity<CommonApiResponse<SliceResponse<PostGetAllResponse>>> getAll(
             // 카테고리 추가 예정
-
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "createdAt") String sort,
-            @RequestParam(defaultValue = "DESC") Sort.Direction direction
+            @PageableDefault(page = 0, size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
-
         SliceResponse<PostGetAllResponse> posts = postQueryService.getAll(pageable);
 
         return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_ALL);
@@ -80,14 +74,8 @@ public class PostControllerImpl implements PostController {
     @GetMapping("/posts/my")
     public ResponseEntity<CommonApiResponse<SliceResponse<PostGetMyResponse>>> getMyPost(
             @AuthenticationPrincipal AuthUser authUser,
-
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "createdAt") String sort,
-            @RequestParam(defaultValue = "DESC") Sort.Direction direction
+            @PageableDefault(page = 0, size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
-
         SliceResponse<PostGetMyResponse> posts = postQueryService.getMyPost(authUser.getUserId(), pageable);
 
         return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_MY);

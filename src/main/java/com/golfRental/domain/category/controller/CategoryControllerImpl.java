@@ -79,4 +79,18 @@ public class CategoryControllerImpl implements CategoryController {
                 CategorySuccessMessage.CATEGORY_UPDATED
         );
     }
+
+    @Override
+    @DeleteMapping("/admin/categories/{categoryId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CommonApiResponse<Void>> deleteCategory(
+            @PathVariable Long categoryId
+    ) {
+        categoryCommandService.deleteCategory(categoryId);
+
+        return CommonApiResponse.success(
+                null,
+                CategorySuccessMessage.CATEGORY_DELETED
+        );
+    }
 }

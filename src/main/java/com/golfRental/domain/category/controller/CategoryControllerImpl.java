@@ -4,6 +4,7 @@ import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.domain.category.dto.request.CategoryCreateRequest;
 import com.golfRental.domain.category.dto.response.CategoryCreateResponse;
 import com.golfRental.domain.category.dto.response.CategoryGetAllResponse;
+import com.golfRental.domain.category.dto.response.CategoryGetResponse;
 import com.golfRental.domain.category.message.CategorySuccessMessage;
 import com.golfRental.domain.category.service.command.CategoryCommandService;
 import com.golfRental.domain.category.service.query.CategoryQueryService;
@@ -46,6 +47,19 @@ public class CategoryControllerImpl implements CategoryController {
         return CommonApiResponse.success(
                 categoryGetAllResponses,
                 CategorySuccessMessage.CATEGORY_LIST_FETCHED
+        );
+    }
+
+    @Override
+    @GetMapping("/categories/{categoryId}")
+    public ResponseEntity<CommonApiResponse<CategoryGetResponse>> getCategoryById(
+            @PathVariable Long categoryId
+    ) {
+        CategoryGetResponse categoryGetResponse = categoryQueryService.getCategory(categoryId);
+
+        return CommonApiResponse.success(
+                categoryGetResponse,
+                CategorySuccessMessage.CATEGORY_GET_SUCCESS
         );
     }
 }

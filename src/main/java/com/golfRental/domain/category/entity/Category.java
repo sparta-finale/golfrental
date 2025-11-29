@@ -28,4 +28,8 @@ public class Category extends BaseEntity {
     public void updateName(String name) {
         this.name = name;
     }
+
+    public void softDelete() {
+        this.delete();
+    }
 }

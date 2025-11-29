@@ -11,4 +11,6 @@ public interface CategoryCommandService {
     CategoryCreateResponse createCategory(CategoryCreateRequest request);
 
     CategoryUpdateResponse updateCategory(Long categoryId, CategoryUpdateRequest request);
+
+    void deleteCategory(Long categoryId);
 }

@@ -49,4 +49,12 @@ public interface CategoryController {
     ResponseEntity<CommonApiResponse<CategoryUpdateResponse>>
     updateCategory(Long categoryId, CategoryUpdateRequest categoryUpdateRequest);
 
+    /**
+     * 카테고리 삭제 API (관리자 전용)
+     *
+     * @param categoryId 삭제할 카테고리 ID
+     * @return void
+     */
+    ResponseEntity<CommonApiResponse<Void>>
+    deleteCategory(Long categoryId);
 }

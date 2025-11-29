@@ -43,15 +43,15 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
     @Override
     public CategoryUpdateResponse updateCategory(Long categoryId, CategoryUpdateRequest request) {
 
-        Category category = categoryRepository.findById(categoryId)
+        Category category = categoryRepository.findByIdAndDeletedAtIsNull(categoryId)
                 .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
 
-        boolean exists = categoryRepository.existsByNameAndNotDeleted(request.getName());
-        if (exists && !category.getName().equals(request.getName())) {
-            throw new CategoryException(CategoryErrorCode.CATEGORY_DUPLICATED_NAME);
+        if (!category.getName().equals(request.getName())) {
+            if (categoryRepository.existsByNameAndNotDeleted(request.getName())) {
+                throw new CategoryException(CategoryErrorCode.CATEGORY_DUPLICATED_NAME);
+            }
+            category.updateName(request.getName());
         }
-
-        category.updateName(request.getName());
 
         return CategoryUpdateResponse.builder()
                 .categoryId(category.getId())

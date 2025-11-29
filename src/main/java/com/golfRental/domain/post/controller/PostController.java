@@ -24,7 +24,7 @@ public interface PostController {
             // 카테고리 추가 예정
 
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam int size,
+            @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sort,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction
     );

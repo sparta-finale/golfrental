@@ -13,8 +13,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,25 +26,23 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         Slice<Post> posts = postRepository.findAllOrderByStatus(pageable);
 
-        List<PostGetAllResponse> content = posts.stream()
-                .map(post -> PostGetAllResponse.builder()
-                        .id(post.getId())
-                        .title(post.getTitle())
-                        .content(post.getContent())
-                        .methodOfReceive(post.getMethodOfReceive())
-                        .methodOfReturn(post.getMethodOfReturn())
-                        .price(post.getPrice())
-                        .deposit(post.getDeposit())
-                        .dailyRate(post.getDailyRate())
-                        .tradeStatus(post.getTradeStatus())
-                        .userId(post.getUser().getId())
-                        .username(post.getUser().getUsername())
-                        .address(post.getUser().getAddress())
-                        .nickname(post.getUser().getNickname())
-                        .build()
-                ).toList();
+        Slice<PostGetAllResponse> content = posts.map(post -> PostGetAllResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .methodOfReceive(post.getMethodOfReceive())
+                .methodOfReturn(post.getMethodOfReturn())
+                .price(post.getPrice())
+                .deposit(post.getDeposit())
+                .dailyRate(post.getDailyRate())
+                .tradeStatus(post.getTradeStatus())
+                .userId(post.getUser().getId())
+                .username(post.getUser().getUsername())
+                .address(post.getUser().getAddress())
+                .nickname(post.getUser().getNickname())
+                .build());
 
-        return new SliceResponse<>(content, posts.getSize(), posts.getNumber(), posts.hasNext());
+        return SliceResponse.fromSlice(content);
     }
 
     @Override

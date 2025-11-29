@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 
 @Builder
 public record PostGetAllResponse(
-        
         Long id,
         String title,
         String content,

@@ -1,4 +1,10 @@
 package com.golfRental.domain.review.exception;
 
-public class ReviewException {
+import com.golfRental.common.exception.GlobalException;
+
+public class ReviewException extends GlobalException {
+
+    public ReviewException(ReviewErrorCode errorCode) {
+        super(errorCode);
+    }
 }

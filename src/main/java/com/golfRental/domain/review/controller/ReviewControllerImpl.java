@@ -1,38 +1,34 @@
 package com.golfRental.domain.review.controller;
 
+
 import com.golfRental.common.response.CommonApiResponse;
+import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.review.dto.request.ReviewCreateRequest;
 import com.golfRental.domain.review.dto.response.ReviewResponse;
 import com.golfRental.domain.review.service.command.ReviewCommandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/v1/reviews")
 @RequiredArgsConstructor
-public class ReviewCommandController implements ReviewController{
+public class ReviewControllerImpl implements ReviewController {
 
     private final ReviewCommandService reviewCommandService;
 
-    /**
-     * 리뷰 생성
-     * TODO: Spring Security 적용 후 @AuthenticationPrincipal로 currentUserId 자동 주입
-     */
+    @Override
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public CommonApiResponse<ReviewResponse> createReview(
-            @Valid @RequestBody ReviewCreateRequest request,
-            @RequestHeader("X-User-Id") Long currentUserId  // 임시: 헤더로 사용자 ID 전달
+    public ResponseEntity<CommonApiResponse<ReviewResponse>> createReview(
+            @AuthenticationPrincipal AuthUser authUser,
+            @Valid @RequestBody ReviewCreateRequest request
     ) {
-        log.info("POST /api/reviews - reservationId: {}, currentUserId: {}",
-                request.getReservationId(), currentUserId);
-
-        ReviewResponse response = reviewCommandService.createReview(request, currentUserId);
-
-        return CommonApiResponse.success(response, "리뷰가 성공적으로 생성되었습니다.");
+        ReviewResponse response = reviewCommandService.createReview(authUser.getUserId(), request);
+        return CommonApiResponse.created(response, "리뷰 생성 성공");
     }
 }

@@ -5,5 +5,6 @@ import com.golfRental.domain.review.dto.response.ReviewResponse;
 
 public interface ReviewCommandService {
 
-    ReviewResponse createReview(Long userId, ReviewCreateRequest request);
+    //리뷰 생성
+    ReviewResponse createReview(Long currentUserId, ReviewCreateRequest request);
 }

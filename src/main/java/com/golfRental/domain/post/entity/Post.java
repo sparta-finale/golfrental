@@ -1,6 +1,7 @@
 package com.golfRental.domain.post.entity;
 
 import com.golfRental.common.entity.BaseEntity;
+import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.enums.MethodOfReceiveReturn;
 import com.golfRental.domain.post.enums.TradeStatus;
 import com.golfRental.domain.user.entity.User;
@@ -71,5 +72,17 @@ public class Post extends BaseEntity {
         this.dailyRate = dailyRate;
         this.tradeStatus = TradeStatus.BEFORE_TRANSACTION;
         this.user = user;
+    }
+
+    public Post update(PostUpdateRequest postUpdateRequest) {
+        this.title = postUpdateRequest.getTitle();
+        this.content = postUpdateRequest.getContent();
+        this.methodOfReceive = postUpdateRequest.getMethodOfReceive();
+        this.methodOfReturn = postUpdateRequest.getMethodOfReturn();
+        this.price = postUpdateRequest.getPrice();
+        this.deposit = postUpdateRequest.getDeposit();
+        this.dailyRate = postUpdateRequest.getDailyRate();
+
+        return this;
     }
 }

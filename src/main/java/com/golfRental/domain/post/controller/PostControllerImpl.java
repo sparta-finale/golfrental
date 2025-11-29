@@ -4,19 +4,18 @@ import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
-import com.golfRental.domain.post.dto.response.PostCreateResponse;
-import com.golfRental.domain.post.dto.response.PostGetAllResponse;
-import com.golfRental.domain.post.dto.response.PostGetMyResponse;
-import com.golfRental.domain.post.dto.response.PostGetsResponse;
+import com.golfRental.domain.post.dto.request.PostUpdateRequest;
+import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
+import com.golfRental.domain.post.dto.response.*;
 import com.golfRental.domain.post.message.PostSuccessMessage;
 import com.golfRental.domain.post.service.command.PostCommandService;
 import com.golfRental.domain.post.service.query.PostQueryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -55,14 +54,8 @@ public class PostControllerImpl implements PostController {
     @GetMapping("/posts")
     public ResponseEntity<CommonApiResponse<SliceResponse<PostGetAllResponse>>> getAll(
             // 카테고리 추가 예정
-
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "createdAt") String sort,
-            @RequestParam(defaultValue = "DESC") Sort.Direction direction
+            @PageableDefault(page = 0, size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
-
         SliceResponse<PostGetAllResponse> posts = postQueryService.getAll(pageable);
 
         return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_ALL);
@@ -82,16 +75,34 @@ public class PostControllerImpl implements PostController {
     @GetMapping("/posts/my")
     public ResponseEntity<CommonApiResponse<SliceResponse<PostGetMyResponse>>> getMyPost(
             @AuthenticationPrincipal AuthUser authUser,
-
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "createdAt") String sort,
-            @RequestParam(defaultValue = "DESC") Sort.Direction direction
+            @PageableDefault(page = 0, size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
-
         SliceResponse<PostGetMyResponse> posts = postQueryService.getMyPost(authUser.getUserId(), pageable);
 
         return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_MY);
+    }
+
+    @Override
+    @PutMapping("/posts/{postId}")
+    public ResponseEntity<CommonApiResponse<PostUpdateResponse>> updatePost(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long postId,
+            @Valid @RequestBody PostUpdateRequest postUpdateRequest
+    ) {
+        PostUpdateResponse postUpdateResponse = postCommandService.updatePost(authUser.getUserId(), postId, postUpdateRequest);
+
+        return CommonApiResponse.success(postUpdateResponse, PostSuccessMessage.POST_UPDATED);
+    }
+
+    @Override
+    @PatchMapping("/posts/{postId}")
+    public ResponseEntity<CommonApiResponse<PostUpdateStatusResponse>> updateStatusPost(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long postId,
+            @Valid @RequestBody PostUpdateStatusRequest postUpdateStatusRequest
+    ) {
+        PostUpdateStatusResponse postUpdateStatusResponse = postCommandService.updateStatusPost(authUser.getUserId(), postId, postUpdateStatusRequest);
+
+        return CommonApiResponse.success(postUpdateStatusResponse, PostSuccessMessage.POST_UPDATED_STATUS);
     }
 }

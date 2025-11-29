@@ -108,4 +108,17 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .tradeStatus(post.getTradeStatus())
                 .build();
     }
+
+    @Override
+    public void deletePost(Long userId, Long postId) {
+        Post post = postRepository.findByIdWithUser(postId).orElseThrow(
+                () -> new PostException(PostErrorCode.POST_INVALID_ID)
+        );
+
+        if (!Objects.equals(post.getUser().getId(), userId)) {
+            throw new PostException(PostErrorCode.POST_NOT_EQUAL_CREATOR);
+        }
+
+        post.delete();
+    }
 }

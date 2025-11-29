@@ -1,10 +1,9 @@
 package com.golfRental.domain.review.entity;
 
 import com.golfRental.common.entity.BaseEntity;
+import com.golfRental.domain.reservation.entity.Reservation;
 import com.golfRental.domain.user.entity.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,10 +21,16 @@ public class Review extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User user;  // 평가하는 유저 (작성자)
 
-    @Min(value = 1, message = "점수는 1점 이상이어야 합니다.")
-    @Max(value = 5, message = "점수는 5점 이하여야 합니다.")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_user_id", nullable = false)
+    private User targetUser;  // 평가받는 유저
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reservation_id", nullable = false, unique = true)
+    private Reservation reservation;
+
     @Column(name = "user_score", nullable = false)
     private Integer userScore;
 
@@ -33,8 +38,10 @@ public class Review extends BaseEntity {
     private String content;
 
     @Builder
-    private Review(User user, Integer userScore, String content) {
+    private Review(User user, User targetUser, Reservation reservation, Integer userScore, String content) {
         this.user = user;
+        this.targetUser = targetUser;
+        this.reservation = reservation;
         this.userScore = userScore;
         this.content = content;
     }

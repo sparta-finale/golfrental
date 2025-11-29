@@ -4,10 +4,8 @@ import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
-import com.golfRental.domain.post.dto.response.PostCreateResponse;
-import com.golfRental.domain.post.dto.response.PostGetAllResponse;
-import com.golfRental.domain.post.dto.response.PostGetMyResponse;
-import com.golfRental.domain.post.dto.response.PostGetsResponse;
+import com.golfRental.domain.post.dto.request.PostUpdateRequest;
+import com.golfRental.domain.post.dto.response.*;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 
@@ -62,5 +60,17 @@ public interface PostController {
     ResponseEntity<CommonApiResponse<SliceResponse<PostGetMyResponse>>> getMyPost(
             AuthUser authUser,
             int page, int size, String sort, Sort.Direction direction
+    );
+
+    /**
+     * 게시물 수정 API
+     *
+     * @param authUser 토큰 정보
+     * @param postId   게시물 ID
+     * @return PostUpdateResponse
+     */
+    ResponseEntity<CommonApiResponse<PostUpdateResponse>> updatePost(
+            AuthUser authUser,
+            Long postId, PostUpdateRequest postUpdateRequest
     );
 }

@@ -4,10 +4,8 @@ import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
-import com.golfRental.domain.post.dto.response.PostCreateResponse;
-import com.golfRental.domain.post.dto.response.PostGetAllResponse;
-import com.golfRental.domain.post.dto.response.PostGetMyResponse;
-import com.golfRental.domain.post.dto.response.PostGetsResponse;
+import com.golfRental.domain.post.dto.request.PostUpdateRequest;
+import com.golfRental.domain.post.dto.response.*;
 import com.golfRental.domain.post.message.PostSuccessMessage;
 import com.golfRental.domain.post.service.command.PostCommandService;
 import com.golfRental.domain.post.service.query.PostQueryService;
@@ -93,5 +91,17 @@ public class PostControllerImpl implements PostController {
         SliceResponse<PostGetMyResponse> posts = postQueryService.getMyPost(authUser.getUserId(), pageable);
 
         return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_MY);
+    }
+
+    @Override
+    @PutMapping("/posts/{postId}")
+    public ResponseEntity<CommonApiResponse<PostUpdateResponse>> updatePost(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long postId,
+            @Valid @RequestBody PostUpdateRequest postUpdateRequest
+    ) {
+        PostUpdateResponse postUpdateResponse = postCommandService.updatePost(authUser.getUserId(), postId, postUpdateRequest);
+
+        return CommonApiResponse.success(postUpdateResponse, PostSuccessMessage.POST_UPDATED);
     }
 }

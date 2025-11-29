@@ -1,6 +1,7 @@
 package com.golfRental.domain.notification.controller;
 
 import com.golfRental.common.response.CommonApiResponse;
+import com.golfRental.common.response.PageResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.notification.dto.response.NotificationResponse;
 import com.golfRental.domain.notification.service.query.NotificationQueryService;
@@ -24,11 +25,11 @@ public class NotificationControllerImpl implements NotificationController {
 
     @Override
     @GetMapping
-    public ResponseEntity<CommonApiResponse<Page<NotificationResponse>>> getNotifications(
+    public ResponseEntity<CommonApiResponse<PageResponse<NotificationResponse>>> getNotifications(
             @AuthenticationPrincipal AuthUser authUser,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<NotificationResponse> response = notificationQueryService.findByReceiverId(authUser.getUserId(), pageable);
-        return CommonApiResponse.success(response, "알림 목록 조회 성공");
+        return CommonApiResponse.pageSuccess(response, "알림 목록 조회 성공");
     }
 }

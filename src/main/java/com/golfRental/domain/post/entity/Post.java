@@ -74,7 +74,7 @@ public class Post extends BaseEntity {
         this.user = user;
     }
 
-    public Post update(PostUpdateRequest postUpdateRequest) {
+    public void update(PostUpdateRequest postUpdateRequest) {
         this.title = postUpdateRequest.getTitle();
         this.content = postUpdateRequest.getContent();
         this.methodOfReceive = postUpdateRequest.getMethodOfReceive();
@@ -82,7 +82,9 @@ public class Post extends BaseEntity {
         this.price = postUpdateRequest.getPrice();
         this.deposit = postUpdateRequest.getDeposit();
         this.dailyRate = postUpdateRequest.getDailyRate();
+    }
 
-        return this;
+    public void updateStatus(TradeStatus tradeStatus) {
+        this.tradeStatus = tradeStatus;
     }
 }

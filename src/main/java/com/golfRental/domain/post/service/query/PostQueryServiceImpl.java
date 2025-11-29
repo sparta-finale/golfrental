@@ -99,7 +99,7 @@ public class PostQueryServiceImpl implements PostQueryService {
 
     @Override
     public Post findById(Long postId) {
-        return postRepository.findById(postId).orElseThrow(
+        return postRepository.findByIdWithUser(postId).orElseThrow(
                 () -> new PostException(PostErrorCode.POST_INVALID_ID)
         );
     }

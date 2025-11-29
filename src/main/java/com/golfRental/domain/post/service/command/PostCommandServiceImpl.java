@@ -2,8 +2,10 @@ package com.golfRental.domain.post.service.command;
 
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
+import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
 import com.golfRental.domain.post.dto.response.PostCreateResponse;
 import com.golfRental.domain.post.dto.response.PostUpdateResponse;
+import com.golfRental.domain.post.dto.response.PostUpdateStatusResponse;
 import com.golfRental.domain.post.entity.Post;
 import com.golfRental.domain.post.exception.PostErrorCode;
 import com.golfRental.domain.post.exception.PostException;
@@ -87,6 +89,23 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .username(post.getUser().getUsername())
                 .address(post.getUser().getAddress())
                 .nickname(post.getUser().getNickname())
+                .build();
+    }
+
+    @Override
+    public PostUpdateStatusResponse updateStatusPost(Long userId, Long postId, PostUpdateStatusRequest postUpdateStatusRequest) {
+        Post post = postRepository.findByIdWithUser(postId).orElseThrow(
+                () -> new PostException(PostErrorCode.POST_INVALID_ID)
+        );
+
+        if (!Objects.equals(post.getUser().getId(), userId)) {
+            throw new PostException(PostErrorCode.POST_NOT_EQUAL_CREATOR);
+        }
+
+        post.updateStatus(postUpdateStatusRequest.getTradeStatus());
+
+        return PostUpdateStatusResponse.builder()
+                .tradeStatus(post.getTradeStatus())
                 .build();
     }
 }

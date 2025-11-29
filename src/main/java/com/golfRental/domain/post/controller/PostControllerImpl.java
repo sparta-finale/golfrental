@@ -5,6 +5,7 @@ import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
+import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
 import com.golfRental.domain.post.dto.response.*;
 import com.golfRental.domain.post.message.PostSuccessMessage;
 import com.golfRental.domain.post.service.command.PostCommandService;
@@ -91,5 +92,17 @@ public class PostControllerImpl implements PostController {
         PostUpdateResponse postUpdateResponse = postCommandService.updatePost(authUser.getUserId(), postId, postUpdateRequest);
 
         return CommonApiResponse.success(postUpdateResponse, PostSuccessMessage.POST_UPDATED);
+    }
+
+    @Override
+    @PatchMapping("/posts/{postId}")
+    public ResponseEntity<CommonApiResponse<PostUpdateStatusResponse>> updateStatusPost(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long postId,
+            @Valid @RequestBody PostUpdateStatusRequest postUpdateStatusRequest
+    ) {
+        PostUpdateStatusResponse postUpdateStatusResponse = postCommandService.updateStatusPost(authUser.getUserId(), postId, postUpdateStatusRequest);
+
+        return CommonApiResponse.success(postUpdateStatusResponse, PostSuccessMessage.POST_UPDATED_STATUS);
     }
 }

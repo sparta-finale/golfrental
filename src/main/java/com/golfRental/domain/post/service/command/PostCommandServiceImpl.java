@@ -65,13 +65,7 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     @Override
     public PostUpdateResponse updatePost(Long userId, Long postId, PostUpdateRequest postUpdateRequest) {
-        Post post = postRepository.findByIdWithUser(postId).orElseThrow(
-                () -> new PostException(PostErrorCode.POST_INVALID_ID)
-        );
-
-        if (!Objects.equals(post.getUser().getId(), userId)) {
-            throw new PostException(PostErrorCode.POST_NOT_EQUAL_CREATOR);
-        }
+        Post post = findPostAndCheckOwner(userId, postId);
 
         post.update(postUpdateRequest);
 
@@ -94,6 +88,23 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     @Override
     public PostUpdateStatusResponse updateStatusPost(Long userId, Long postId, PostUpdateStatusRequest postUpdateStatusRequest) {
+        Post post = findPostAndCheckOwner(userId, postId);
+
+        post.updateStatus(postUpdateStatusRequest.getTradeStatus());
+
+        return PostUpdateStatusResponse.builder()
+                .tradeStatus(post.getTradeStatus())
+                .build();
+    }
+
+    @Override
+    public void deletePost(Long userId, Long postId) {
+        Post post = findPostAndCheckOwner(userId, postId);
+
+        post.delete();
+    }
+
+    private Post findPostAndCheckOwner(Long userId, Long postId) {
         Post post = postRepository.findByIdWithUser(postId).orElseThrow(
                 () -> new PostException(PostErrorCode.POST_INVALID_ID)
         );
@@ -102,10 +113,6 @@ public class PostCommandServiceImpl implements PostCommandService {
             throw new PostException(PostErrorCode.POST_NOT_EQUAL_CREATOR);
         }
 
-        post.updateStatus(postUpdateStatusRequest.getTradeStatus());
-
-        return PostUpdateStatusResponse.builder()
-                .tradeStatus(post.getTradeStatus())
-                .build();
+        return post;
     }
 }

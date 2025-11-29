@@ -6,7 +6,6 @@ import com.golfRental.domain.notification.entity.Notification;
 import com.golfRental.domain.notification.exception.NotificationErrorCode;
 import com.golfRental.domain.notification.exception.NotificationException;
 import com.golfRental.domain.notification.repository.NotificationRepository;
-import com.golfRental.domain.notification.service.query.NotificationQueryService;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class NotificationCommandServiceImpl implements NotificationCommandService {
 
     private final NotificationRepository notificationRepository;
-    private final NotificationQueryService notificationQueryService;
     private final UserQueryService userQueryService;
 
     @Override
@@ -44,12 +42,33 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
 
     @Override
     public void markAsRead(Long notificationId, Long userId) {
-        Notification notification = notificationQueryService.findById(notificationId);
-
-        if (!notification.getReceiver().getId().equals(userId)) {
-            throw new NotificationException(NotificationErrorCode.NOTIFICATION_ACCESS_DENIED);
-        }
+        Notification notification = findByIdWithAccessCheck(notificationId, userId);
 
         notification.markAsRead();
+    }
+
+    @Override
+    public void deleteNotification(Long notificationId, Long userId) {
+        Notification notification = findByIdWithAccessCheck(notificationId, userId);
+        notification.delete();
+    }
+
+
+    //조회 권한메서드
+    /*
+     * markAsRead와 deleteNotification에서 반복 사용되는 부분을 메서드화 하였음
+     */
+    private Notification findByIdWithAccessCheck(Long notificationId, Long userId) {
+        Notification notification = notificationRepository
+                .findByIdAndDeletedAtIsNull(notificationId)
+                .orElseThrow(() -> new NotificationException(
+                        NotificationErrorCode.NOTIFICATION_NOT_FOUND));
+
+        if (!notification.getReceiver().getId().equals(userId)) {
+            throw new NotificationException(
+                    NotificationErrorCode.NOTIFICATION_ACCESS_DENIED);
+        }
+
+        return notification;
     }
 }

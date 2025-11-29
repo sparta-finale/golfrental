@@ -88,8 +88,7 @@ public class CategoryControllerImpl implements CategoryController {
     ) {
         categoryCommandService.deleteCategory(categoryId);
 
-        return CommonApiResponse.success(
-                null,
+        return CommonApiResponse.deleteSuccess(
                 CategorySuccessMessage.CATEGORY_DELETED
         );
     }

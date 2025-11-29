@@ -37,4 +37,12 @@ public interface PostCommandService {
      * @return PostUpdateStatusResponse
      */
     PostUpdateStatusResponse updateStatusPost(Long userId, Long postId, PostUpdateStatusRequest postUpdateStatusRequest);
+
+    /**
+     * 게시물 삭제 API
+     *
+     * @param userId 인증된 유저 ID
+     * @param postId 게시물 ID
+     */
+    void deletePost(Long userId, Long postId);
 }

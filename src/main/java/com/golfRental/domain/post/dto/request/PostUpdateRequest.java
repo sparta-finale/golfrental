@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 @Getter
 public class PostUpdateRequest {
-    
+
     @NotBlank(message = "제목은 필수 입력값입니다.")
     @Size(max = 100, message = "제목은 최대 100자까지 가능합니다.")
     private String title;
@@ -37,4 +37,7 @@ public class PostUpdateRequest {
     @NotNull(message = "일일 이용료는 필수 입력값입니다.")
     @Min(value = 0, message = "금액은 0원 이상 입력해야 합니다.")
     private BigDecimal dailyRate;
+
+    @NotNull(message = "카테고리는 필수 입력값입니다.")
+    private Long categoryId;
 }

@@ -6,6 +6,7 @@ import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
 import com.golfRental.domain.post.dto.response.PostCreateResponse;
 import com.golfRental.domain.post.dto.response.PostGetAllResponse;
+import com.golfRental.domain.post.dto.response.PostGetsResponse;
 import com.golfRental.domain.post.message.PostSuccessMessage;
 import com.golfRental.domain.post.service.command.PostCommandService;
 import com.golfRental.domain.post.service.query.PostQueryService;
@@ -64,5 +65,15 @@ public class PostControllerImpl implements PostController {
         SliceResponse<PostGetAllResponse> posts = postQueryService.getAll(pageable);
 
         return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_ALL);
+    }
+
+    @Override
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<CommonApiResponse<PostGetsResponse>> getPost(
+            @PathVariable Long postId
+    ) {
+        PostGetsResponse postGetsResponse = postQueryService.getPost(postId);
+
+        return CommonApiResponse.success(postGetsResponse, PostSuccessMessage.POST_GETS);
     }
 }

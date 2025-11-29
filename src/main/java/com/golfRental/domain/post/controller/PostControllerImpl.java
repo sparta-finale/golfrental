@@ -105,4 +105,15 @@ public class PostControllerImpl implements PostController {
 
         return CommonApiResponse.success(postUpdateStatusResponse, PostSuccessMessage.POST_UPDATED_STATUS);
     }
+
+    @Override
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<CommonApiResponse<Void>> deletePost(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long postId
+    ) {
+        postCommandService.deletePost(authUser.getUserId(), postId);
+
+        return CommonApiResponse.success(null, PostSuccessMessage.POST_DELETED);
+    }
 }

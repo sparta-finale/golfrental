@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("""
-                    SELECT p FROM Post p
+                    SELECT p FROM Post p JOIN FETCH p.user
                     ORDER BY
                         CASE p.tradeStatus
                             WHEN 'BEFORE_TRANSACTION' THEN 0

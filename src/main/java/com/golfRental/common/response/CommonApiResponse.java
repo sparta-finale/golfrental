@@ -4,6 +4,7 @@ package com.golfRental.common.response;
 import com.golfRental.common.exception.ErrorCode;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -93,6 +94,23 @@ public class CommonApiResponse<T> {
     }
 
     public static <T> ResponseEntity<CommonApiResponse<PageResponse<T>>> pageSuccess(PageResponse<T> response, String message) {
+        return ResponseEntity.ok(new CommonApiResponse<>(true, message, response, LocalDateTime.now()));
+    }
+
+    /**
+     * 성공적인 요청에 대한 슬라이스 응답을 반환하는 메서드
+     * 주어진 Slice 데이터를 SliceResponse로 변환하여 HTTP 200 OK 상태 코드와 메세지를 함께 응답을 반환
+     *
+     * @param slice   슬라이스로 조회된 데이터
+     * @param message 응답 메세지
+     * @return HTTP 200 OK 응답과 함께 SliceResponse가 포함된 ApiResponse
+     */
+    public static <T> ResponseEntity<CommonApiResponse<SliceResponse<T>>> sliceSuccess(Slice<T> slice, String message) {
+        SliceResponse<T> data = SliceResponse.fromSlice(slice);
+        return ResponseEntity.ok(new CommonApiResponse<>(true, message, data, LocalDateTime.now()));
+    }
+
+    public static <T> ResponseEntity<CommonApiResponse<SliceResponse<T>>> sliceSuccess(SliceResponse<T> response, String message) {
         return ResponseEntity.ok(new CommonApiResponse<>(true, message, response, LocalDateTime.now()));
     }
 }

@@ -1,5 +1,6 @@
 package com.golfRental.domain.post.repository;
 
+import com.golfRental.domain.category.entity.Category;
 import com.golfRental.domain.post.entity.Post;
 import com.golfRental.domain.user.entity.User;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +14,9 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("""
-                    SELECT p FROM Post p 
+                    SELECT p FROM Post p
                                 JOIN FETCH p.user
-                                JOIN FETCH p.category 
+                                JOIN FETCH p.category
                     WHERE p.deletedAt IS NULL
                     ORDER BY
                         CASE p.tradeStatus
@@ -30,9 +31,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findByIdWithUserAndCategory(@Param("postId") Long postId);
 
     @Query("""
-                    SELECT p FROM Post p 
-                                JOIN FETCH p.user 
-                                JOIN FETCH p.category 
+                    SELECT p FROM Post p
+                                JOIN FETCH p.user
+                                JOIN FETCH p.category
                     WHERE p.user = :user AND p.deletedAt IS NULL
                     ORDER BY
                         CASE p.tradeStatus
@@ -42,4 +43,18 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                         END ASC
             """)
     Slice<Post> findAllByUserOrderByStatus(@Param("user") User user, Pageable pageable);
+
+    @Query("""
+                    SELECT p FROM Post p
+                                JOIN FETCH p.user
+                                JOIN FETCH p.category
+                    WHERE p.category = :category AND p.deletedAt IS NULL
+                    ORDER BY
+                        CASE p.tradeStatus
+                            WHEN 'BEFORE_TRANSACTION' THEN 0
+                            WHEN 'TRADING' THEN 1
+                            WHEN 'TRANSACTION_COMPLETED' THEN 2
+                        END ASC
+            """)
+    Slice<Post> findAllByCategoryOrderByStatus(@Param("category") Category category, Pageable pageable);
 }

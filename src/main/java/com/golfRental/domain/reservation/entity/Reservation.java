@@ -116,4 +116,18 @@ public class Reservation extends BaseEntity {
 
         this.status = ReservationStatus.CANCELLED;
     }
+
+    // 예약 대여 시작
+    public void startRental() {
+
+        if (this.status == ReservationStatus.RENTED) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_ALREADY_RENTED);
+        }
+
+        if (this.status != ReservationStatus.APPROVED) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_CANNOT_START);
+        }
+
+        this.status = ReservationStatus.RENTED;
+    }
 }

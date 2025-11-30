@@ -61,4 +61,8 @@ public class Reservation extends BaseEntity {
         this.hostUser = hostUser;
         this.guestUser = guestUser;
     }
+
+    public void updateStatus(ReservationStatus status) {
+        this.status = status;
+    }
 }

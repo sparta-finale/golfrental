@@ -71,4 +71,14 @@ public class ReviewControllerImpl implements ReviewController {
         ReviewResponse response = reviewCommandService.updateReview(authUser.getUserId(), reviewId, request);
         return CommonApiResponse.success(response, "리뷰 수정 성공");
     }
+
+    @Override
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<CommonApiResponse<Void>> deleteReview(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long reviewId
+    ) {
+        reviewCommandService.deleteReview(authUser.getUserId(), reviewId);
+        return CommonApiResponse.success(null, "리뷰 삭제 성공");
+    }
 }

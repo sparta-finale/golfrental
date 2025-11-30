@@ -43,6 +43,7 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
         });
 
         emitter.onError((e) -> {
+            log.warn("SSE emitter에 오류가 발생했습니다. userId={}", userId, e);
             sseEmitterRepository.deleteById(userId);
         });
 

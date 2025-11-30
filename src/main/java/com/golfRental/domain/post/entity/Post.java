@@ -24,18 +24,18 @@ public class Post extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String content;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     private MethodOfReceiveReturn methodOfReceive;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     private MethodOfReceiveReturn methodOfReturn;
 
     @Column(nullable = false)
@@ -48,8 +48,11 @@ public class Post extends BaseEntity {
     private BigDecimal dailyRate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     private TradeStatus tradeStatus;
+
+    @Column(nullable = false)
+    private boolean favorite;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -73,6 +76,7 @@ public class Post extends BaseEntity {
         this.deposit = deposit;
         this.dailyRate = dailyRate;
         this.tradeStatus = TradeStatus.BEFORE_TRANSACTION;
+        this.favorite = false;
         this.user = user;
         this.category = category;
     }

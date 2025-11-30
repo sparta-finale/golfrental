@@ -42,7 +42,7 @@ public interface ReservationController {
      * @param authUser 로그인 사용자 정보
      * @param page     페이지 번호
      * @param size     페이지 크기
-     * @return SliceResponse<ReservationGetAllResponse>
+     * @return ResponseEntity<CommonApiResponse < SliceResponse < ReservationGetAllResponse>>>
      */
     ResponseEntity<CommonApiResponse<SliceResponse<ReservationGetAllResponse>>> getMyReservations(
             AuthUser authUser,
@@ -55,7 +55,7 @@ public interface ReservationController {
      *
      * @param reservationId 승인할 예약 ID
      * @param authUser      로그인 사용자 정보
-     * @return ReservationUpdateStatusResponse
+     * @return ResponseEntity<CommonApiResponse < ReservationUpdateStatusResponse>>
      */
     ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> approveReservation(
             Long reservationId,
@@ -67,9 +67,21 @@ public interface ReservationController {
      *
      * @param reservationId 거절할 예약 ID
      * @param authUser      로그인 사용자 정보
-     * @return ReservationUpdateStatusResponse
+     * @return ResponseEntity<CommonApiResponse < ReservationUpdateStatusResponse>>
      */
     ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> rejectReservation(
+            Long reservationId,
+            AuthUser authUser
+    );
+
+    /**
+     * 예약 취소
+     *
+     * @param reservationId 취소할 예약 ID
+     * @param authUser      로그인 사용자 정보
+     * @return ResponseEntity<CommonApiResponse < ReservationUpdateStatusResponse>>
+     */
+    ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> cancelReservation(
             Long reservationId,
             AuthUser authUser
     );

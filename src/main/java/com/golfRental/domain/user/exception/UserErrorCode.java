@@ -21,7 +21,7 @@ public enum UserErrorCode implements ErrorCode {
     USER_DUPLICATE_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "이미 사용 중인 전화번호입니다."),
 
     // updatePassword
-    USER_NOT_EQUAL_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+    USER_NOT_EQUAL_PASSWORD(HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다."),
     USER_EQUAL_PASSWORD(HttpStatus.BAD_REQUEST, "수정하려는 비밀번호가 이전과 동일합니다.");
 
     private final HttpStatus httpStatus;

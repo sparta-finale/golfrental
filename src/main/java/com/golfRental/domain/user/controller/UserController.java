@@ -46,9 +46,9 @@ public interface UserController {
     /**
      * 유저 비밀번호 수정 API
      *
-     * @param authUser
-     * @param userUpdatePasswordRequest
-     * @return
+     * @param authUser                  유저 토큰 정보
+     * @param userUpdatePasswordRequest 비밀번호 수정에 필요한 데이터
+     * @return void
      */
     ResponseEntity<CommonApiResponse<Void>> changePassword(
             AuthUser authUser,

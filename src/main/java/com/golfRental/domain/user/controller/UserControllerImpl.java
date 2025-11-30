@@ -61,7 +61,7 @@ public class UserControllerImpl implements UserController {
     @PatchMapping("/users/me/password")
     public ResponseEntity<CommonApiResponse<Void>> changePassword(
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest
+            @Valid @RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest
     ) {
         userCommandService.updatePassword(authUser.getUserId(), userUpdatePasswordRequest);
 

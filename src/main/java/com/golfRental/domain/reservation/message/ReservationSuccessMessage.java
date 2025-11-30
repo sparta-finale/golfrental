@@ -5,7 +5,7 @@ public final class ReservationSuccessMessage {
     public final static String RESERVATION_CREATED = "예약을 요청을 생성하였습니다.";
     public final static String GET_RESERVATION = "예약 조회에 성공하였습니다.";
     public final static String GET_RESERVATION_LIST = "사용자 예약 목록 조회에 성공하였습니다.";
-
+    public final static String RESERVATION_APPROVED = "예약이 승인되었습니다.";
 
     private ReservationSuccessMessage() {
     }

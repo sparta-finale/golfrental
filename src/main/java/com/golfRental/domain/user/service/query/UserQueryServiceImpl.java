@@ -1,5 +1,7 @@
 package com.golfRental.domain.user.service.query;
 
+import com.golfRental.common.response.PageResponse;
+import com.golfRental.domain.user.dto.response.UserGetAllResponse;
 import com.golfRental.domain.user.dto.response.UserGetInfoResponse;
 import com.golfRental.domain.user.dto.response.UserGetMyInfoResponse;
 import com.golfRental.domain.user.entity.User;
@@ -8,6 +10,8 @@ import com.golfRental.domain.user.exception.UserException;
 import com.golfRental.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +47,21 @@ public class UserQueryServiceImpl implements UserQueryService {
                 .address(user.getAddress())
                 .nickname(user.getNickname())
                 .build();
+    }
+
+    @Override
+    public PageResponse<UserGetAllResponse> getAll(Pageable pageable) {
+        Page<User> users = userRepository.findAllByDeletedAtIsNull(pageable);
+
+        Page<UserGetAllResponse> contents = users.map(user -> UserGetAllResponse.builder()
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .nickname(user.getNickname())
+                .build());
+
+        return PageResponse.fromPage(contents);
     }
 
     @Override

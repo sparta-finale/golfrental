@@ -1,0 +1,9 @@
+package com.golfRental.domain.user.dto.request;
+
+import lombok.Getter;
+
+@Getter
+public class UserUpdatePasswordRequest {
+    private String oldPassword;
+    private String newPassword;
+}

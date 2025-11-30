@@ -1,6 +1,7 @@
 package com.golfRental.domain.user.service.command;
 
 import com.golfRental.domain.user.dto.request.UserUpdateMyInfoRequest;
+import com.golfRental.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.golfRental.domain.user.dto.response.UserUpdateMyInfoResponse;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.exception.UserErrorCode;
@@ -8,8 +9,11 @@ import com.golfRental.domain.user.exception.UserException;
 import com.golfRental.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -18,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserCommandServiceImpl implements UserCommandService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Override
@@ -40,15 +45,29 @@ public class UserCommandServiceImpl implements UserCommandService {
                 userUpdateMyInfoRequest.getNickname()
         );
 
-        UserUpdateMyInfoResponse userUpdateMyInfoResponse = UserUpdateMyInfoResponse.builder()
+        return UserUpdateMyInfoResponse.builder()
                 .email(user.getEmail())
                 .username(user.getUsername())
                 .phoneNumber(user.getPhoneNumber())
                 .address(user.getAddress())
                 .nickname(user.getNickname())
                 .build();
+    }
 
-        return userUpdateMyInfoResponse;
+    @Override
+    public void updatePassword(Long userId, UserUpdatePasswordRequest userUpdatePasswordRequest) {
+        User user = findById(userId);
+
+        if (!passwordEncoder.matches(userUpdatePasswordRequest.getOldPassword(), user.getPassword())) {
+            throw new UserException(UserErrorCode.USER_NOT_EQUAL_PASSWORD);
+        }
+        if (Objects.equals(userUpdatePasswordRequest.getOldPassword(), userUpdatePasswordRequest.getNewPassword())) {
+            throw new UserException(UserErrorCode.USER_EQUAL_PASSWORD);
+        }
+
+        String encodedNewPassword = passwordEncoder.encode(userUpdatePasswordRequest.getNewPassword());
+
+        user.updatePassword(encodedNewPassword);
     }
 
     @Override

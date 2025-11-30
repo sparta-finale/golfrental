@@ -1,12 +1,15 @@
 package com.golfRental.domain.user.controller;
 
 import com.golfRental.common.response.CommonApiResponse;
+import com.golfRental.common.response.PageResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.user.dto.request.UserUpdateMyInfoRequest;
 import com.golfRental.domain.user.dto.request.UserUpdatePasswordRequest;
+import com.golfRental.domain.user.dto.response.UserGetAllResponse;
 import com.golfRental.domain.user.dto.response.UserGetInfoResponse;
 import com.golfRental.domain.user.dto.response.UserGetMyInfoResponse;
 import com.golfRental.domain.user.dto.response.UserUpdateMyInfoResponse;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 public interface UserController {
@@ -29,6 +32,15 @@ public interface UserController {
      */
     ResponseEntity<CommonApiResponse<UserGetInfoResponse>> getInfo(
             Long userId
+    );
+
+    /**
+     * 유저 조회(ADMIN) API
+     *
+     * @return PageResponse<UserGetAllResponse>
+     */
+    ResponseEntity<CommonApiResponse<PageResponse<UserGetAllResponse>>> getAll(
+            Pageable pageable
     );
 
     /**

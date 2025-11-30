@@ -72,7 +72,7 @@ public class Reservation extends BaseEntity {
         this.guestUser = guestUser;
     }
 
-    // 예약 승인 도메인 규칙
+    // 예약 승인
     public void approve() {
         if (this.status == ReservationStatus.APPROVED) {
             throw new ReservationException(ReservationErrorCode.RESERVATION_ALREADY_APPROVED);
@@ -85,7 +85,17 @@ public class Reservation extends BaseEntity {
         this.status = ReservationStatus.APPROVED;
     }
 
-    private void updateStatus(ReservationStatus status) {
-        this.status = status;
+    // 예약 거절
+    public void reject() {
+
+        if (status == ReservationStatus.REJECTED) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_ALREADY_REJECTED);
+        }
+
+        if (status != ReservationStatus.REQUESTED) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_CANNOT_REJECT);
+        }
+
+        this.status = ReservationStatus.REJECTED;
     }
 }

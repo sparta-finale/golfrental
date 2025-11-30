@@ -49,9 +49,9 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         return ReservationCreateResponse.builder()
                 .reservationId(saved.getId())
-                .postId(post.getId())
-                .hostUserId(hostUser.getId())
-                .guestUserId(guestUser.getId())
+                .postId(saved.getPost().getId())
+                .hostUserId(saved.getHostUser().getId())
+                .guestUserId(saved.getGuestUser().getId())
                 .reservationStartAt(saved.getReservationStartAt())
                 .reservationEndAt(saved.getReservationEndAt())
                 .price(saved.getPrice())
@@ -71,17 +71,8 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
             throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
         }
 
-        // 상태 검증
-        if (reservation.getStatus() == ReservationStatus.APPROVED) {
-            throw new ReservationException(ReservationErrorCode.RESERVATION_ALREADY_APPROVED);
-        }
-
-        if (reservation.getStatus() != ReservationStatus.REQUESTED) {
-            throw new ReservationException(ReservationErrorCode.RESERVATION_CANNOT_APPROVE);
-        }
-
-        // 승인 처리
-        reservation.updateStatus(ReservationStatus.APPROVED);
+        // 엔티티에게 승인 명령 (도메인 규칙 포함)
+        reservation.approve();
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())

@@ -3,45 +3,55 @@ package com.golfRental.domain.user.controller;
 import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.user.dto.request.UserUpdateMyInfoRequest;
+import com.golfRental.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.golfRental.domain.user.dto.response.UserGetInfoResponse;
 import com.golfRental.domain.user.dto.response.UserGetMyInfoResponse;
 import com.golfRental.domain.user.dto.response.UserUpdateMyInfoResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 public interface UserController {
 
     /**
-     * 내 정보 조회
+     * 내 정보 조회 API
      *
      * @param authUser 유저 토큰 정보
      * @return UserGetMyInfoResponse
      */
     ResponseEntity<CommonApiResponse<UserGetMyInfoResponse>> getMyInfo(
-            @AuthenticationPrincipal AuthUser authUser
+            AuthUser authUser
     );
 
     /**
-     * 내 정보 수정
+     * 유저 정보 단건 조회 API
+     *
+     * @param userId 조회할 유저 ID
+     * @return UserGetInfoResponse
+     */
+    ResponseEntity<CommonApiResponse<UserGetInfoResponse>> getInfo(
+            Long userId
+    );
+
+    /**
+     * 내 정보 수정 API
      *
      * @param authUser                유저 토큰 정보
      * @param userUpdateMyInfoRequest 내 정보 수정사항
      * @return UserUpdateMyInfoResponse
      */
     ResponseEntity<CommonApiResponse<UserUpdateMyInfoResponse>> updateMyInfo(
-            @AuthenticationPrincipal AuthUser authUser,
-            @RequestBody UserUpdateMyInfoRequest userUpdateMyInfoRequest
+            AuthUser authUser,
+            UserUpdateMyInfoRequest userUpdateMyInfoRequest
     );
 
     /**
-     * 유저 정보 단건 조회
+     * 유저 비밀번호 수정 API
      *
-     * @param userId 조회할 유저 ID
-     * @return UserGetInfoResponse
+     * @param authUser
+     * @param userUpdatePasswordRequest
+     * @return
      */
-    ResponseEntity<CommonApiResponse<UserGetInfoResponse>> getInfo(
-            @PathVariable Long userId
+    ResponseEntity<CommonApiResponse<Void>> changePassword(
+            AuthUser authUser,
+            UserUpdatePasswordRequest userUpdatePasswordRequest
     );
 }

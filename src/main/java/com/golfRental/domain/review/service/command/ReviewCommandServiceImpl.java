@@ -102,11 +102,11 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
     public ReviewResponse updateReview(Long currentUserId, Long reviewId, ReviewUpdateRequest request) {
 
         // 1. 리뷰 조회
-        Review review = reviewRepository.findById(reviewId)
+        Review review = reviewRepository.findByIdWithDetails(reviewId)
                 .orElseThrow(() -> new ReviewException(ReviewErrorCode.REVIEW_NOT_FOUND));
 
         // 2. 작성자 검증
-        if (!review.getUser().getId().equals(currentUserId)) {
+        if (!review.isAuthor(currentUserId)) {
             throw new ReviewException(ReviewErrorCode.REVIEW_FORBIDDEN);
         }
 

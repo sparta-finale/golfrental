@@ -5,6 +5,7 @@ import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.review.dto.request.ReviewCreateRequest;
+import com.golfRental.domain.review.dto.request.ReviewUpdateRequest;
 import com.golfRental.domain.review.dto.response.ReviewGetResponse;
 import com.golfRental.domain.review.dto.response.ReviewResponse;
 import com.golfRental.domain.review.service.command.ReviewCommandService;
@@ -58,5 +59,16 @@ public class ReviewControllerImpl implements ReviewController {
         SliceResponse<ReviewGetResponse> response = reviewQueryService.getReviewsByTargetUser(targetUserId, pageable);
 
         return CommonApiResponse.success(response, "리뷰 목록 조회 성공");
+    }
+
+    @Override
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<CommonApiResponse<ReviewResponse>> updateReview(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long reviewId,
+            @Valid @RequestBody ReviewUpdateRequest request
+    ) {
+        ReviewResponse response = reviewCommandService.updateReview(authUser.getUserId(), reviewId, request);
+        return CommonApiResponse.success(response, "리뷰 수정 성공");
     }
 }

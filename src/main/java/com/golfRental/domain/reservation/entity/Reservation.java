@@ -3,6 +3,8 @@ package com.golfRental.domain.reservation.entity;
 import com.golfRental.common.entity.BaseEntity;
 import com.golfRental.domain.post.entity.Post;
 import com.golfRental.domain.reservation.enums.ReservationStatus;
+import com.golfRental.domain.reservation.exception.ReservationErrorCode;
+import com.golfRental.domain.reservation.exception.ReservationException;
 import com.golfRental.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -51,7 +53,15 @@ public class Reservation extends BaseEntity {
     private User guestUser;
 
     @Builder
-    private Reservation(LocalDateTime reservationStartAt, LocalDateTime reservationEndAt, Integer price, Integer deposit, ReservationStatus status, Post post, User hostUser, User guestUser) {
+    private Reservation(LocalDateTime reservationStartAt,
+                        LocalDateTime reservationEndAt,
+                        Integer price,
+                        Integer deposit,
+                        ReservationStatus status,
+                        Post post,
+                        User hostUser,
+                        User guestUser) {
+
         this.reservationStartAt = reservationStartAt;
         this.reservationEndAt = reservationEndAt;
         this.price = price;
@@ -62,7 +72,20 @@ public class Reservation extends BaseEntity {
         this.guestUser = guestUser;
     }
 
-    public void updateStatus(ReservationStatus status) {
+    // 예약 승인 도메인 규칙
+    public void approve() {
+        if (this.status == ReservationStatus.APPROVED) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_ALREADY_APPROVED);
+        }
+
+        if (this.status != ReservationStatus.REQUESTED) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_CANNOT_APPROVE);
+        }
+
+        this.status = ReservationStatus.APPROVED;
+    }
+
+    private void updateStatus(ReservationStatus status) {
         this.status = status;
     }
 }

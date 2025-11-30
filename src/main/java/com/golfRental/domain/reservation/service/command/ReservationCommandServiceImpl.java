@@ -103,6 +103,26 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
                 .build();
     }
 
+    // 대여 시작
+    @Override
+    public ReservationUpdateStatusResponse startReservation(Long reservationId, Long userId) {
+
+        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
+                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+
+        // 호스트만 시작 가능
+        if (!reservation.getHostUser().getId().equals(userId)) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
+        }
+
+        reservation.startRental(); // 엔티티 도메인 규칙 실행
+
+        return ReservationUpdateStatusResponse.builder()
+                .reservationId(reservation.getId())
+                .status(reservation.getStatus())
+                .build();
+    }
+
     // 공통 조회 메서드
     private Reservation findReservationById(Long reservationId) {
         return reservationRepository.findByIdWithDetails(reservationId)

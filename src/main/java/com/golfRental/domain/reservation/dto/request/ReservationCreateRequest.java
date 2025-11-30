@@ -3,6 +3,8 @@ package com.golfRental.domain.reservation.dto.request;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 public class ReservationCreateRequest {
 
@@ -10,10 +12,10 @@ public class ReservationCreateRequest {
     private Long postId;
 
     @NotNull(message = "예약 시작일은 필수입니다.")
-    private String reservationStartAt;
+    private LocalDateTime reservationStartAt;
 
     @NotNull(message = "예약 종료일은 필수입니다.")
-    private String reservationEndAt;
+    private LocalDateTime reservationEndAt;
 
     @NotNull(message = "가격은 필수입니다.")
     private Integer price;

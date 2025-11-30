@@ -6,12 +6,14 @@ import com.golfRental.domain.notification.entity.Notification;
 import com.golfRental.domain.notification.exception.NotificationErrorCode;
 import com.golfRental.domain.notification.exception.NotificationException;
 import com.golfRental.domain.notification.repository.NotificationRepository;
+import com.golfRental.domain.notification.repository.SseEmitterRepository;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Slf4j
 @Service
@@ -19,8 +21,56 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class NotificationCommandServiceImpl implements NotificationCommandService {
 
+    private static final Long DEFAULT_TIMEOUT = 300_000L; //5분
     private final NotificationRepository notificationRepository;
     private final UserQueryService userQueryService;
+    private final SseEmitterRepository sseEmitterRepository;
+
+    @Override
+    public SseEmitter subscribe(Long userId) {
+
+        SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
+
+        sseEmitterRepository.save(userId, emitter);
+
+        //연결 종료 시 처리(완료, 타임아웃, 연결에러)
+        emitter.onCompletion(() -> {
+            sseEmitterRepository.deleteById(userId);
+        });
+
+        emitter.onTimeout(() -> {
+            sseEmitterRepository.deleteById(userId);
+        });
+
+        emitter.onError((e) -> {
+            sseEmitterRepository.deleteById(userId);
+        });
+
+        try {
+            emitter.send(SseEmitter.event()
+                    .name("connect")
+                    .data("Connected to SSE"));
+        } catch (Exception e) {
+            sseEmitterRepository.deleteById(userId);
+            throw new NotificationException(NotificationErrorCode.SSE_CONNECTION_ERROR);
+        }
+        return emitter;
+    }
+
+    private void sendNotification(Long userId, NotificationResponse notification) {
+        SseEmitter emitter = sseEmitterRepository.get(userId);
+
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("notification")
+                        .data(notification));
+            } catch (Exception e) {
+                sseEmitterRepository.deleteById(userId);
+            }
+        }
+    }
+
 
     @Override
     public NotificationResponse createNotification(NotificationCreateRequest request) {
@@ -28,7 +78,7 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
         Notification notification = request.toEntity(receiver);
         Notification savedNotification = notificationRepository.save(notification);
 
-        return NotificationResponse.builder()
+        NotificationResponse response = NotificationResponse.builder()
                 .id(savedNotification.getId())
                 .receiverId(savedNotification.getReceiver().getId())
                 .title(savedNotification.getTitle())
@@ -38,6 +88,10 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
                 .isRead(savedNotification.isRead())
                 .createdAt(savedNotification.getCreatedAt())
                 .build();
+
+        sendNotification(request.getReceiverId(), response);
+
+        return response;
     }
 
     @Override

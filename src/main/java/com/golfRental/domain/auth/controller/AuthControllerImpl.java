@@ -1,6 +1,7 @@
 package com.golfRental.domain.auth.controller;
 
 import com.golfRental.common.response.CommonApiResponse;
+import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.auth.dto.request.AuthLoginRequest;
 import com.golfRental.domain.auth.dto.request.AuthSignupRequest;
 import com.golfRental.domain.auth.dto.response.AuthLoginResponse;
@@ -9,6 +10,7 @@ import com.golfRental.domain.auth.service.command.AuthCommandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,5 +41,15 @@ public class AuthControllerImpl implements AuthController {
         AuthLoginResponse authLoginResponse = authCommandService.login(authLoginRequest);
 
         return CommonApiResponse.success(authLoginResponse, AuthSuccessMessage.LOGIN);
+    }
+
+    @Override
+    @PostMapping("/logout")
+    public ResponseEntity<CommonApiResponse<Void>> logout(
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        authCommandService.logout(authUser.getUserId());
+
+        return CommonApiResponse.success(null, AuthSuccessMessage.LOGOUT);
     }
 }

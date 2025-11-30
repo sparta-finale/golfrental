@@ -82,6 +82,16 @@ public class PostControllerImpl implements PostController {
         return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_MY);
     }
 
+    @GetMapping("/posts/categories/{categoryId}")
+    public ResponseEntity<CommonApiResponse<SliceResponse<PostGetByCategoryResponse>>> getByCategory(
+            @PathVariable Long categoryId,
+            @PageableDefault(page = 0, size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        SliceResponse<PostGetByCategoryResponse> posts = postQueryService.getByCategory(categoryId, pageable);
+
+        return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_BY_CATEGORY);
+    }
+
     @Override
     @PutMapping("/posts/{postId}")
     public ResponseEntity<CommonApiResponse<PostUpdateResponse>> updatePost(

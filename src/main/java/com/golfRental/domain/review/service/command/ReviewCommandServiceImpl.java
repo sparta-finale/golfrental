@@ -115,4 +115,21 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
 
         return ReviewResponse.from(review);
     }
+
+    @Override
+    @Transactional
+    public void deleteReview(Long currentUserId, Long reviewId) {
+
+        // 1. 리뷰 조회
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ReviewException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+        // 2. 작성자 검증
+        if (!review.isAuthor(currentUserId)) {
+            throw new ReviewException(ReviewErrorCode.REVIEW_FORBIDDEN);
+        }
+
+        // 3. Soft Delete
+        review.delete();
+    }
 }

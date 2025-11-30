@@ -1,7 +1,10 @@
 package com.golfRental.domain.post.service.query;
 
 import com.golfRental.common.response.SliceResponse;
+import com.golfRental.domain.category.entity.Category;
+import com.golfRental.domain.category.service.query.CategoryQueryService;
 import com.golfRental.domain.post.dto.response.PostGetAllResponse;
+import com.golfRental.domain.post.dto.response.PostGetByCategoryResponse;
 import com.golfRental.domain.post.dto.response.PostGetMyResponse;
 import com.golfRental.domain.post.dto.response.PostGetsResponse;
 import com.golfRental.domain.post.entity.Post;
@@ -25,6 +28,7 @@ public class PostQueryServiceImpl implements PostQueryService {
 
     private final PostRepository postRepository;
     private final UserQueryService userQueryService;
+    private final CategoryQueryService categoryQueryService;
 
     @Override
     public SliceResponse<PostGetAllResponse> getAll(Pageable pageable) {
@@ -98,6 +102,33 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .categoryName(post.getCategory().getName())
                 .build());
 
+        return SliceResponse.fromSlice(contents);
+    }
+
+    @Override
+    public SliceResponse<PostGetByCategoryResponse> getByCategory(Long categoryId, Pageable pageable) {
+        Category category = categoryQueryService.findById(categoryId);
+
+        Slice<Post> posts = postRepository.findAllByCategoryOrderByStatus(category, pageable);
+
+        Slice<PostGetByCategoryResponse> contents = posts.map(post -> PostGetByCategoryResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .methodOfReceive(post.getMethodOfReceive())
+                .methodOfReturn(post.getMethodOfReturn())
+                .price(post.getPrice())
+                .deposit(post.getDeposit())
+                .dailyRate(post.getDailyRate())
+                .tradeStatus(post.getTradeStatus())
+                .userId(post.getUser().getId())
+                .username(post.getUser().getUsername())
+                .address(post.getUser().getAddress())
+                .nickname(post.getUser().getNickname())
+                .categoryId(post.getCategory().getId())
+                .categoryName(post.getCategory().getName())
+                .build());
+        
         return SliceResponse.fromSlice(contents);
     }
 

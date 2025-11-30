@@ -9,6 +9,7 @@ public final class PostSuccessMessage {
     public final static String POST_UPDATED = "게시물 수정에 성공하였습니다.";
     public final static String POST_UPDATED_STATUS = "게시물 거래 상태 수정에 성공하였습니다.";
     public final static String POST_DELETED = "게시물 삭제에 성공하였습니다.";
+    public final static String POST_GET_BY_CATEGORY = "카테고리를 통한 게시물 조회에 성공하였습니다.";
 
     private PostSuccessMessage() {
     }

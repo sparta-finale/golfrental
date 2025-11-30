@@ -88,11 +88,12 @@ public class Reservation extends BaseEntity {
     // 예약 거절
     public void reject() {
 
-        if (status == ReservationStatus.REJECTED) {
-            throw new ReservationException(ReservationErrorCode.RESERVATION_ALREADY_REJECTED);
-        }
+        if (this.status != ReservationStatus.REQUESTED) {
 
-        if (status != ReservationStatus.REQUESTED) {
+            if (this.status == ReservationStatus.REJECTED) {
+                throw new ReservationException(ReservationErrorCode.RESERVATION_ALREADY_REJECTED);
+            }
+
             throw new ReservationException(ReservationErrorCode.RESERVATION_CANNOT_REJECT);
         }
 

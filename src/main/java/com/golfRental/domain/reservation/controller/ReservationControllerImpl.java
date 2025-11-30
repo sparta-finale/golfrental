@@ -117,4 +117,20 @@ public class ReservationControllerImpl implements ReservationController {
                 ReservationSuccessMessage.RESERVATION_CANCELLED
         );
     }
+
+    @Override
+    @PatchMapping("/{reservationId}/start")
+    public ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> startReservation(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        ReservationUpdateStatusResponse response =
+                reservationCommandService.startReservation(reservationId, authUser.getUserId());
+
+        return CommonApiResponse.success(
+                response,
+                ReservationSuccessMessage.RESERVATION_RENTAL_STARTED
+        );
+    }
+
 }

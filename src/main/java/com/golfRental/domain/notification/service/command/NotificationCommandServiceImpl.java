@@ -67,6 +67,7 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
                         .name("notification")
                         .data(notification));
             } catch (Exception e) {
+                log.warn("알림 전송에 실패했습니다. userId={}", userId, e);
                 sseEmitterRepository.deleteById(userId);
             }
         }

@@ -77,7 +77,7 @@ public class ReservationControllerImpl implements ReservationController {
     @PatchMapping("/{reservationId}/approve")
     public ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> approveReservation(
             @PathVariable Long reservationId,
-            @RequestAttribute("authUser") AuthUser authUser
+            @AuthenticationPrincipal AuthUser authUser
     ) {
         ReservationUpdateStatusResponse response =
                 reservationCommandService.approveReservation(reservationId, authUser.getUserId());

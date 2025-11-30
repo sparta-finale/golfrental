@@ -53,15 +53,16 @@ public class Reservation extends BaseEntity {
     private User guestUser;
 
     @Builder
-    private Reservation(LocalDateTime reservationStartAt,
-                        LocalDateTime reservationEndAt,
-                        Integer price,
-                        Integer deposit,
-                        ReservationStatus status,
-                        Post post,
-                        User hostUser,
-                        User guestUser) {
-
+    private Reservation(
+            LocalDateTime reservationStartAt,
+            LocalDateTime reservationEndAt,
+            Integer price,
+            Integer deposit,
+            ReservationStatus status,
+            Post post,
+            User hostUser,
+            User guestUser
+    ) {
         this.reservationStartAt = reservationStartAt;
         this.reservationEndAt = reservationEndAt;
         this.price = price;
@@ -74,6 +75,7 @@ public class Reservation extends BaseEntity {
 
     // 예약 승인
     public void approve() {
+
         if (this.status == ReservationStatus.APPROVED) {
             throw new ReservationException(ReservationErrorCode.RESERVATION_ALREADY_APPROVED);
         }
@@ -103,12 +105,10 @@ public class Reservation extends BaseEntity {
     // 예약 취소
     public void cancel() {
 
-        // 이미 취소된 경우
         if (this.status == ReservationStatus.CANCELLED) {
             throw new ReservationException(ReservationErrorCode.RESERVATION_ALREADY_CANCELLED);
         }
 
-        // 취소가 허용되지 않는 상태
         if (this.status != ReservationStatus.REQUESTED &&
                 this.status != ReservationStatus.APPROVED) {
             throw new ReservationException(ReservationErrorCode.RESERVATION_CANNOT_CANCEL);
@@ -117,7 +117,7 @@ public class Reservation extends BaseEntity {
         this.status = ReservationStatus.CANCELLED;
     }
 
-    // 예약 대여 시작
+    // 대여 시작
     public void startRental() {
 
         if (this.status == ReservationStatus.RENTED) {

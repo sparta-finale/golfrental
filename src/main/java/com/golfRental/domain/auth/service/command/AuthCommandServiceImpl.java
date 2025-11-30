@@ -72,4 +72,10 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
         return authLoginResponse;
     }
+
+    @Override
+    public void logout(Long userId) {
+        // access token 삭제는 클라이언트 측에서 진행해야 함
+        // 추후 refresh 토큰이 들어오게 된다면 그 때 작업
+    }
 }

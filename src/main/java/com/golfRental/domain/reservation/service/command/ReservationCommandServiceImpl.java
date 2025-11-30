@@ -79,4 +79,24 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
                 .status(reservation.getStatus())
                 .build();
     }
+
+    @Override
+    public ReservationUpdateStatusResponse rejectReservation(Long reservationId, Long userId) {
+
+        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
+                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+
+        // 권한 검증(호스트만 가능)
+        if (!reservation.getHostUser().getId().equals(userId)) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
+        }
+
+        // 도메인 메서드에 상태 전이 위임
+        reservation.reject();
+
+        return ReservationUpdateStatusResponse.builder()
+                .reservationId(reservation.getId())
+                .status(reservation.getStatus())
+                .build();
+    }
 }

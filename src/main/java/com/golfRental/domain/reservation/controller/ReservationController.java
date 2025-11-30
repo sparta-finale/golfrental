@@ -7,6 +7,7 @@ import com.golfRental.domain.reservation.dto.request.ReservationCreateRequest;
 import com.golfRental.domain.reservation.dto.response.ReservationCreateResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationGetAllResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationGetResponse;
+import com.golfRental.domain.reservation.dto.response.ReservationUpdateStatusResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface ReservationController {
@@ -38,14 +39,26 @@ public interface ReservationController {
     /**
      * 사용자별 예약 목록 조회
      *
-     * @param authUser
-     * @param page
-     * @param size
+     * @param authUser 로그인 사용자 정보
+     * @param page     페이지 번호
+     * @param size     페이지 크기
      * @return SliceResponse<ReservationGetAllResponse>
      */
     ResponseEntity<CommonApiResponse<SliceResponse<ReservationGetAllResponse>>> getMyReservations(
             AuthUser authUser,
             int page,
             int size
+    );
+
+    /**
+     * 예약 승인
+     *
+     * @param reservationId 승인할 예약 ID
+     * @param authUser      로그인 사용자 정보
+     * @return ReservationUpdateStatusResponse
+     */
+    ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> approveReservation(
+            Long reservationId,
+            AuthUser authUser
     );
 }

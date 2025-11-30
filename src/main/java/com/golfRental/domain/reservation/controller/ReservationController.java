@@ -61,4 +61,16 @@ public interface ReservationController {
             Long reservationId,
             AuthUser authUser
     );
+
+    /**
+     * 예약 거절
+     *
+     * @param reservationId 거절할 예약 ID
+     * @param authUser      로그인 사용자 정보
+     * @return ReservationUpdateStatusResponse
+     */
+    ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> rejectReservation(
+            Long reservationId,
+            AuthUser authUser
+    );
 }

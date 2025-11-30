@@ -33,4 +33,9 @@ public interface ReviewController {
             Long reviewId,
             ReviewUpdateRequest request
     );
+
+    ResponseEntity<CommonApiResponse<Void>> deleteReview(
+            AuthUser authUser,
+            Long reviewId
+    );
 }

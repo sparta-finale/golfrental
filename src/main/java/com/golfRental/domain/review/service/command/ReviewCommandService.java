@@ -12,4 +12,7 @@ public interface ReviewCommandService {
     //리뷰 수정
     ReviewResponse updateReview(Long currentUserId, Long reviewId, ReviewUpdateRequest request);
 
+    //리뷰 삭제
+    void deleteReview(Long currentUserId, Long reviewId);
+
 }

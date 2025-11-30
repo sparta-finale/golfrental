@@ -1,6 +1,9 @@
 package com.golfRental.domain.review.repository;
 
 import com.golfRental.domain.review.entity.Review;
+import com.golfRental.domain.user.entity.User;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +26,16 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "JOIN FETCH r.reservation " +
             "WHERE r.id = :reviewId")
     Optional<Review> findByIdWithDetails(@Param("reviewId") Long reviewId);
+
+    /**
+     * 특정 유저가 받은 리뷰 목록 조회 (최신순, user fetch join)
+     */
+    @Query("SELECT r FROM Review r " +
+            "JOIN FETCH r.user " +
+            "WHERE r.targetUser = :targetUser " +
+            "ORDER BY r.createdAt DESC")
+    Slice<Review> findByTargetUserOrderByCreatedAtDesc(
+            @Param("targetUser") User targetUser,
+            Pageable pageable
+    );
 }

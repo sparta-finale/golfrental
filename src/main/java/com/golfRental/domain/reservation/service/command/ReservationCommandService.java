@@ -11,4 +11,6 @@ public interface ReservationCommandService {
     ReservationUpdateStatusResponse approveReservation(Long reservationId, Long userId);
 
     ReservationUpdateStatusResponse rejectReservation(Long reservationId, Long userId);
+
+    ReservationUpdateStatusResponse cancelReservation(Long reservationId, Long userId);
 }

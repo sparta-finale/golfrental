@@ -4,6 +4,7 @@ import com.golfRental.domain.reservation.entity.Reservation;
 import com.golfRental.domain.reservation.enums.ReservationStatus;
 import com.golfRental.domain.reservation.service.query.ReservationQueryService;
 import com.golfRental.domain.review.dto.request.ReviewCreateRequest;
+import com.golfRental.domain.review.dto.request.ReviewUpdateRequest;
 import com.golfRental.domain.review.dto.response.ReviewResponse;
 import com.golfRental.domain.review.entity.Review;
 import com.golfRental.domain.review.exception.ReviewErrorCode;
@@ -94,5 +95,24 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
             // 게스트가 작성 → 호스트 평가
             return reservation.getHostUser();
         }
+    }
+
+    @Override
+    @Transactional
+    public ReviewResponse updateReview(Long currentUserId, Long reviewId, ReviewUpdateRequest request) {
+
+        // 1. 리뷰 조회
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ReviewException(ReviewErrorCode.REVIEW_NOT_FOUND));
+
+        // 2. 작성자 검증
+        if (!review.getUser().getId().equals(currentUserId)) {
+            throw new ReviewException(ReviewErrorCode.REVIEW_FORBIDDEN);
+        }
+
+        // 3. 리뷰 수정
+        review.update(request.getUserScore(), request.getContent());
+
+        return ReviewResponse.from(review);
     }
 }

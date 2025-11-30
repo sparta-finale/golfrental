@@ -45,4 +45,9 @@ public class Review extends BaseEntity {
         this.userScore = userScore;
         this.content = content;
     }
+    
+    public void update(Integer userScore, String content) {
+        this.userScore = userScore;
+        this.content = content;
+    }
 }

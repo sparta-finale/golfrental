@@ -32,9 +32,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
      */
     @Query("SELECT r FROM Review r " +
             "JOIN FETCH r.user " +
-            "WHERE r.targetUser = :targetUser " +
-            "ORDER BY r.createdAt DESC")
-    Slice<Review> findByTargetUserOrderByCreatedAtDesc(
+            "JOIN FETCH r.reservation " +
+            "WHERE r.targetUser = :targetUser")
+    Slice<Review> findByTargetUser(
             @Param("targetUser") User targetUser,
             Pageable pageable
     );

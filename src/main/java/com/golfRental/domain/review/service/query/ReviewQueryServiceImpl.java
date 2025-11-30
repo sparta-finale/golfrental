@@ -42,7 +42,7 @@ public class ReviewQueryServiceImpl implements ReviewQueryService {
         User targetUser = userQueryService.findById(targetUserId);
 
         // 2. 리뷰 목록 조회
-        Slice<Review> reviews = reviewRepository.findByTargetUserOrderByCreatedAtDesc(targetUser, pageable);
+        Slice<Review> reviews = reviewRepository.findByTargetUser(targetUser, pageable);
 
         // 3. DTO 변환
         Slice<ReviewGetResponse> content = reviews.map(ReviewGetResponse::from);

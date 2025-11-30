@@ -12,4 +12,9 @@ public interface ReviewController {
             AuthUser authUser,
             ReviewCreateRequest request
     );
+
+    ResponseEntity<CommonApiResponse<ReviewResponse>> getReview(
+            AuthUser authUser,
+            Long reviewId
+    );
 }

@@ -27,6 +27,7 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
     private final PostQueryService postQueryService;
     private final UserQueryService userQueryService;
 
+    // 예약 생성
     @Override
     public ReservationCreateResponse createReservation(ReservationCreateRequest request, Long userId) {
 
@@ -60,13 +61,13 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
                 .build();
     }
 
+    // 승인
     @Override
     public ReservationUpdateStatusResponse approveReservation(Long reservationId, Long userId) {
 
         Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
 
-        // 엔티티에게 승인 명령
-        reservation.approve();
+        reservation.approve(); // 엔티티 도메인 규칙 실행
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
@@ -74,13 +75,13 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
                 .build();
     }
 
+    // 거절
     @Override
     public ReservationUpdateStatusResponse rejectReservation(Long reservationId, Long userId) {
 
         Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
 
-        // 엔티티에게 거절 명령
-        reservation.reject();
+        reservation.reject(); // 엔티티 도메인 규칙 실행
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
@@ -88,11 +89,32 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
                 .build();
     }
 
-    // 공통: 예약 조회 + 호스트 권한 검증
+    // 취소
+    @Override
+    public ReservationUpdateStatusResponse cancelReservation(Long reservationId, Long userId) {
+
+        Reservation reservation = findReservationAndVerifyGuest(reservationId, userId);
+
+        reservation.cancel(); // 엔티티 도메인 규칙 실행
+
+        return ReservationUpdateStatusResponse.builder()
+                .reservationId(reservation.getId())
+                .status(reservation.getStatus())
+                .build();
+    }
+
+    // 공통 조회 메서드
+    private Reservation findReservationById(Long reservationId) {
+        return reservationRepository.findByIdWithDetails(reservationId)
+                .orElseThrow(() ->
+                        new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND)
+                );
+    }
+
+    // 호스트 검증
     private Reservation findReservationAndVerifyHost(Long reservationId, Long userId) {
 
-        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
-                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+        Reservation reservation = findReservationById(reservationId);
 
         if (!reservation.getHostUser().getId().equals(userId)) {
             throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
@@ -101,23 +123,15 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
         return reservation;
     }
 
-    @Override
-    public ReservationUpdateStatusResponse cancelReservation(Long reservationId, Long userId) {
+    // 게스트 검증
+    private Reservation findReservationAndVerifyGuest(Long reservationId, Long userId) {
 
-        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
-                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+        Reservation reservation = findReservationById(reservationId);
 
-        // 게스트 권한 검증 (게스트만 가능)
         if (!reservation.getGuestUser().getId().equals(userId)) {
             throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
         }
 
-        // 상태 전이: 엔티티에게 취소 명령
-        reservation.cancel();
-
-        return ReservationUpdateStatusResponse.builder()
-                .reservationId(reservation.getId())
-                .status(reservation.getStatus())
-                .build();
+        return reservation;
     }
 }

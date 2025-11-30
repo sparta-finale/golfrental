@@ -3,6 +3,7 @@ package com.golfRental.domain.user.controller;
 import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.user.dto.request.UserUpdateMyInfoRequest;
+import com.golfRental.domain.user.dto.request.UserUpdatePasswordRequest;
 import com.golfRental.domain.user.dto.response.UserGetInfoResponse;
 import com.golfRental.domain.user.dto.response.UserGetMyInfoResponse;
 import com.golfRental.domain.user.dto.response.UserUpdateMyInfoResponse;
@@ -34,6 +35,16 @@ public class UserControllerImpl implements UserController {
     }
 
     @Override
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<CommonApiResponse<UserGetInfoResponse>> getInfo(
+            @PathVariable Long userId
+    ) {
+        UserGetInfoResponse userGetInfoResponse = userQueryService.getInfo(userId);
+
+        return CommonApiResponse.success(userGetInfoResponse, UserSuccessMessage.GET_INFO);
+    }
+
+    @Override
     @PutMapping("/users/me")
     public ResponseEntity<CommonApiResponse<UserUpdateMyInfoResponse>> updateMyInfo(
             @AuthenticationPrincipal AuthUser authUser,
@@ -47,12 +58,13 @@ public class UserControllerImpl implements UserController {
     }
 
     @Override
-    @GetMapping("/users/{userId}")
-    public ResponseEntity<CommonApiResponse<UserGetInfoResponse>> getInfo(
-            @PathVariable Long userId
+    @PatchMapping("/users/me/password")
+    public ResponseEntity<CommonApiResponse<Void>> changePassword(
+            @AuthenticationPrincipal AuthUser authUser,
+            @Valid @RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest
     ) {
-        UserGetInfoResponse userGetInfoResponse = userQueryService.getInfo(userId);
+        userCommandService.updatePassword(authUser.getUserId(), userUpdatePasswordRequest);
 
-        return CommonApiResponse.success(userGetInfoResponse, UserSuccessMessage.GET_INFO);
+        return CommonApiResponse.success(null, UserSuccessMessage.UPDATE_MY_PASSWORD);
     }
 }

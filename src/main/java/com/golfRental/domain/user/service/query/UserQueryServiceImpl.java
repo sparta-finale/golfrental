@@ -23,30 +23,26 @@ public class UserQueryServiceImpl implements UserQueryService {
     public UserGetMyInfoResponse getMyInfo(Long myId) {
         User user = findById(myId);
 
-        UserGetMyInfoResponse userGetMyInfoResponse = UserGetMyInfoResponse.builder()
+        return UserGetMyInfoResponse.builder()
                 .email(user.getEmail())
                 .username(user.getUsername())
                 .phoneNumber(user.getPhoneNumber())
                 .address(user.getAddress())
                 .nickname(user.getNickname())
                 .build();
-
-        return userGetMyInfoResponse;
     }
 
     @Override
     public UserGetInfoResponse getInfo(Long userId) {
         User user = findById(userId);
 
-        UserGetInfoResponse userGetInfoResponse = UserGetInfoResponse.builder()
+        return UserGetInfoResponse.builder()
                 .email(user.getEmail())
                 .username(user.getUsername())
                 .phoneNumber(user.getPhoneNumber())
                 .address(user.getAddress())
                 .nickname(user.getNickname())
                 .build();
-
-        return userGetInfoResponse;
     }
 
     @Override

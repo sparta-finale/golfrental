@@ -1,9 +1,11 @@
 package com.golfRental.domain.reservation.controller;
 
 import com.golfRental.common.response.CommonApiResponse;
+import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.reservation.dto.request.ReservationCreateRequest;
 import com.golfRental.domain.reservation.dto.response.ReservationCreateResponse;
+import com.golfRental.domain.reservation.dto.response.ReservationGetAllResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationGetResponse;
 import com.golfRental.domain.reservation.message.ReservationSuccessMessage;
 import com.golfRental.domain.reservation.service.command.ReservationCommandService;
@@ -51,6 +53,22 @@ public class ReservationControllerImpl implements ReservationController {
         return CommonApiResponse.success(
                 response,
                 ReservationSuccessMessage.GET_RESERVATION
+        );
+    }
+
+    @Override
+    @GetMapping("/me")
+    public ResponseEntity<CommonApiResponse<SliceResponse<ReservationGetAllResponse>>> getMyReservations(
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        SliceResponse<ReservationGetAllResponse> response =
+                reservationQueryService.getMyReservations(authUser.getUserId(), page, size);
+
+        return CommonApiResponse.success(
+                response,
+                ReservationSuccessMessage.GET_RESERVATION_LIST
         );
     }
 }

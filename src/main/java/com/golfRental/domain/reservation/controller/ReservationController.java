@@ -1,9 +1,11 @@
 package com.golfRental.domain.reservation.controller;
 
 import com.golfRental.common.response.CommonApiResponse;
+import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.reservation.dto.request.ReservationCreateRequest;
 import com.golfRental.domain.reservation.dto.response.ReservationCreateResponse;
+import com.golfRental.domain.reservation.dto.response.ReservationGetAllResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationGetResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -31,5 +33,19 @@ public interface ReservationController {
     ResponseEntity<CommonApiResponse<ReservationGetResponse>> getReservation(
             Long reservationId,
             AuthUser authUser
+    );
+
+    /**
+     * 사용자별 예약 목록 조회
+     *
+     * @param authUser
+     * @param page
+     * @param size
+     * @return SliceResponse<ReservationGetAllResponse>
+     */
+    ResponseEntity<CommonApiResponse<SliceResponse<ReservationGetAllResponse>>> getMyReservations(
+            AuthUser authUser,
+            int page,
+            int size
     );
 }

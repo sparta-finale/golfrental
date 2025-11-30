@@ -100,4 +100,24 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         return reservation;
     }
+
+    @Override
+    public ReservationUpdateStatusResponse cancelReservation(Long reservationId, Long userId) {
+
+        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
+                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+
+        // 게스트 권한 검증 (게스트만 가능)
+        if (!reservation.getGuestUser().getId().equals(userId)) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
+        }
+
+        // 상태 전이: 엔티티에게 취소 명령
+        reservation.cancel();
+
+        return ReservationUpdateStatusResponse.builder()
+                .reservationId(reservation.getId())
+                .status(reservation.getStatus())
+                .build();
+    }
 }

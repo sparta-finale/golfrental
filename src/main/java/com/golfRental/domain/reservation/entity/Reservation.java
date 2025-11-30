@@ -99,4 +99,21 @@ public class Reservation extends BaseEntity {
 
         this.status = ReservationStatus.REJECTED;
     }
+
+    // 예약 취소
+    public void cancel() {
+
+        // 이미 취소된 경우
+        if (this.status == ReservationStatus.CANCELLED) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_ALREADY_CANCELLED);
+        }
+
+        // 취소가 허용되지 않는 상태
+        if (this.status != ReservationStatus.REQUESTED &&
+                this.status != ReservationStatus.APPROVED) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_CANNOT_CANCEL);
+        }
+
+        this.status = ReservationStatus.CANCELLED;
+    }
 }

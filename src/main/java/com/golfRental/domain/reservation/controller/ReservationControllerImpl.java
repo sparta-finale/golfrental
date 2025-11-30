@@ -87,4 +87,19 @@ public class ReservationControllerImpl implements ReservationController {
                 ReservationSuccessMessage.RESERVATION_APPROVED
         );
     }
+
+    @Override
+    @PatchMapping("/{reservationId}/reject")
+    public ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> rejectReservation(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        ReservationUpdateStatusResponse response =
+                reservationCommandService.rejectReservation(reservationId, authUser.getUserId());
+
+        return CommonApiResponse.success(
+                response,
+                ReservationSuccessMessage.RESERVATION_REJECTED
+        );
+    }
 }

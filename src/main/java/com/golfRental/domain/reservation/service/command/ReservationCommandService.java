@@ -9,4 +9,6 @@ public interface ReservationCommandService {
     ReservationCreateResponse createReservation(ReservationCreateRequest reservationCreateRequest, Long userId);
 
     ReservationUpdateStatusResponse approveReservation(Long reservationId, Long userId);
+
+    ReservationUpdateStatusResponse rejectReservation(Long reservationId, Long userId);
 }

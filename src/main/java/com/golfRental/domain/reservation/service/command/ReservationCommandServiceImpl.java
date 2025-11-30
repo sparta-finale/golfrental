@@ -63,20 +63,41 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
     @Override
     public ReservationUpdateStatusResponse approveReservation(Long reservationId, Long userId) {
 
-        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
-                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+        Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
 
-        // 호스트 권한 검증
-        if (!reservation.getHostUser().getId().equals(userId)) {
-            throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
-        }
-
-        // 엔티티에게 승인 명령 (도메인 규칙 포함)
+        // 엔티티에게 승인 명령
         reservation.approve();
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
                 .status(reservation.getStatus())
                 .build();
+    }
+
+    @Override
+    public ReservationUpdateStatusResponse rejectReservation(Long reservationId, Long userId) {
+
+        Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
+
+        // 엔티티에게 거절 명령
+        reservation.reject();
+
+        return ReservationUpdateStatusResponse.builder()
+                .reservationId(reservation.getId())
+                .status(reservation.getStatus())
+                .build();
+    }
+
+    // 공통: 예약 조회 + 호스트 권한 검증
+    private Reservation findReservationAndVerifyHost(Long reservationId, Long userId) {
+
+        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
+                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+
+        if (!reservation.getHostUser().getId().equals(userId)) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
+        }
+
+        return reservation;
     }
 }

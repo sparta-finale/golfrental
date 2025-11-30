@@ -5,10 +5,7 @@ import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.auth.dto.request.AuthLoginRequest;
 import com.golfRental.domain.auth.dto.request.AuthSignupRequest;
 import com.golfRental.domain.auth.dto.response.AuthLoginResponse;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.RequestBody;
 
 public interface AuthController {
 
@@ -19,7 +16,7 @@ public interface AuthController {
      * @return void
      */
     ResponseEntity<CommonApiResponse<Void>> signup(
-            @Valid @RequestBody AuthSignupRequest authSignupRequest
+            AuthSignupRequest authSignupRequest
     );
 
     /**
@@ -29,7 +26,7 @@ public interface AuthController {
      * @return AuthLoginResponse
      */
     ResponseEntity<CommonApiResponse<AuthLoginResponse>> login(
-            @Valid @RequestBody AuthLoginRequest authLoginRequest
+            AuthLoginRequest authLoginRequest
     );
 
     /**
@@ -39,6 +36,6 @@ public interface AuthController {
      * @return void
      */
     ResponseEntity<CommonApiResponse<Void>> logout(
-            @AuthenticationPrincipal AuthUser authUser
+            AuthUser authUser
     );
 }

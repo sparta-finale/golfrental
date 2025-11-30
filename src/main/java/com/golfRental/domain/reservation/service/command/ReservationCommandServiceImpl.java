@@ -14,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,15 +31,12 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
         User guestUser = userQueryService.findById(userId);
         User hostUser = post.getUser();
 
-        LocalDateTime startAt = LocalDateTime.parse(request.getReservationStartAt());
-        LocalDateTime endAt = LocalDateTime.parse(request.getReservationEndAt());
-
         Reservation reservation = Reservation.builder()
                 .post(post)
                 .hostUser(hostUser)
                 .guestUser(guestUser)
-                .reservationStartAt(startAt)
-                .reservationEndAt(endAt)
+                .reservationStartAt(request.getReservationStartAt())
+                .reservationEndAt(request.getReservationEndAt())
                 .price(request.getPrice())
                 .deposit(request.getDeposit())
                 .status(ReservationStatus.REQUESTED)

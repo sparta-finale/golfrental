@@ -44,6 +44,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .deposit(post.getDeposit())
                 .dailyRate(post.getDailyRate())
                 .tradeStatus(post.getTradeStatus())
+                .favorite(post.isFavorite())
                 .userId(post.getUser().getId())
                 .username(post.getUser().getUsername())
                 .address(post.getUser().getAddress())
@@ -69,6 +70,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .deposit(post.getDeposit())
                 .dailyRate(post.getDailyRate())
                 .tradeStatus(post.getTradeStatus())
+                .favorite(post.isFavorite())
                 .userId(post.getUser().getId())
                 .username(post.getUser().getUsername())
                 .address(post.getUser().getAddress())
@@ -94,6 +96,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .deposit(post.getDeposit())
                 .dailyRate(post.getDailyRate())
                 .tradeStatus(post.getTradeStatus())
+                .favorite(post.isFavorite())
                 .userId(post.getUser().getId())
                 .username(post.getUser().getUsername())
                 .address(post.getUser().getAddress())
@@ -121,6 +124,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .deposit(post.getDeposit())
                 .dailyRate(post.getDailyRate())
                 .tradeStatus(post.getTradeStatus())
+                .favorite(post.isFavorite())
                 .userId(post.getUser().getId())
                 .username(post.getUser().getUsername())
                 .address(post.getUser().getAddress())
@@ -128,7 +132,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .categoryId(post.getCategory().getId())
                 .categoryName(post.getCategory().getName())
                 .build());
-        
+
         return SliceResponse.fromSlice(contents);
     }
 

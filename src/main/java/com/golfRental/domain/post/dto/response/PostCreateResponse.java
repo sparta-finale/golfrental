@@ -18,6 +18,7 @@ public record PostCreateResponse(
         BigDecimal deposit,
         BigDecimal dailyRate,
         TradeStatus tradeStatus,
+        boolean favorite,
         Long userId,
         String username,
         String address,

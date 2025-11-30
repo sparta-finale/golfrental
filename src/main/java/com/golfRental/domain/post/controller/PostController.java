@@ -57,6 +57,17 @@ public interface PostController {
     );
 
     /**
+     * 카테고리를 통한 게시물 조회 API
+     *
+     * @param categoryId 카테고리 ID
+     * @param pageable   페이지 정보
+     * @return SliceResponse<PostGetByCategoryResponse>
+     */
+    ResponseEntity<CommonApiResponse<SliceResponse<PostGetByCategoryResponse>>> getByCategory(
+            Long categoryId, Pageable pageable
+    );
+
+    /**
      * 게시물 수정 API
      *
      * @param authUser 토큰 정보

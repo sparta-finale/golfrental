@@ -7,6 +7,7 @@ import com.golfRental.domain.reservation.dto.request.ReservationCreateRequest;
 import com.golfRental.domain.reservation.dto.response.ReservationCreateResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationGetAllResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationGetResponse;
+import com.golfRental.domain.reservation.dto.response.ReservationUpdateStatusResponse;
 import com.golfRental.domain.reservation.message.ReservationSuccessMessage;
 import com.golfRental.domain.reservation.service.command.ReservationCommandService;
 import com.golfRental.domain.reservation.service.query.ReservationQueryService;
@@ -69,6 +70,21 @@ public class ReservationControllerImpl implements ReservationController {
         return CommonApiResponse.success(
                 response,
                 ReservationSuccessMessage.GET_RESERVATION_LIST
+        );
+    }
+
+    @Override
+    @PatchMapping("/{reservationId}/approve")
+    public ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> approveReservation(
+            @PathVariable Long reservationId,
+            @RequestAttribute("authUser") AuthUser authUser
+    ) {
+        ReservationUpdateStatusResponse response =
+                reservationCommandService.approveReservation(reservationId, authUser.getUserId());
+
+        return CommonApiResponse.success(
+                response,
+                ReservationSuccessMessage.RESERVATION_APPROVED
         );
     }
 }

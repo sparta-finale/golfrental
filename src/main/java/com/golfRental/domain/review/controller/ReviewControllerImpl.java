@@ -79,6 +79,6 @@ public class ReviewControllerImpl implements ReviewController {
             @PathVariable Long reviewId
     ) {
         reviewCommandService.deleteReview(authUser.getUserId(), reviewId);
-        return CommonApiResponse.success(null, "리뷰 삭제 성공");
+        return CommonApiResponse.deleteSuccess("리뷰 삭제 성공");
     }
 }

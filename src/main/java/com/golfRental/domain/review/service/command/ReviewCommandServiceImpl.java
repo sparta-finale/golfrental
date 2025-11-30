@@ -125,7 +125,7 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
                 .orElseThrow(() -> new ReviewException(ReviewErrorCode.REVIEW_NOT_FOUND));
 
         // 2. 작성자 검증
-        if (!review.getUser().getId().equals(currentUserId)) {
+        if (!review.isAuthor(currentUserId)) {
             throw new ReviewException(ReviewErrorCode.REVIEW_FORBIDDEN);
         }
 

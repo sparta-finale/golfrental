@@ -51,6 +51,17 @@ public class PostControllerImpl implements PostController {
     }
 
     @Override
+    @PostMapping("/posts/{postId}/favorites")
+    public ResponseEntity<CommonApiResponse<Void>> addFavorites(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long postId
+    ) {
+        postCommandService.addFavorites(authUser.getUserId(), postId);
+
+        return CommonApiResponse.success(null, PostSuccessMessage.POST_ADD_FAVORITES);
+    }
+
+    @Override
     @GetMapping("/posts")
     public ResponseEntity<CommonApiResponse<SliceResponse<PostGetAllResponse>>> getAll(
             // 카테고리 추가 예정

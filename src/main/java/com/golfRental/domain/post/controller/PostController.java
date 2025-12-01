@@ -20,7 +20,20 @@ public interface PostController {
      * @return PostCreateResponse
      */
     ResponseEntity<CommonApiResponse<PostCreateResponse>> createPost(
-            AuthUser authUser, PostCreateRequest postCreateRequest
+            AuthUser authUser,
+            PostCreateRequest postCreateRequest
+    );
+
+    /**
+     * 즐겨찾기 추가
+     *
+     * @param authUser 토큰 정보
+     * @param postId   게시물 ID
+     * @return void
+     */
+    ResponseEntity<CommonApiResponse<Void>> addFavorites(
+            AuthUser authUser,
+            Long postId
     );
 
     /**

@@ -21,7 +21,8 @@ public interface PostFavoritesRepository extends JpaRepository<PostFavorites, Lo
             SELECT pf
             FROM PostFavorites pf
             JOIN FETCH pf.post p
-            JOIN FETCH pf.user u
+            JOIN FETCH p.user
+            JOIN FETCH p.category
             WHERE pf.user = :user
             """)
     Slice<PostFavorites> findByUserWithPostAndUser(@Param("user") User user, Pageable pageable);

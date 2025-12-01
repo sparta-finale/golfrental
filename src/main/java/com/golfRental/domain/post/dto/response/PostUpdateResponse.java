@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 
 @Builder
 public record PostUpdateResponse(
-
         Long id,
         String title,
         String content,
@@ -23,6 +22,7 @@ public record PostUpdateResponse(
         String address,
         String nickname,
         Long categoryId,
-        String categoryName
+        String categoryName,
+        boolean favorites
 ) {
 }

@@ -20,27 +20,43 @@ public interface PostController {
      * @return PostCreateResponse
      */
     ResponseEntity<CommonApiResponse<PostCreateResponse>> createPost(
-            AuthUser authUser, PostCreateRequest postCreateRequest
+            AuthUser authUser,
+            PostCreateRequest postCreateRequest
+    );
+
+    /**
+     * 즐겨찾기 추가
+     *
+     * @param authUser 토큰 정보
+     * @param postId   게시물 ID
+     * @return void
+     */
+    ResponseEntity<CommonApiResponse<Void>> addFavorites(
+            AuthUser authUser,
+            Long postId
     );
 
     /**
      * 게시물 목록 조회 API
      *
+     * @param authUser 토큰 정보
      * @param pageable 페이지 정보
      * @return SliceResponse<PostGetAllResponse>
      */
     ResponseEntity<CommonApiResponse<SliceResponse<PostGetAllResponse>>> getAll(
-            // 카테고리 추가 예정
+            AuthUser authUser,
             Pageable pageable
     );
 
     /**
      * 게시물 상세 조회 API
      *
-     * @param postId 게시물 아이디
+     * @param authUser 토큰 정보
+     * @param postId   게시물 아이디
      * @return PostGetsResponse
      */
     ResponseEntity<CommonApiResponse<PostGetsResponse>> getPost(
+            AuthUser authUser,
             Long postId
     );
 
@@ -59,11 +75,13 @@ public interface PostController {
     /**
      * 카테고리를 통한 게시물 조회 API
      *
+     * @param authUser   토큰 정보
      * @param categoryId 카테고리 ID
      * @param pageable   페이지 정보
      * @return SliceResponse<PostGetByCategoryResponse>
      */
     ResponseEntity<CommonApiResponse<SliceResponse<PostGetByCategoryResponse>>> getByCategory(
+            AuthUser authUser,
             Long categoryId, Pageable pageable
     );
 

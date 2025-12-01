@@ -9,8 +9,10 @@ import com.golfRental.domain.post.dto.response.PostCreateResponse;
 import com.golfRental.domain.post.dto.response.PostUpdateResponse;
 import com.golfRental.domain.post.dto.response.PostUpdateStatusResponse;
 import com.golfRental.domain.post.entity.Post;
+import com.golfRental.domain.post.entity.PostFavorites;
 import com.golfRental.domain.post.exception.PostErrorCode;
 import com.golfRental.domain.post.exception.PostException;
+import com.golfRental.domain.post.repository.PostFavoritesRepository;
 import com.golfRental.domain.post.repository.PostRepository;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
@@ -28,10 +30,10 @@ import java.util.Objects;
 public class PostCommandServiceImpl implements PostCommandService {
 
     private final PostRepository postRepository;
+    private final PostFavoritesRepository postFavoritesRepository;
     private final UserQueryService userQueryService;
     private final CategoryQueryService categoryQueryService;
 
-    // 이후 추가적으로 이미지, 카테고리 들어가야 함
     @Override
     public PostCreateResponse createPost(Long userId, PostCreateRequest postCreateRequest) {
         User user = userQueryService.findById(userId);
@@ -67,15 +69,41 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .nickname(user.getNickname())
                 .categoryId(category.getId())
                 .categoryName(category.getName())
+                .favorites(false)
                 .build();
     }
 
     @Override
+    public void addFavorites(Long userId, Long postId) {
+        User user = userQueryService.findById(userId);
+
+        Post post = postRepository.findByIdWithUserAndCategory(postId).orElseThrow(
+                () -> new PostException(PostErrorCode.POST_INVALID_ID)
+        );
+
+        if (postFavoritesRepository.existsByUserAndPost(user, post)) {
+            throw new PostException(PostErrorCode.POST_DUPLICATION_FAVORITES); // Or a more specific error
+        }
+
+        PostFavorites postFavorites = PostFavorites.builder()
+                .user(user)
+                .post(post)
+                .build();
+
+        postFavoritesRepository.save(postFavorites);
+    }
+
+    @Override
     public PostUpdateResponse updatePost(Long userId, Long postId, PostUpdateRequest postUpdateRequest) {
+        User user = userQueryService.findById(userId);
+
         Post post = findPostAndCheckOwner(userId, postId);
+
         Category category = categoryQueryService.findById(postUpdateRequest.getCategoryId());
 
         post.update(postUpdateRequest, category);
+
+        boolean postFavorites = postFavoritesRepository.existsByUserAndPost(user, post);
 
         return PostUpdateResponse.builder()
                 .id(post.getId())
@@ -93,6 +121,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .nickname(post.getUser().getNickname())
                 .categoryId(post.getCategory().getId())
                 .categoryName(post.getCategory().getName())
+                .favorites(postFavorites)
                 .build();
     }
 

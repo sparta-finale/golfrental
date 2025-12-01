@@ -26,4 +26,6 @@ public interface PostFavoritesRepository extends JpaRepository<PostFavorites, Lo
             WHERE pf.user = :user
             """)
     Slice<PostFavorites> findByUserWithPostAndUser(@Param("user") User user, Pageable pageable);
+
+    PostFavorites findByUserAndPost(User user, Post post);
 }

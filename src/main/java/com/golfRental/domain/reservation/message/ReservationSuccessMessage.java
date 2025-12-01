@@ -9,6 +9,8 @@ public final class ReservationSuccessMessage {
     public final static String RESERVATION_REJECTED = "예약이 거절되었습니다.";
     public final static String RESERVATION_CANCELLED = "예약이 취소되었습니다.";
     public final static String RESERVATION_RENTAL_STARTED = "대여가 시작되었습니다.";
+    public final static String RETURN_REQUESTED = "반납 요청이 완료되었습니다.";
+    public final static String RETURN_COMPLETED = "반납이 완료되었습니다.";
 
     private ReservationSuccessMessage() {
     }

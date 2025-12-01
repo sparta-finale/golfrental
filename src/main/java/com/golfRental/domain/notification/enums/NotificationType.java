@@ -4,5 +4,6 @@ public enum NotificationType {
     CHAT,
     REVIEW,
     RESERVATION,
-    SYSTEM
+    SYSTEM,
+    REVIEW_CREATED
 }

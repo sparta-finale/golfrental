@@ -1,5 +1,8 @@
 package com.golfRental.domain.review.service.command;
 
+import com.golfRental.domain.notification.dto.request.NotificationCreateRequest;
+import com.golfRental.domain.notification.enums.NotificationType;
+import com.golfRental.domain.notification.service.command.NotificationCommandService;
 import com.golfRental.domain.reservation.entity.Reservation;
 import com.golfRental.domain.reservation.enums.ReservationStatus;
 import com.golfRental.domain.reservation.service.query.ReservationQueryService;
@@ -16,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service
@@ -26,6 +31,7 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
     private final ReviewRepository reviewRepository;
     private final ReservationQueryService reservationQueryService;
     private final UserQueryService userQueryService;
+    private final NotificationCommandService notificationCommandService;
 
     @Override
     @Transactional
@@ -55,7 +61,32 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
         Review review = request.toEntity(user, targetUser, reservation);
         Review savedReview = reviewRepository.save(review);
 
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                sendReviewNotification(user, targetUser, savedReview);
+            }
+        });
+
         return ReviewResponse.from(savedReview);
+    }
+
+    private void sendReviewNotification(User reviewer, User targetUser, Review review) {
+        try {
+            NotificationCreateRequest notificationRequest = NotificationCreateRequest.builder()
+                    .receiverId(targetUser.getId())
+                    .title("새로운 리뷰")
+                    .content(reviewer.getUsername() + "님이 회원님에 대한 리뷰를 작성했습니다.")
+                    .type(NotificationType.REVIEW_CREATED)
+                    .referenceId(review.getId())
+                    .build();
+
+            notificationCommandService.createNotification(notificationRequest);
+
+        } catch (Exception e) {
+            log.error("리뷰 알림 전송 실패 - reviewId: {}, targetUserId: {}",
+                    review.getId(), targetUser.getId(), e);
+        }
     }
 
     private void validateReservationStatus(Reservation reservation) {

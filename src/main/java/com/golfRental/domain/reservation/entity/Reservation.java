@@ -130,4 +130,18 @@ public class Reservation extends BaseEntity {
 
         this.status = ReservationStatus.RENTED;
     }
+
+    // 반납 요청
+    public void requestReturn() {
+
+        if (this.status == ReservationStatus.RETURNING) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_ALREADY_RETURNING);
+        }
+
+        if (this.status != ReservationStatus.RENTED) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_CANNOT_REQUEST_RETURN);
+        }
+
+        this.status = ReservationStatus.RETURNING;
+    }
 }

@@ -121,4 +121,16 @@ public interface ReservationController {
             Long reservationId,
             AuthUser authUser
     );
+
+    /**
+     * 예약 상태 조회
+     *
+     * @param reservationId 예약 ID
+     * @param authUser      로그인 사용자 정보
+     * @return ReservationUpdateStatusResponse
+     */
+    ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> getReservationStatus(
+            Long reservationId,
+            AuthUser authUser
+    );
 }

@@ -3,6 +3,7 @@ package com.golfRental.domain.reservation.service.query;
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationGetAllResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationGetResponse;
+import com.golfRental.domain.reservation.dto.response.ReservationUpdateStatusResponse;
 import com.golfRental.domain.reservation.entity.Reservation;
 
 public interface ReservationQueryService {
@@ -12,4 +13,6 @@ public interface ReservationQueryService {
     Reservation findById(Long reservationId);
 
     SliceResponse<ReservationGetAllResponse> getMyReservations(Long userId, int page, int size);
+
+    ReservationUpdateStatusResponse getReservationStatus(Long reservationId, Long userId);
 }

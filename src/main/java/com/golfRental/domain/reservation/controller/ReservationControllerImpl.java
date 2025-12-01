@@ -163,4 +163,20 @@ public class ReservationControllerImpl implements ReservationController {
                 ReservationSuccessMessage.RETURN_COMPLETED
         );
     }
+
+    @Override
+    @GetMapping("/{reservationId}/status")
+    public ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> getReservationStatus(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+
+        ReservationUpdateStatusResponse response =
+                reservationQueryService.getReservationStatus(reservationId, authUser.getUserId());
+
+        return CommonApiResponse.success(
+                response,
+                ReservationSuccessMessage.GET_RESERVATION_STATUS
+        );
+    }
 }

@@ -131,6 +131,21 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
                 .build();
     }
 
+    // 반납 승인(완료)
+    @Override
+    public ReservationUpdateStatusResponse completeReservation(Long reservationId, Long userId) {
+
+        Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
+
+        reservation.complete(); // 엔티티 도메인 규칙 실행
+
+
+        return ReservationUpdateStatusResponse.builder()
+                .reservationId(reservation.getId())
+                .status(reservation.getStatus())
+                .build();
+    }
+
     // 공통 조회 메서드
     private Reservation findReservationById(Long reservationId) {
         return reservationRepository.findByIdWithDetails(reservationId)

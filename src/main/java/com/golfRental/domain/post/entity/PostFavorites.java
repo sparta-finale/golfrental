@@ -9,10 +9,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "post_favorites")
+@Table(name = "post_favorites", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "post_id"})
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostFavorites {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

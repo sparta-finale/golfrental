@@ -53,8 +53,6 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         Post savedPost = postRepository.save(post);
 
-        boolean postFavorites = postFavoritesRepository.existsByUserAndPost(user, savedPost);
-
         return PostCreateResponse.builder()
                 .id(savedPost.getId())
                 .title(savedPost.getTitle())
@@ -71,7 +69,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .nickname(user.getNickname())
                 .categoryId(category.getId())
                 .categoryName(category.getName())
-                .favorites(postFavorites)
+                .favorites(false)
                 .build();
     }
 
@@ -82,6 +80,10 @@ public class PostCommandServiceImpl implements PostCommandService {
         Post post = postRepository.findByIdWithUserAndCategory(postId).orElseThrow(
                 () -> new PostException(PostErrorCode.POST_INVALID_ID)
         );
+
+        if (postFavoritesRepository.existsByUserAndPost(user, post)) {
+            throw new PostException(PostErrorCode.POST_DUPLICATION_FAVORITES); // Or a more specific error
+        }
 
         PostFavorites postFavorites = PostFavorites.builder()
                 .user(user)

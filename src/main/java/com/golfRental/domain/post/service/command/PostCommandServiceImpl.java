@@ -143,6 +143,17 @@ public class PostCommandServiceImpl implements PostCommandService {
         post.delete();
     }
 
+    @Override
+    public void deleteFavorites(Long userId, Long postId) {
+        User user = userQueryService.findById(userId);
+        Post post = postRepository.findByIdAndDeletedAtIsNull(postId).orElseThrow(
+                () -> new PostException(PostErrorCode.POST_INVALID_ID)
+        );
+        PostFavorites postFavorites = postFavoritesRepository.findByUserAndPost(user, post);
+
+        postFavoritesRepository.delete(postFavorites);
+    }
+
     private Post findPostAndCheckOwner(Long userId, Long postId) {
         Post post = postRepository.findByIdWithUserAndCategory(postId).orElseThrow(
                 () -> new PostException(PostErrorCode.POST_INVALID_ID)

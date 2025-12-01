@@ -9,8 +9,10 @@ import com.golfRental.domain.post.dto.response.PostCreateResponse;
 import com.golfRental.domain.post.dto.response.PostUpdateResponse;
 import com.golfRental.domain.post.dto.response.PostUpdateStatusResponse;
 import com.golfRental.domain.post.entity.Post;
+import com.golfRental.domain.post.entity.PostFavorites;
 import com.golfRental.domain.post.exception.PostErrorCode;
 import com.golfRental.domain.post.exception.PostException;
+import com.golfRental.domain.post.repository.PostFavoritesRepository;
 import com.golfRental.domain.post.repository.PostRepository;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
@@ -28,6 +30,7 @@ import java.util.Objects;
 public class PostCommandServiceImpl implements PostCommandService {
 
     private final PostRepository postRepository;
+    private final PostFavoritesRepository postFavoritesRepository;
     private final UserQueryService userQueryService;
     private final CategoryQueryService categoryQueryService;
 
@@ -68,6 +71,22 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .categoryId(category.getId())
                 .categoryName(category.getName())
                 .build();
+    }
+
+    @Override
+    public void addFavorites(Long userId, Long postId) {
+        User user = userQueryService.findById(userId);
+
+        Post post = postRepository.findByIdWithUserAndCategory(postId).orElseThrow(
+                () -> new PostException(PostErrorCode.POST_INVALID_ID)
+        );
+
+        PostFavorites postFavorites = PostFavorites.builder()
+                .user(user)
+                .post(post)
+                .build();
+        
+        postFavoritesRepository.save(postFavorites);
     }
 
     @Override

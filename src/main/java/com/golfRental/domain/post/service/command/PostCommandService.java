@@ -19,6 +19,14 @@ public interface PostCommandService {
     PostCreateResponse createPost(Long userId, PostCreateRequest postCreateRequest);
 
     /**
+     * 즐겨찾기 등록 API
+     *
+     * @param userId 인증된 유저 ID
+     * @param postId 게시물 ID
+     */
+    void addFavorites(Long userId, Long postId);
+
+    /**
      * 게시물 수정 API
      *
      * @param userId            인증된 유저 ID

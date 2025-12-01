@@ -3,6 +3,7 @@ package com.golfRental.domain.reservation.service.query;
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationGetAllResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationGetResponse;
+import com.golfRental.domain.reservation.dto.response.ReservationUpdateStatusResponse;
 import com.golfRental.domain.reservation.entity.Reservation;
 import com.golfRental.domain.reservation.exception.ReservationErrorCode;
 import com.golfRental.domain.reservation.exception.ReservationException;
@@ -84,5 +85,24 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
         );
 
         return SliceResponse.fromSlice(contents);
+    }
+
+    // 예약 상태 조회
+    @Override
+    public ReservationUpdateStatusResponse getReservationStatus(Long reservationId, Long userId) {
+
+        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
+                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+
+        // 호스트 또는 게스트만 조회 가능
+        if (!reservation.getHostUser().getId().equals(userId)
+                && !reservation.getGuestUser().getId().equals(userId)) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
+        }
+
+        return ReservationUpdateStatusResponse.builder()
+                .reservationId(reservation.getId())
+                .status(reservation.getStatus())
+                .build();
     }
 }

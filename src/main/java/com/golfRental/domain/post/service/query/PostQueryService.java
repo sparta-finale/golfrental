@@ -1,10 +1,7 @@
 package com.golfRental.domain.post.service.query;
 
 import com.golfRental.common.response.SliceResponse;
-import com.golfRental.domain.post.dto.response.PostGetAllResponse;
-import com.golfRental.domain.post.dto.response.PostGetByCategoryResponse;
-import com.golfRental.domain.post.dto.response.PostGetMyResponse;
-import com.golfRental.domain.post.dto.response.PostGetsResponse;
+import com.golfRental.domain.post.dto.response.*;
 import com.golfRental.domain.post.entity.Post;
 import org.springframework.data.domain.Pageable;
 
@@ -43,6 +40,15 @@ public interface PostQueryService {
      * @return SliceResponse<PostGetByCategoryResponse>
      */
     SliceResponse<PostGetByCategoryResponse> getByCategory(Long userId, Long categoryId, Pageable pageable);
+
+    /**
+     * 즐겨찾기를 통한 게시물 조회
+     *
+     * @param userId   유저 ID
+     * @param pageable 페이지 데이터
+     * @return SliceResponse<PostGetByFavoritesResponse>
+     */
+    SliceResponse<PostGetByFavoritesResponse> getByFavorites(Long userId, Pageable pageable);
 
     Post findById(Long postId);
 }

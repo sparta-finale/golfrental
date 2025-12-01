@@ -11,6 +11,7 @@ public final class ReservationSuccessMessage {
     public final static String RESERVATION_RENTAL_STARTED = "대여가 시작되었습니다.";
     public final static String RETURN_REQUESTED = "반납 요청이 완료되었습니다.";
     public final static String RETURN_COMPLETED = "반납이 완료되었습니다.";
+    public final static String GET_RESERVATION_STATUS = "예약 상태 조회 성공";
 
     private ReservationSuccessMessage() {
     }

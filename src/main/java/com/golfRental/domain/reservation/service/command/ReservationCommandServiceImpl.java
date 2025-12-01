@@ -107,14 +107,23 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
     @Override
     public ReservationUpdateStatusResponse startReservation(Long reservationId, Long userId) {
 
-        Reservation reservation = findReservationById(reservationId);
-
-        // 호스트만 시작 가능
-        if (!reservation.getHostUser().getId().equals(userId)) {
-            throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
-        }
+        Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
 
         reservation.startRental(); // 엔티티 도메인 규칙 실행
+
+        return ReservationUpdateStatusResponse.builder()
+                .reservationId(reservation.getId())
+                .status(reservation.getStatus())
+                .build();
+    }
+
+    // 반납 요청
+    @Override
+    public ReservationUpdateStatusResponse requestReturn(Long reservationId, Long userId) {
+
+        Reservation reservation = findReservationAndVerifyGuest(reservationId, userId);
+
+        reservation.requestReturn(); // 엔티티 도메인 규칙 실행
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())

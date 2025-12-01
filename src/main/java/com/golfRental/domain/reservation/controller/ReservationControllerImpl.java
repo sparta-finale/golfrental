@@ -133,4 +133,18 @@ public class ReservationControllerImpl implements ReservationController {
         );
     }
 
+    @Override
+    @PatchMapping("/{reservationId}/return-request")
+    public ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> requestReturn(
+            @PathVariable Long reservationId,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        ReservationUpdateStatusResponse response =
+                reservationCommandService.requestReturn(reservationId, authUser.getUserId());
+
+        return CommonApiResponse.success(
+                response,
+                ReservationSuccessMessage.RETURN_REQUESTED
+        );
+    }
 }

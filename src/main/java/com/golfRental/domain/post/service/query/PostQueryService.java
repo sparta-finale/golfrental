@@ -36,7 +36,7 @@ public interface PostQueryService {
     SliceResponse<PostGetMyResponse> getMyPost(Long userId, Pageable pageable);
 
     /**
-     * 카테고리를 통한 게시물 조회 API
+     * 카테고리를 통한 게시물 조회
      *
      * @param categoryId 카테고리 ID
      * @param pageable   페이지 데이터

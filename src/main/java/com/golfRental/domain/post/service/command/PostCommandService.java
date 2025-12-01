@@ -10,7 +10,7 @@ import com.golfRental.domain.post.dto.response.PostUpdateStatusResponse;
 public interface PostCommandService {
 
     /**
-     * 게시물 생성 API
+     * 게시물 생성
      *
      * @param userId            인증된 유저 ID
      * @param postCreateRequest 게시물 생성시 필요한 데이터
@@ -19,7 +19,7 @@ public interface PostCommandService {
     PostCreateResponse createPost(Long userId, PostCreateRequest postCreateRequest);
 
     /**
-     * 즐겨찾기 등록 API
+     * 즐겨찾기 등록
      *
      * @param userId 인증된 유저 ID
      * @param postId 게시물 ID
@@ -27,7 +27,7 @@ public interface PostCommandService {
     void addFavorites(Long userId, Long postId);
 
     /**
-     * 게시물 수정 API
+     * 게시물 수정
      *
      * @param userId            인증된 유저 ID
      * @param postId            게시물 ID
@@ -37,7 +37,7 @@ public interface PostCommandService {
     PostUpdateResponse updatePost(Long userId, Long postId, PostUpdateRequest postUpdateRequest);
 
     /**
-     * 게시물 거래 상태 수정 API
+     * 게시물 거래 상태 수정
      *
      * @param userId                  인증된 유저 ID
      * @param postId                  게시물 ID
@@ -47,7 +47,7 @@ public interface PostCommandService {
     PostUpdateStatusResponse updateStatusPost(Long userId, Long postId, PostUpdateStatusRequest postUpdateStatusRequest);
 
     /**
-     * 게시물 삭제 API
+     * 게시물 삭제
      *
      * @param userId 인증된 유저 ID
      * @param postId 게시물 ID

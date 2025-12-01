@@ -34,7 +34,6 @@ public class PostCommandServiceImpl implements PostCommandService {
     private final UserQueryService userQueryService;
     private final CategoryQueryService categoryQueryService;
 
-    // 이후 추가적으로 이미지, 카테고리 들어가야 함
     @Override
     public PostCreateResponse createPost(Long userId, PostCreateRequest postCreateRequest) {
         User user = userQueryService.findById(userId);
@@ -85,7 +84,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .user(user)
                 .post(post)
                 .build();
-        
+
         postFavoritesRepository.save(postFavorites);
     }
 

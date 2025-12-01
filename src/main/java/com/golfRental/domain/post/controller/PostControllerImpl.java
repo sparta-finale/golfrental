@@ -93,6 +93,7 @@ public class PostControllerImpl implements PostController {
         return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_MY);
     }
 
+    @Override
     @GetMapping("/posts/categories/{categoryId}")
     public ResponseEntity<CommonApiResponse<SliceResponse<PostGetByCategoryResponse>>> getByCategory(
             @PathVariable Long categoryId,

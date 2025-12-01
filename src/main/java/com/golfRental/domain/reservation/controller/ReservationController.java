@@ -89,9 +89,9 @@ public interface ReservationController {
     /**
      * 대여 시작
      *
-     * @param reservationId 예약 ID
+     * @param reservationId 대여를 시작할 예약 ID
      * @param authUser      로그인 사용자 정보
-     * @return ReservationUpdateStatusResponse
+     * @return ResponseEntity<CommonApiResponse < ReservationUpdateStatusResponse>>
      */
     ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> startReservation(
             Long reservationId,
@@ -103,9 +103,21 @@ public interface ReservationController {
      *
      * @param reservationId 반납을 요청할 예약 ID
      * @param authUser      로그인 사용자 정보
-     * @return ReservationUpdateStatusResponse
+     * @return ResponseEntity<CommonApiResponse < ReservationUpdateStatusResponse>>
      */
     ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> requestReturn(
+            Long reservationId,
+            AuthUser authUser
+    );
+
+    /**
+     * 반납 승인(완료)
+     *
+     * @param reservationId 반납 완료 처리할 예약 ID
+     * @param authUser      로그인 사용자 정보
+     * @return ResponseEntity<CommonApiResponse < ReservationUpdateStatusResponse>>
+     */
+    ResponseEntity<CommonApiResponse<ReservationUpdateStatusResponse>> completeReservation(
             Long reservationId,
             AuthUser authUser
     );

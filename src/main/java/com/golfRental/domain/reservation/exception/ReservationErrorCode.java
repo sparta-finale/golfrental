@@ -20,7 +20,9 @@ public enum ReservationErrorCode implements ErrorCode {
     RESERVATION_ALREADY_RENTED(HttpStatus.BAD_REQUEST, "이미 대여가 시작된 예약입니다."),
     RESERVATION_CANNOT_START(HttpStatus.BAD_REQUEST, "이 상태에서는 대여를 시작할 수 없습니다."),
     RESERVATION_ALREADY_RETURNING(HttpStatus.BAD_REQUEST, "이미 반납 요청된 예약입니다."),
-    RESERVATION_CANNOT_REQUEST_RETURN(HttpStatus.BAD_REQUEST, "이 상태에서는 반납 요청을 할 수 없습니다.");
+    RESERVATION_CANNOT_REQUEST_RETURN(HttpStatus.BAD_REQUEST, "이 상태에서는 반납 요청을 할 수 없습니다."),
+    RESERVATION_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "이미 반납 완료된 예약입니다."),
+    RESERVATION_CANNOT_COMPLETE(HttpStatus.BAD_REQUEST, "이 상태에서는 반납 승인할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

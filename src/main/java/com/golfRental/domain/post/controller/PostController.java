@@ -86,6 +86,18 @@ public interface PostController {
     );
 
     /**
+     * 즐겨찾기를 통한 게시물 조회 API
+     *
+     * @param authUser 토큰 정보
+     * @param pageable 페이지 정보
+     * @return SliceResponse<PostGetByFavoritesResponse>
+     */
+    ResponseEntity<CommonApiResponse<SliceResponse<PostGetByFavoritesResponse>>> getByFavorites(
+            AuthUser authUser,
+            Pageable pageable
+    );
+
+    /**
      * 게시물 수정 API
      *
      * @param authUser 토큰 정보

@@ -3,11 +3,9 @@ package com.golfRental.domain.post.service.query;
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.category.entity.Category;
 import com.golfRental.domain.category.service.query.CategoryQueryService;
-import com.golfRental.domain.post.dto.response.PostGetAllResponse;
-import com.golfRental.domain.post.dto.response.PostGetByCategoryResponse;
-import com.golfRental.domain.post.dto.response.PostGetMyResponse;
-import com.golfRental.domain.post.dto.response.PostGetsResponse;
+import com.golfRental.domain.post.dto.response.*;
 import com.golfRental.domain.post.entity.Post;
+import com.golfRental.domain.post.entity.PostFavorites;
 import com.golfRental.domain.post.exception.PostErrorCode;
 import com.golfRental.domain.post.exception.PostException;
 import com.golfRental.domain.post.repository.PostFavoritesRepository;
@@ -41,7 +39,6 @@ public class PostQueryServiceImpl implements PostQueryService {
         Set<Long> favoritePostIds = postFavoritesRepository.findPostIdsByUser(user);
 
         Slice<Post> posts = postRepository.findAllOrderByStatus(pageable);
-
 
         Slice<PostGetAllResponse> content = posts.map(post -> PostGetAllResponse.builder()
                 .id(post.getId())
@@ -150,6 +147,35 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .categoryId(post.getCategory().getId())
                 .categoryName(post.getCategory().getName())
                 .favorites(favoritePostIds.contains(post.getId()))
+                .build());
+
+
+        return SliceResponse.fromSlice(contents);
+    }
+
+    @Override
+    public SliceResponse<PostGetByFavoritesResponse> getByFavorites(Long userId, Pageable pageable) {
+        User user = userQueryService.findById(userId);
+
+        Slice<PostFavorites> postFavorites = postFavoritesRepository.findByUserWithPostAndUser(user, pageable);
+
+        Slice<PostGetByFavoritesResponse> contents = postFavorites.map(pf -> PostGetByFavoritesResponse.builder()
+                .id(pf.getPost().getId())
+                .title(pf.getPost().getTitle())
+                .content(pf.getPost().getContent())
+                .methodOfReceive(pf.getPost().getMethodOfReceive())
+                .methodOfReturn(pf.getPost().getMethodOfReturn())
+                .price(pf.getPost().getPrice())
+                .deposit(pf.getPost().getDeposit())
+                .dailyRate(pf.getPost().getDailyRate())
+                .tradeStatus(pf.getPost().getTradeStatus())
+                .userId(pf.getPost().getUser().getId())
+                .username(pf.getPost().getUser().getUsername())
+                .address(pf.getPost().getUser().getAddress())
+                .nickname(pf.getPost().getUser().getNickname())
+                .categoryId(pf.getPost().getCategory().getId())
+                .categoryName(pf.getPost().getCategory().getName())
+                .favorites(true)
                 .build());
 
         return SliceResponse.fromSlice(contents);

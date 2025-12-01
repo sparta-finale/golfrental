@@ -107,6 +107,17 @@ public class PostControllerImpl implements PostController {
     }
 
     @Override
+    @GetMapping("/posts/favorites")
+    public ResponseEntity<CommonApiResponse<SliceResponse<PostGetByFavoritesResponse>>> getByFavorites(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PageableDefault(page = 0, size = 20, sort = "post.createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        SliceResponse<PostGetByFavoritesResponse> posts = postQueryService.getByFavorites(authUser.getUserId(), pageable);
+
+        return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_BY_FAVORITES);
+    }
+
+    @Override
     @PutMapping("/posts/{postId}")
     public ResponseEntity<CommonApiResponse<PostUpdateResponse>> updatePost(
             @AuthenticationPrincipal AuthUser authUser,

@@ -107,8 +107,7 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
     @Override
     public ReservationUpdateStatusResponse startReservation(Long reservationId, Long userId) {
 
-        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
-                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+        Reservation reservation = findReservationById(reservationId);
 
         // 호스트만 시작 가능
         if (!reservation.getHostUser().getId().equals(userId)) {

@@ -132,4 +132,16 @@ public interface PostController {
             AuthUser authUser,
             Long postId
     );
+
+    /**
+     * 즐겨찾기 삭제 API
+     *
+     * @param authUser 토큰 정보
+     * @param postId   게시물 ID
+     * @return void
+     */
+    ResponseEntity<CommonApiResponse<Void>> deleteFavorites(
+            AuthUser authUser,
+            Long postId
+    );
 }

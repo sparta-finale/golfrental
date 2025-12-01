@@ -57,4 +57,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                         END ASC
             """)
     Slice<Post> findAllByCategoryOrderByStatus(@Param("category") Category category, Pageable pageable);
+
+    Optional<Post> findByIdAndDeletedAtIsNull(Long id);
 }

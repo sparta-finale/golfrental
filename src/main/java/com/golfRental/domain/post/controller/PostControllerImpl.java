@@ -151,4 +151,15 @@ public class PostControllerImpl implements PostController {
 
         return CommonApiResponse.deleteSuccess(PostSuccessMessage.POST_DELETED);
     }
+
+    @Override
+    @DeleteMapping("/posts/{postId}/favorites")
+    public ResponseEntity<CommonApiResponse<Void>> deleteFavorites(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long postId
+    ) {
+        postCommandService.deleteFavorites(authUser.getUserId(), postId);
+
+        return CommonApiResponse.deleteSuccess(PostSuccessMessage.POST_FAVORITES_DELETED);
+    }
 }

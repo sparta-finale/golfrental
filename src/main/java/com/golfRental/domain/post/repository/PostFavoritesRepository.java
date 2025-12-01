@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface PostFavoritesRepository extends JpaRepository<PostFavorites, Long> {
@@ -26,4 +27,6 @@ public interface PostFavoritesRepository extends JpaRepository<PostFavorites, Lo
             WHERE pf.user = :user
             """)
     Slice<PostFavorites> findByUserWithPostAndUser(@Param("user") User user, Pageable pageable);
+
+    Optional<PostFavorites> findByUserAndPost(User user, Post post);
 }

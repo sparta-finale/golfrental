@@ -53,6 +53,8 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         Post savedPost = postRepository.save(post);
 
+        boolean postFavorites = postFavoritesRepository.existsByUserAndPost(user, savedPost);
+
         return PostCreateResponse.builder()
                 .id(savedPost.getId())
                 .title(savedPost.getTitle())
@@ -69,6 +71,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .nickname(user.getNickname())
                 .categoryId(category.getId())
                 .categoryName(category.getName())
+                .favorites(postFavorites)
                 .build();
     }
 
@@ -90,10 +93,15 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     @Override
     public PostUpdateResponse updatePost(Long userId, Long postId, PostUpdateRequest postUpdateRequest) {
+        User user = userQueryService.findById(userId);
+
         Post post = findPostAndCheckOwner(userId, postId);
+
         Category category = categoryQueryService.findById(postUpdateRequest.getCategoryId());
 
         post.update(postUpdateRequest, category);
+
+        boolean postFavorites = postFavoritesRepository.existsByUserAndPost(user, post);
 
         return PostUpdateResponse.builder()
                 .id(post.getId())
@@ -111,6 +119,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .nickname(post.getUser().getNickname())
                 .categoryId(post.getCategory().getId())
                 .categoryName(post.getCategory().getName())
+                .favorites(postFavorites)
                 .build();
     }
 

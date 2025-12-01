@@ -53,4 +53,12 @@ public interface PostCommandService {
      * @param postId 게시물 ID
      */
     void deletePost(Long userId, Long postId);
+
+    /**
+     * 즐겨찾기 삭제
+     *
+     * @param userId 인증된 유저 ID
+     * @param postId 게시물 ID
+     */
+    void deleteFavorites(Long userId, Long postId);
 }

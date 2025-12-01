@@ -51,12 +51,23 @@ public class PostControllerImpl implements PostController {
     }
 
     @Override
+    @PostMapping("/posts/{postId}/favorites")
+    public ResponseEntity<CommonApiResponse<Void>> addFavorites(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long postId
+    ) {
+        postCommandService.addFavorites(authUser.getUserId(), postId);
+
+        return CommonApiResponse.success(null, PostSuccessMessage.POST_ADD_FAVORITES);
+    }
+
+    @Override
     @GetMapping("/posts")
     public ResponseEntity<CommonApiResponse<SliceResponse<PostGetAllResponse>>> getAll(
-            // 카테고리 추가 예정
+            @AuthenticationPrincipal AuthUser authUser,
             @PageableDefault(page = 0, size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        SliceResponse<PostGetAllResponse> posts = postQueryService.getAll(pageable);
+        SliceResponse<PostGetAllResponse> posts = postQueryService.getAll(authUser.getUserId(), pageable);
 
         return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_ALL);
     }
@@ -64,9 +75,10 @@ public class PostControllerImpl implements PostController {
     @Override
     @GetMapping("/posts/{postId}")
     public ResponseEntity<CommonApiResponse<PostGetsResponse>> getPost(
+            @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long postId
     ) {
-        PostGetsResponse postGetsResponse = postQueryService.getPost(postId);
+        PostGetsResponse postGetsResponse = postQueryService.getPost(authUser.getUserId(), postId);
 
         return CommonApiResponse.success(postGetsResponse, PostSuccessMessage.POST_GETS);
     }
@@ -82,12 +94,14 @@ public class PostControllerImpl implements PostController {
         return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_MY);
     }
 
+    @Override
     @GetMapping("/posts/categories/{categoryId}")
     public ResponseEntity<CommonApiResponse<SliceResponse<PostGetByCategoryResponse>>> getByCategory(
+            @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long categoryId,
             @PageableDefault(page = 0, size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        SliceResponse<PostGetByCategoryResponse> posts = postQueryService.getByCategory(categoryId, pageable);
+        SliceResponse<PostGetByCategoryResponse> posts = postQueryService.getByCategory(authUser.getUserId(), categoryId, pageable);
 
         return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_BY_CATEGORY);
     }

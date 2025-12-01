@@ -10,6 +10,7 @@ import com.golfRental.domain.post.dto.response.PostGetsResponse;
 import com.golfRental.domain.post.entity.Post;
 import com.golfRental.domain.post.exception.PostErrorCode;
 import com.golfRental.domain.post.exception.PostException;
+import com.golfRental.domain.post.repository.PostFavoritesRepository;
 import com.golfRental.domain.post.repository.PostRepository;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
@@ -20,6 +21,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,12 +30,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostQueryServiceImpl implements PostQueryService {
 
     private final PostRepository postRepository;
+    private final PostFavoritesRepository postFavoritesRepository;
     private final UserQueryService userQueryService;
     private final CategoryQueryService categoryQueryService;
 
     @Override
-    public SliceResponse<PostGetAllResponse> getAll(Pageable pageable) {
+    public SliceResponse<PostGetAllResponse> getAll(Long userId, Pageable pageable) {
+        User user = userQueryService.findById(userId);
+
+        Set<Long> favoritePostIds = postFavoritesRepository.findPostIdsByUser(user);
+
         Slice<Post> posts = postRepository.findAllOrderByStatus(pageable);
+
 
         Slice<PostGetAllResponse> content = posts.map(post -> PostGetAllResponse.builder()
                 .id(post.getId())
@@ -50,14 +59,19 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .nickname(post.getUser().getNickname())
                 .categoryId(post.getCategory().getId())
                 .categoryName(post.getCategory().getName())
+                .favorites(favoritePostIds.contains(post.getId()))
                 .build());
 
         return SliceResponse.fromSlice(content);
     }
 
     @Override
-    public PostGetsResponse getPost(Long postId) {
+    public PostGetsResponse getPost(Long userId, Long postId) {
+        User user = userQueryService.findById(userId);
+
         Post post = findById(postId);
+
+        boolean postFavorites = postFavoritesRepository.existsByUserAndPost(user, post);
 
         return PostGetsResponse.builder()
                 .id(post.getId())
@@ -75,12 +89,15 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .nickname(post.getUser().getNickname())
                 .categoryId(post.getCategory().getId())
                 .categoryName(post.getCategory().getName())
+                .favorites(postFavorites)
                 .build();
     }
 
     @Override
     public SliceResponse<PostGetMyResponse> getMyPost(Long userId, Pageable pageable) {
         User user = userQueryService.findById(userId);
+
+        Set<Long> favoritePostIds = postFavoritesRepository.findPostIdsByUser(user);
 
         Slice<Post> posts = postRepository.findAllByUserOrderByStatus(user, pageable);
 
@@ -100,13 +117,18 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .nickname(post.getUser().getNickname())
                 .categoryId(post.getCategory().getId())
                 .categoryName(post.getCategory().getName())
+                .favorites(favoritePostIds.contains(post.getId()))
                 .build());
 
         return SliceResponse.fromSlice(contents);
     }
 
     @Override
-    public SliceResponse<PostGetByCategoryResponse> getByCategory(Long categoryId, Pageable pageable) {
+    public SliceResponse<PostGetByCategoryResponse> getByCategory(Long userId, Long categoryId, Pageable pageable) {
+        User user = userQueryService.findById(userId);
+
+        Set<Long> favoritePostIds = postFavoritesRepository.findPostIdsByUser(user);
+
         Category category = categoryQueryService.findById(categoryId);
 
         Slice<Post> posts = postRepository.findAllByCategoryOrderByStatus(category, pageable);
@@ -127,8 +149,9 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .nickname(post.getUser().getNickname())
                 .categoryId(post.getCategory().getId())
                 .categoryName(post.getCategory().getName())
+                .favorites(favoritePostIds.contains(post.getId()))
                 .build());
-        
+
         return SliceResponse.fromSlice(contents);
     }
 

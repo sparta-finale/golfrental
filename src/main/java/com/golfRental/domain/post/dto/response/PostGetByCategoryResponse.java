@@ -22,6 +22,7 @@ public record PostGetByCategoryResponse(
         String address,
         String nickname,
         Long categoryId,
-        String categoryName
+        String categoryName,
+        boolean favorites
 ) {
 }

@@ -122,6 +122,26 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
                 .build();
     }
 
+    // 반납 요청
+    @Override
+    public ReservationUpdateStatusResponse requestReturn(Long reservationId, Long userId) {
+
+        Reservation reservation = findReservationById(reservationId);
+
+        // 게스트만 반납 요청 가능
+        if (!reservation.getGuestUser().getId().equals(userId)) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
+        }
+
+        // 엔티티 도메인 메서드 호출
+        reservation.requestReturn();
+
+        return ReservationUpdateStatusResponse.builder()
+                .reservationId(reservation.getId())
+                .status(reservation.getStatus())
+                .build();
+    }
+
     // 공통 조회 메서드
     private Reservation findReservationById(Long reservationId) {
         return reservationRepository.findByIdWithDetails(reservationId)

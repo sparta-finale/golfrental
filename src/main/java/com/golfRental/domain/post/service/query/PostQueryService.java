@@ -16,7 +16,7 @@ public interface PostQueryService {
      * @param pageable 페이지 데이터
      * @return SliceResponse<PostGetAllResponse>
      */
-    SliceResponse<PostGetAllResponse> getAll(Pageable pageable);
+    SliceResponse<PostGetAllResponse> getAll(Long userId, Pageable pageable);
 
     /**
      * 게시물 상세 조회
@@ -24,7 +24,7 @@ public interface PostQueryService {
      * @param postId 게시물 ID
      * @return PostGetsResponse
      */
-    PostGetsResponse getPost(Long postId);
+    PostGetsResponse getPost(Long userId, Long postId);
 
     /**
      * 나의 게시물 조회
@@ -42,7 +42,7 @@ public interface PostQueryService {
      * @param pageable   페이지 데이터
      * @return SliceResponse<PostGetByCategoryResponse>
      */
-    SliceResponse<PostGetByCategoryResponse> getByCategory(Long categoryId, Pageable pageable);
+    SliceResponse<PostGetByCategoryResponse> getByCategory(Long userId, Long categoryId, Pageable pageable);
 
     Post findById(Long postId);
 }

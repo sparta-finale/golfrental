@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,9 +38,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     public SliceResponse<PostGetAllResponse> getAll(Long userId, Pageable pageable) {
         User user = userQueryService.findById(userId);
 
-        Set<Long> favoritePostIds = postFavoritesRepository.findByUser(user).stream()
-                .map(pf -> pf.getPost().getId())
-                .collect(Collectors.toSet());
+        Set<Long> favoritePostIds = postFavoritesRepository.findPostIdsByUser(user);
 
         Slice<Post> posts = postRepository.findAllOrderByStatus(pageable);
 
@@ -100,9 +97,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     public SliceResponse<PostGetMyResponse> getMyPost(Long userId, Pageable pageable) {
         User user = userQueryService.findById(userId);
 
-        Set<Long> favoritePostIds = postFavoritesRepository.findByUser(user).stream()
-                .map(pf -> pf.getPost().getId())
-                .collect(Collectors.toSet());
+        Set<Long> favoritePostIds = postFavoritesRepository.findPostIdsByUser(user);
 
         Slice<Post> posts = postRepository.findAllByUserOrderByStatus(user, pageable);
 
@@ -132,9 +127,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     public SliceResponse<PostGetByCategoryResponse> getByCategory(Long userId, Long categoryId, Pageable pageable) {
         User user = userQueryService.findById(userId);
 
-        Set<Long> favoritePostIds = postFavoritesRepository.findByUser(user).stream()
-                .map(pf -> pf.getPost().getId())
-                .collect(Collectors.toSet());
+        Set<Long> favoritePostIds = postFavoritesRepository.findPostIdsByUser(user);
 
         Category category = categoryQueryService.findById(categoryId);
 

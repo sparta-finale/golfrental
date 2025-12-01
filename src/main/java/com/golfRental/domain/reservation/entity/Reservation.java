@@ -144,4 +144,20 @@ public class Reservation extends BaseEntity {
 
         this.status = ReservationStatus.RETURNING;
     }
+
+    // 반납 승인(완료)
+    public void complete() {
+
+        // 이미 완료된 경우
+        if (this.status == ReservationStatus.COMPLETED) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_ALREADY_COMPLETED);
+        }
+
+        // RETURNING 상태에서만 완료 가능
+        if (this.status != ReservationStatus.RETURNING) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_CANNOT_COMPLETE);
+        }
+
+        this.status = ReservationStatus.COMPLETED;
+    }
 }

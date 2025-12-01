@@ -149,7 +149,9 @@ public class PostCommandServiceImpl implements PostCommandService {
         Post post = postRepository.findByIdAndDeletedAtIsNull(postId).orElseThrow(
                 () -> new PostException(PostErrorCode.POST_INVALID_ID)
         );
-        PostFavorites postFavorites = postFavoritesRepository.findByUserAndPost(user, post);
+        PostFavorites postFavorites = postFavoritesRepository.findByUserAndPost(user, post).orElseThrow(
+                () -> new PostException(PostErrorCode.POST_DUPLICATION_FAVORITES)
+        );
 
         postFavoritesRepository.delete(postFavorites);
     }

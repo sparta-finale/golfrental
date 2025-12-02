@@ -53,7 +53,7 @@ public class ChatQueryServiceImpl implements ChatQueryService {
 
     @Override
     public ChatRoom findById(Long chatRoomId) {
-        return chatRoomRepository.findById(chatRoomId)
+        return chatRoomRepository.findByIdWithDetails(chatRoomId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
     }
 }

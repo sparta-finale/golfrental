@@ -59,13 +59,10 @@ public class ChatCommandServiceImpl implements ChatCommandService {
     @Override
     @Transactional
     public ChatMessageResponse sendMessage(Long currentUserId, Long chatRoomId, ChatMessageCreateRequest request) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+        ChatRoom chatRoom = chatRoomRepository.findByIdWithUsers(chatRoomId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
-
-        if (!chatRoom.isParticipant(currentUserId)) {
-            log.warn("채팅방 권한 없음 - chatRoomId: {}, userId: {}", chatRoomId, currentUserId);
-            throw new ChatException(ChatErrorCode.CHAT_ROOM_FORBIDDEN);
-        }
+        
+        chatRoom.validateParticipant(currentUserId);
 
         User sender = userQueryService.findById(currentUserId);
 

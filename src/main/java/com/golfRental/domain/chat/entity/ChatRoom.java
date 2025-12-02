@@ -1,6 +1,8 @@
 package com.golfRental.domain.chat.entity;
 
 import com.golfRental.common.entity.BaseEntity;
+import com.golfRental.domain.chat.exception.ChatErrorCode;
+import com.golfRental.domain.chat.exception.ChatException;
 import com.golfRental.domain.reservation.entity.Reservation;
 import com.golfRental.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -40,5 +42,11 @@ public class ChatRoom extends BaseEntity {
 
     public boolean isParticipant(Long userId) {
         return hostUser.getId().equals(userId) || guestUser.getId().equals(userId);
+    }
+
+    public void validateParticipant(Long userId) {
+        if (!this.hostUser.getId().equals(userId) && !this.guestUser.getId().equals(userId)) {
+            throw new ChatException(ChatErrorCode.CHAT_ROOM_FORBIDDEN);
+        }
     }
 }

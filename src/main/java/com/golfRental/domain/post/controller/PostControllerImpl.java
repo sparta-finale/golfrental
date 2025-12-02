@@ -118,6 +118,16 @@ public class PostControllerImpl implements PostController {
     }
 
     @Override
+    @GetMapping("/public/posts")
+    public ResponseEntity<CommonApiResponse<SliceResponse<PostGetAllPublicResponse>>> getAllPublic(
+            @PageableDefault(page = 0, size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        SliceResponse<PostGetAllPublicResponse> posts = postQueryService.getAllPublic(pageable);
+
+        return CommonApiResponse.sliceSuccess(posts, PostSuccessMessage.POST_GET_ALL_PUBLIC);
+    }
+
+    @Override
     @PutMapping("/posts/{postId}")
     public ResponseEntity<CommonApiResponse<PostUpdateResponse>> updatePost(
             @AuthenticationPrincipal AuthUser authUser,

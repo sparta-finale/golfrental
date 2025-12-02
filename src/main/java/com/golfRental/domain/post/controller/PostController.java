@@ -98,6 +98,16 @@ public interface PostController {
     );
 
     /**
+     * 게시물 목록 조회 API (public)
+     *
+     * @param pageable 페이지 정보
+     * @return SliceResponse<PostGetAllPublicResponse>
+     */
+    ResponseEntity<CommonApiResponse<SliceResponse<PostGetAllPublicResponse>>> getAllPublic(
+            Pageable pageable
+    );
+
+    /**
      * 게시물 수정 API
      *
      * @param authUser 토큰 정보

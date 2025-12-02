@@ -3,7 +3,9 @@ package com.golfRental.domain.chat.controller;
 import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
+import com.golfRental.domain.chat.dto.request.ChatMessageCreateRequest;
 import com.golfRental.domain.chat.dto.request.ChatRoomCreateRequest;
+import com.golfRental.domain.chat.dto.response.ChatMessageResponse;
 import com.golfRental.domain.chat.dto.response.ChatRoomResponse;
 import com.golfRental.domain.chat.service.command.ChatCommandService;
 import com.golfRental.domain.chat.service.query.ChatQueryService;
@@ -53,5 +55,29 @@ public class ChatControllerImpl implements ChatController {
     ) {
         ChatRoomResponse response = chatQueryService.getChatRoom(authUser.getUserId(), chatRoomId);
         return CommonApiResponse.success(response, "채팅방 조회 성공");
+    }
+
+    @Override
+    @PostMapping("/rooms/{chatRoomId}/messages")
+    public ResponseEntity<CommonApiResponse<ChatMessageResponse>> sendMessage(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long chatRoomId,
+            @Valid @RequestBody ChatMessageCreateRequest request
+    ) {
+        ChatMessageResponse response = chatCommandService.sendMessage(
+                authUser.getUserId(), chatRoomId, request);
+        return CommonApiResponse.created(response, "메시지 전송 성공");
+    }
+
+    @Override
+    @GetMapping("/rooms/{chatRoomId}/messages")
+    public ResponseEntity<CommonApiResponse<SliceResponse<ChatMessageResponse>>> getMessages(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long chatRoomId,
+            @PageableDefault(size = 50, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        SliceResponse<ChatMessageResponse> response = chatQueryService.getMessages(
+                authUser.getUserId(), chatRoomId, pageable);
+        return CommonApiResponse.success(response, "메시지 목록 조회 성공");
     }
 }

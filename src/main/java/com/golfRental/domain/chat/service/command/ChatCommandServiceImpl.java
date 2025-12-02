@@ -8,7 +8,6 @@ import com.golfRental.domain.chat.exception.ChatException;
 import com.golfRental.domain.chat.repository.ChatRoomRepository;
 import com.golfRental.domain.reservation.entity.Reservation;
 import com.golfRental.domain.reservation.service.query.ReservationQueryService;
-import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,9 +21,9 @@ public class ChatCommandServiceImpl implements ChatCommandService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ReservationQueryService reservationQueryService;
-    private final UserQueryService userQueryService;
 
     @Override
+    @Transactional
     public ChatRoomResponse createChatRoom(Long currentUserId, ChatRoomCreateRequest request) {
         if (chatRoomRepository.existsByReservationId(request.getReservationId())) {
             throw new ChatException(ChatErrorCode.CHAT_ROOM_ALREADY_EXISTS);
@@ -39,9 +38,13 @@ public class ChatCommandServiceImpl implements ChatCommandService {
                 .guestUser(reservation.getGuestUser())
                 .build();
 
-        ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
-
-        return ChatRoomResponse.from(savedChatRoom);
+        try {
+            ChatRoom savedChatRoom = chatRoomRepository.saveAndFlush(chatRoom);
+            return ChatRoomResponse.from(savedChatRoom);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            log.warn("채팅방 생성 중 경쟁 상태 발생 가능성. reservationId: {}", request.getReservationId(), e);
+            throw new ChatException(ChatErrorCode.CHAT_ROOM_ALREADY_EXISTS);
+        }
     }
 
     private void validateParticipant(Reservation reservation, Long currentUserId) {

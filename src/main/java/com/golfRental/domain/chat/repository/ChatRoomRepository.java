@@ -17,6 +17,9 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     Optional<ChatRoom> findByReservationId(Long reservationId);
 
     @Query("SELECT cr FROM ChatRoom cr " +
+            "JOIN FETCH cr.reservation " +
+            "JOIN FETCH cr.hostUser " +
+            "JOIN FETCH cr.guestUser " +
             "WHERE (cr.hostUser = :user OR cr.guestUser = :user) " +
             "AND cr.deletedAt IS NULL " +
             "ORDER BY cr.updatedAt DESC")
@@ -28,4 +31,11 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
             "JOIN FETCH cr.guestUser " +
             "WHERE cr.id = :chatRoomId")
     Optional<ChatRoom> findByIdWithDetails(@Param("chatRoomId") Long chatRoomId);
+
+    @Query("SELECT cr FROM ChatRoom cr " +
+            "JOIN FETCH cr.reservation " +
+            "JOIN FETCH cr.hostUser " +
+            "JOIN FETCH cr.guestUser " +
+            "WHERE cr.reservation.id = :reservationId")
+    Optional<ChatRoom> findByReservationIdWithDetails(@Param("reservationId") Long reservationId);
 }

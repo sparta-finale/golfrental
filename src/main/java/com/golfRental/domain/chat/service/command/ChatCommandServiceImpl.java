@@ -1,13 +1,19 @@
 package com.golfRental.domain.chat.service.command;
 
+import com.golfRental.domain.chat.dto.request.ChatMessageCreateRequest;
 import com.golfRental.domain.chat.dto.request.ChatRoomCreateRequest;
+import com.golfRental.domain.chat.dto.response.ChatMessageResponse;
 import com.golfRental.domain.chat.dto.response.ChatRoomResponse;
+import com.golfRental.domain.chat.entity.ChatMessage;
 import com.golfRental.domain.chat.entity.ChatRoom;
 import com.golfRental.domain.chat.exception.ChatErrorCode;
 import com.golfRental.domain.chat.exception.ChatException;
+import com.golfRental.domain.chat.repository.ChatMessageRepository;
 import com.golfRental.domain.chat.repository.ChatRoomRepository;
 import com.golfRental.domain.reservation.entity.Reservation;
 import com.golfRental.domain.reservation.service.query.ReservationQueryService;
+import com.golfRental.domain.user.entity.User;
+import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +27,9 @@ public class ChatCommandServiceImpl implements ChatCommandService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ReservationQueryService reservationQueryService;
+    private final UserQueryService userQueryService;
+    private final ChatMessageRepository chatMessageRepository;
+
 
     @Override
     @Transactional
@@ -47,6 +56,31 @@ public class ChatCommandServiceImpl implements ChatCommandService {
         }
     }
 
+    @Override
+    @Transactional
+    public ChatMessageResponse sendMessage(Long currentUserId, Long chatRoomId, ChatMessageCreateRequest request) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        if (!chatRoom.isParticipant(currentUserId)) {
+            log.warn("채팅방 권한 없음 - chatRoomId: {}, userId: {}", chatRoomId, currentUserId);
+            throw new ChatException(ChatErrorCode.CHAT_ROOM_FORBIDDEN);
+        }
+
+        User sender = userQueryService.findById(currentUserId);
+
+        ChatMessage message = ChatMessage.builder()
+                .chatRoom(chatRoom)
+                .sender(sender)
+                .content(request.getContent())
+                .build();
+
+        ChatMessage savedMessage = chatMessageRepository.save(message);
+
+        return ChatMessageResponse.from(savedMessage);
+    }
+
+    //소영 복귀 후 수정 예정
     private void validateParticipant(Reservation reservation, Long currentUserId) {
         boolean isHost = reservation.getHostUser().getId().equals(currentUserId);
         boolean isGuest = reservation.getGuestUser().getId().equals(currentUserId);

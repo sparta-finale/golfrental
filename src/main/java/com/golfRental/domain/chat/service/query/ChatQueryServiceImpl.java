@@ -2,10 +2,13 @@ package com.golfRental.domain.chat.service.query;
 
 
 import com.golfRental.common.response.SliceResponse;
+import com.golfRental.domain.chat.dto.response.ChatMessageResponse;
 import com.golfRental.domain.chat.dto.response.ChatRoomResponse;
+import com.golfRental.domain.chat.entity.ChatMessage;
 import com.golfRental.domain.chat.entity.ChatRoom;
 import com.golfRental.domain.chat.exception.ChatErrorCode;
 import com.golfRental.domain.chat.exception.ChatException;
+import com.golfRental.domain.chat.repository.ChatMessageRepository;
 import com.golfRental.domain.chat.repository.ChatRoomRepository;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
@@ -24,6 +27,8 @@ public class ChatQueryServiceImpl implements ChatQueryService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final UserQueryService userQueryService;
+    private final ChatMessageRepository chatMessageRepository;
+
 
     @Override
 
@@ -55,5 +60,24 @@ public class ChatQueryServiceImpl implements ChatQueryService {
     public ChatRoom findById(Long chatRoomId) {
         return chatRoomRepository.findByIdWithDetails(chatRoomId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
+    }
+
+    @Override
+    public SliceResponse<ChatMessageResponse> getMessages(Long currentUserId, Long chatRoomId, Pageable pageable) {
+        log.info("메시지 목록 조회 - chatRoomId: {}, userId: {}, page: {}, size: {}",
+                chatRoomId, currentUserId, pageable.getPageNumber(), pageable.getPageSize());
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        if (!chatRoom.isParticipant(currentUserId)) {
+            log.warn("채팅방 권한 없음 - chatRoomId: {}, userId: {}", chatRoomId, currentUserId);
+            throw new ChatException(ChatErrorCode.CHAT_ROOM_FORBIDDEN);
+        }
+
+        Slice<ChatMessage> messages = chatMessageRepository.findByChatRoomOrderByCreatedAtAsc(chatRoom, pageable);
+        Slice<ChatMessageResponse> content = messages.map(ChatMessageResponse::from);
+
+        return SliceResponse.fromSlice(content);
     }
 }

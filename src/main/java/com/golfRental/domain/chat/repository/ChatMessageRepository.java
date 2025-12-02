@@ -13,7 +13,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Query("SELECT cm FROM ChatMessage cm " +
             "JOIN FETCH cm.sender " +
             "WHERE cm.chatRoom = :chatRoom " +
-            "AND cm.deletedAt IS NULL " +
-            "ORDER BY cm.createdAt ASC")
-    Slice<ChatMessage> findByChatRoomOrderByCreatedAtAsc(@Param("chatRoom") ChatRoom chatRoom, Pageable pageable);
+            "AND cm.deletedAt IS NULL")
+    Slice<ChatMessage> findByChatRoom(@Param("chatRoom") ChatRoom chatRoom, Pageable pageable);
 }

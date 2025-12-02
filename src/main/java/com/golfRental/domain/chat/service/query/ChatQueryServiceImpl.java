@@ -67,7 +67,7 @@ public class ChatQueryServiceImpl implements ChatQueryService {
         log.info("메시지 목록 조회 - chatRoomId: {}, userId: {}, page: {}, size: {}",
                 chatRoomId, currentUserId, pageable.getPageNumber(), pageable.getPageSize());
 
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+        ChatRoom chatRoom = chatRoomRepository.findByIdWithUsers(chatRoomId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
 
         if (!chatRoom.isParticipant(currentUserId)) {
@@ -75,7 +75,7 @@ public class ChatQueryServiceImpl implements ChatQueryService {
             throw new ChatException(ChatErrorCode.CHAT_ROOM_FORBIDDEN);
         }
 
-        Slice<ChatMessage> messages = chatMessageRepository.findByChatRoomOrderByCreatedAtAsc(chatRoom, pageable);
+        Slice<ChatMessage> messages = chatMessageRepository.findByChatRoom(chatRoom, pageable);
         Slice<ChatMessageResponse> content = messages.map(ChatMessageResponse::from);
 
         return SliceResponse.fromSlice(content);

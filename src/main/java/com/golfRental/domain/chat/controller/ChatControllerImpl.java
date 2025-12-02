@@ -44,4 +44,14 @@ public class ChatControllerImpl implements ChatController {
         SliceResponse<ChatRoomResponse> response = chatQueryService.getMyChatRooms(authUser.getUserId(), pageable);
         return CommonApiResponse.success(response, "채팅방 목록 조회 성공");
     }
+
+    @Override
+    @GetMapping("/rooms/{chatRoomId}")
+    public ResponseEntity<CommonApiResponse<ChatRoomResponse>> getChatRoom(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long chatRoomId
+    ) {
+        ChatRoomResponse response = chatQueryService.getChatRoom(authUser.getUserId(), chatRoomId);
+        return CommonApiResponse.success(response, "채팅방 조회 성공");
+    }
 }

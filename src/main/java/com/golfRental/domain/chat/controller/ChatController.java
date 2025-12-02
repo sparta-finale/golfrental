@@ -18,4 +18,9 @@ public interface ChatController {
             AuthUser authUser,
             Pageable pageable
     );
+
+    ResponseEntity<CommonApiResponse<ChatRoomResponse>> getChatRoom(
+            AuthUser authUser,
+            Long chatRoomId
+    );
 }

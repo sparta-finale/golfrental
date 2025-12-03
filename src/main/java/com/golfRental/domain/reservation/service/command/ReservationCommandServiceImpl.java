@@ -195,7 +195,7 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
         }
 
         // Post 상태 확인 (BEFORE_TRANSACTION 또는 TRADING만 허용)
-        if (post.isReservable()) {
+        if (!post.isReservable()) {
             throw new ReservationException(ReservationErrorCode.RESERVATION_POST_NOT_AVAILABLE);
         }
 

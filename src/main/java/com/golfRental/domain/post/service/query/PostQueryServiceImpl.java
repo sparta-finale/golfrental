@@ -10,6 +10,8 @@ import com.golfRental.domain.post.exception.PostErrorCode;
 import com.golfRental.domain.post.exception.PostException;
 import com.golfRental.domain.post.repository.PostFavoritesRepository;
 import com.golfRental.domain.post.repository.PostRepository;
+import com.golfRental.domain.reservation.dto.response.ReservationGetAllResponse;
+import com.golfRental.domain.reservation.service.query.ReservationQueryService;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     private final PostFavoritesRepository postFavoritesRepository;
     private final UserQueryService userQueryService;
     private final CategoryQueryService categoryQueryService;
+    private final ReservationQueryService reservationQueryService;
 
     @Override
     public SliceResponse<PostGetAllResponse> getAll(Long userId, Pageable pageable) {
@@ -229,6 +232,12 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .categoryName(post.getCategory().getName())
                 .favorites(false)
                 .build();
+    }
+
+    @Override
+    public SliceResponse<ReservationGetAllResponse> getPostReservation(Long postId, Pageable pageable) {
+        return reservationQueryService.findByPostId(
+                postId, pageable.getPageNumber(), pageable.getPageSize());
     }
 
     @Override

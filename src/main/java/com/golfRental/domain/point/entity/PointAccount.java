@@ -23,11 +23,19 @@ public class PointAccount extends BaseEntity {
     private User user;
 
     @Column(nullable = false)
-    private Long balance;
+    private Integer balance;
 
     @Builder
-    private PointAccount(User user, Long balance) {
+    private PointAccount(User user, Integer balance) {
         this.user = user;
         this.balance = balance;
+    }
+
+    // 포인트 계좌 생성
+    public static PointAccount createDefault(User user) {
+        return PointAccount.builder()
+                .user(user)
+                .balance(0)
+                .build();
     }
 }

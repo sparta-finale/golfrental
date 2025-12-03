@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -161,8 +162,7 @@ public class Reservation extends BaseEntity {
         this.status = ReservationStatus.COMPLETED;
     }
 
-    // 참여자 여부 확인
     public boolean isParticipant(Long userId) {
-        return hostUser.getId().equals(userId) || guestUser.getId().equals(userId);
+        return Objects.equals(hostUser.getId(), userId) || Objects.equals(guestUser.getId(), userId);
     }
 }

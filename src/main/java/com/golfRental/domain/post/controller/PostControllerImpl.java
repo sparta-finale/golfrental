@@ -10,6 +10,7 @@ import com.golfRental.domain.post.dto.response.*;
 import com.golfRental.domain.post.message.PostSuccessMessage;
 import com.golfRental.domain.post.service.command.PostCommandService;
 import com.golfRental.domain.post.service.query.PostQueryService;
+import com.golfRental.domain.reservation.dto.response.ReservationGetAllResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -135,6 +136,17 @@ public class PostControllerImpl implements PostController {
         PostGetsPublicResponse post = postQueryService.getPostPublic(postId);
 
         return CommonApiResponse.success(post, PostSuccessMessage.POST_GETS_PUBLIC);
+    }
+
+    @Override
+    @GetMapping("/posts/{postId}/reservations")
+    public ResponseEntity<CommonApiResponse<SliceResponse<ReservationGetAllResponse>>> getPostReservation(
+            @PathVariable Long postId,
+            @PageableDefault(page = 0, size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        SliceResponse<ReservationGetAllResponse> reservations = postQueryService.getPostReservation(postId, pageable);
+
+        return CommonApiResponse.success(reservations, PostSuccessMessage.POST_GET_RESERVATION);
     }
 
     @Override

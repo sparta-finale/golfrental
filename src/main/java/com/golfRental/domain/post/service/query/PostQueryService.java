@@ -58,5 +58,13 @@ public interface PostQueryService {
      */
     SliceResponse<PostGetAllPublicResponse> getAllPublic(Pageable pageable);
 
+    /**
+     * 게시물 상세 조회(public)
+     *
+     * @param postId 게시물 ID
+     * @return PostGetsPublicResponse
+     */
+    PostGetsPublicResponse getPostPublic(Long postId);
+
     Post findById(Long postId);
 }

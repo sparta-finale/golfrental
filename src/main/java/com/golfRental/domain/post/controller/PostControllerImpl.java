@@ -128,6 +128,16 @@ public class PostControllerImpl implements PostController {
     }
 
     @Override
+    @GetMapping("/public/posts/{postId}")
+    public ResponseEntity<CommonApiResponse<PostGetsPublicResponse>> getPostPublic(
+            @PathVariable Long postId
+    ) {
+        PostGetsPublicResponse post = postQueryService.getPostPublic(postId);
+
+        return CommonApiResponse.success(post, PostSuccessMessage.POST_GETS_PUBLIC);
+    }
+
+    @Override
     @PutMapping("/posts/{postId}")
     public ResponseEntity<CommonApiResponse<PostUpdateResponse>> updatePost(
             @AuthenticationPrincipal AuthUser authUser,

@@ -108,6 +108,15 @@ public interface PostController {
     );
 
     /**
+     * 게시물 상세 조회 API (public)
+     *
+     * @return PostGetsPublicResponse
+     */
+    ResponseEntity<CommonApiResponse<PostGetsPublicResponse>> getPostPublic(
+            Long postId
+    );
+
+    /**
      * 게시물 수정 API
      *
      * @param authUser 토큰 정보

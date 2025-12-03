@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.EnumSet;
 
 @Entity
 @Getter
@@ -20,41 +21,34 @@ import java.math.BigDecimal;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
 
+    // 검증 로직 성능 향상을 위한 필드
+    private static final EnumSet<TradeStatus> RESERVABLE_STATUSES = EnumSet.of(TradeStatus.BEFORE_TRANSACTION, TradeStatus.TRADING);
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false)
     private String title;
-
     @Column(nullable = false)
     private String content;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MethodOfReceiveReturn methodOfReceive;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MethodOfReceiveReturn methodOfReturn;
-
     @Column(nullable = false)
     private BigDecimal price;
-
     @Column(nullable = false)
     private BigDecimal deposit;
-
     @Column(nullable = false)
     private BigDecimal dailyRate;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TradeStatus tradeStatus;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
@@ -90,5 +84,13 @@ public class Post extends BaseEntity {
 
     public void updateStatus(TradeStatus tradeStatus) {
         this.tradeStatus = tradeStatus;
+    }
+
+    public boolean isOwnedBy(User user) {
+        return user != null && this.user.getId().equals(user.getId());
+    }
+
+    public boolean isReservable() {
+        return RESERVABLE_STATUSES.contains(this.tradeStatus);
     }
 }

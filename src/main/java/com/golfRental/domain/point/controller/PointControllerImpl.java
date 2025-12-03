@@ -4,7 +4,7 @@ import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.point.dto.response.PointBalanceResponse;
 import com.golfRental.domain.point.message.PointSuccessMessage;
-import com.golfRental.domain.point.service.query.PointQueryService;
+import com.golfRental.domain.point.service.command.PointCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/points")
 public class PointControllerImpl implements PointController {
 
-    private final PointQueryService pointQueryService;
+    private final PointCommandService pointCommandService;
 
     @Override
     @GetMapping("/balance")
@@ -25,7 +25,7 @@ public class PointControllerImpl implements PointController {
             @AuthenticationPrincipal AuthUser authUser
     ) {
         PointBalanceResponse response =
-                pointQueryService.getBalance(authUser.getUserId());
+                pointCommandService.getBalance(authUser.getUserId());
 
         return CommonApiResponse.success(
                 response,

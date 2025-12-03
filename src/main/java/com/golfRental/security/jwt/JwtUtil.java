@@ -61,4 +61,19 @@ public class JwtUtil {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
+    public boolean validateToken(String token) {
+        try {
+            extractClaims(token);
+            return true;
+        } catch (Exception e) {
+            log.warn("JWT 토큰 검증 실패: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = extractClaims(token);
+        return Long.parseLong(claims.getSubject());
+    }
 }

@@ -1,7 +1,6 @@
 package com.golfRental.domain.reservation.service.command;
 
 import com.golfRental.domain.post.entity.Post;
-import com.golfRental.domain.post.enums.TradeStatus;
 import com.golfRental.domain.post.service.query.PostQueryService;
 import com.golfRental.domain.reservation.dto.request.ReservationCreateRequest;
 import com.golfRental.domain.reservation.dto.response.ReservationCreateResponse;
@@ -186,7 +185,7 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
     private void validateReservationCreation(Post post, User guestUser, ReservationCreateRequest request) {
 
         // 자기 자신의 게시글 예약 방지
-        if (post.getUser().getId().equals(guestUser.getId())) {
+        if (post.isOwnedBy(guestUser)) {
             throw new ReservationException(ReservationErrorCode.RESERVATION_SELF_BOOKING_NOT_ALLOWED);
         }
 
@@ -196,8 +195,7 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
         }
 
         // Post 상태 확인 (BEFORE_TRANSACTION 또는 TRADING만 허용)
-        TradeStatus tradeStatus = post.getTradeStatus();
-        if (tradeStatus != TradeStatus.BEFORE_TRANSACTION && tradeStatus != TradeStatus.TRADING) {
+        if (post.isReservable()) {
             throw new ReservationException(ReservationErrorCode.RESERVATION_POST_NOT_AVAILABLE);
         }
 

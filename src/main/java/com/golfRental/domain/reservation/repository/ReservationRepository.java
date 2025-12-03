@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
@@ -28,5 +29,16 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Slice<Reservation> findMyReservations(
             @Param("userId") Long userId,
             Pageable pageable
+    );
+
+    @Query("SELECT COUNT(r) > 0 FROM Reservation r " +
+            "WHERE r.post.id = :postId " +
+            "AND r.deletedAt IS NULL " +
+            "AND r.status IN ('REQUESTED', 'RETURNING') " +
+            "AND NOT (r.reservationEndAt <= :startAt OR r.reservationStartAt >= :endAt)")
+    boolean existsConflictingReservation(
+            @Param("postId") Long postId,
+            @Param("startAt") LocalDateTime startAt,
+            @Param("endAt") LocalDateTime endAt
     );
 }

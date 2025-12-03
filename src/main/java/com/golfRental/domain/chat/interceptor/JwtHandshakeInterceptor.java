@@ -70,13 +70,18 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
         for (String cookie : cookies) {
             String[] pairs = cookie.split(";");
             for (String pair : pairs) {
-                String[] keyValue = pair.trim().split("=");
+                String[] keyValue = pair.trim().split("=", 2);
                 if (keyValue.length == 2 && "Authorization".equals(keyValue[0])) {
-                    String token = keyValue[1];
-                    if (token.startsWith(BEARER_PREFIX)) {
-                        return token.substring(BEARER_PREFIX.length());
+                    try {
+                        String token = java.net.URLDecoder.decode(keyValue[1], "UTF-8");
+                        if (token.startsWith(BEARER_PREFIX)) {
+                            return token.substring(BEARER_PREFIX.length());
+                        }
+                        return token;
+                    } catch (java.io.UnsupportedEncodingException e) {
+                        log.warn("Failed to decode Authorization cookie value", e);
+                        return null;
                     }
-                    return token;
                 }
             }
         }

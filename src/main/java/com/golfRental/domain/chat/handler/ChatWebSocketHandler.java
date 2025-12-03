@@ -56,8 +56,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         Long chatRoomId = getChatRoomId(session);
         Long userId = getUserIdFromSession(session);
 
-        log.info("WebSocket 메시지 수신 - chatRoomId: {}, userId: {}, payload: {}",
-                chatRoomId, userId, message.getPayload());
+        log.info("WebSocket 메시지 수신 - chatRoomId: {}", chatRoomId);
 
         try {
             ChatMessageCreateRequest request = objectMapper.readValue(

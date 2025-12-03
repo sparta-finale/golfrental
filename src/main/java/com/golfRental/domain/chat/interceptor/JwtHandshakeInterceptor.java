@@ -3,12 +3,14 @@ package com.golfRental.domain.chat.interceptor;
 import com.golfRental.security.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -16,6 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
+    private static final String BEARER_PREFIX = "Bearer ";
     private final JwtUtil jwtUtil;
 
     @Override
@@ -25,14 +28,12 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             WebSocketHandler wsHandler,
             Map<String, Object> attributes) throws Exception {
 
-        String query = request.getURI().getQuery();
+        String token = extractTokenFromCookie(request);
 
-        if (query == null || !query.contains("token=")) {
+        if (token == null) {
             log.warn("WebSocket 연결 실패 - JWT 토큰 없음");
             return false;
         }
-
-        String token = extractToken(query);
 
         try {
             if (!jwtUtil.validateToken(token)) {
@@ -58,14 +59,30 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             ServerHttpResponse response,
             WebSocketHandler wsHandler,
             Exception exception) {
-        // Do nothing
     }
 
-    private String extractToken(String query) {
-        String[] params = query.split("&");
-        for (String param : params) {
-            if (param.startsWith("token=")) {
-                return param.substring(6);
+    private String extractTokenFromCookie(ServerHttpRequest request) {
+        List<String> cookies = request.getHeaders().get(HttpHeaders.COOKIE);
+        if (cookies == null || cookies.isEmpty()) {
+            return null;
+        }
+
+        for (String cookie : cookies) {
+            String[] pairs = cookie.split(";");
+            for (String pair : pairs) {
+                String[] keyValue = pair.trim().split("=", 2);
+                if (keyValue.length == 2 && "Authorization".equals(keyValue[0])) {
+                    try {
+                        String token = java.net.URLDecoder.decode(keyValue[1], "UTF-8");
+                        if (token.startsWith(BEARER_PREFIX)) {
+                            return token.substring(BEARER_PREFIX.length());
+                        }
+                        return token;
+                    } catch (java.io.UnsupportedEncodingException e) {
+                        log.warn("Failed to decode Authorization cookie value", e);
+                        return null;
+                    }
+                }
             }
         }
         return null;

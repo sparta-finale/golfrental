@@ -34,6 +34,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         Long chatRoomId = getChatRoomId(session);
         Long userId = getUserIdFromSession(session);
 
+        log.info("WebSocket 연결 - chatRoomId: {}, userId: {}, sessionId: {}",
+                chatRoomId, userId, session.getId());
+
         ChatRoom chatRoom = chatQueryService.findById(chatRoomId);
         if (!chatRoom.isParticipant(userId)) {
             log.warn("WebSocket 권한 없음 - chatRoomId: {}, userId: {}", chatRoomId, userId);
@@ -52,6 +55,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         Long chatRoomId = getChatRoomId(session);
         Long userId = getUserIdFromSession(session);
+
+        log.info("WebSocket 메시지 수신 - chatRoomId: {}", chatRoomId);
 
         try {
             ChatMessageCreateRequest request = objectMapper.readValue(

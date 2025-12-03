@@ -122,7 +122,7 @@ public interface PostController {
      *
      * @param postId   게시물 ID
      * @param pageable 페이지 정보
-     * @return SliceResponse<PostReservationResponse>
+     * @return SliceResponse<ReservationGetAllResponse>
      */
     ResponseEntity<CommonApiResponse<SliceResponse<ReservationGetAllResponse>>> getPostReservation(
             Long postId, Pageable pageable

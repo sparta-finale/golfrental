@@ -72,7 +72,7 @@ public interface PostQueryService {
      *
      * @param postId   게시물 ID
      * @param pageable 페이지 데이터
-     * @return SliceResponse<PostReservationResponse>
+     * @return SliceResponse<ReservationGetAllResponse>
      */
     SliceResponse<ReservationGetAllResponse> getPostReservation(Long postId, Pageable pageable);
 

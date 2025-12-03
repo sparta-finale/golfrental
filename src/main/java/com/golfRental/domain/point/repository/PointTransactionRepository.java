@@ -11,7 +11,7 @@ public interface PointTransactionRepository extends JpaRepository<PointTransacti
     @Query("""
             SELECT t
             FROM PointTransaction t
-            JOIN FETCH t.user u
+            JOIN t.user u
             WHERE u.id = :userId
             AND t.deletedAt IS NULL
             ORDER BY t.id DESC

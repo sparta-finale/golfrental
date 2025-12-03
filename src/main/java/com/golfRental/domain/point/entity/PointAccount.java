@@ -1,6 +1,8 @@
 package com.golfRental.domain.point.entity;
 
 import com.golfRental.common.entity.BaseEntity;
+import com.golfRental.domain.point.exception.PointErrorCode;
+import com.golfRental.domain.point.exception.PointException;
 import com.golfRental.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -37,5 +39,13 @@ public class PointAccount extends BaseEntity {
                 .user(user)
                 .balance(0)
                 .build();
+    }
+
+    // 포인트 사용 도메인
+    public void use(Integer amount) {
+        if (this.balance < amount) {
+            throw new PointException(PointErrorCode.POINT_NOT_ENOUGH);
+        }
+        this.balance -= amount;
     }
 }

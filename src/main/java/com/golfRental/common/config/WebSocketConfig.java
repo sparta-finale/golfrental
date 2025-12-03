@@ -1,5 +1,7 @@
 package com.golfRental.common.config;
 
+import com.golfRental.domain.chat.handler.ChatWebSocketHandler;
+import com.golfRental.domain.chat.interceptor.JwtHandshakeInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -11,8 +13,13 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketConfigurer {
 
+    private final ChatWebSocketHandler chatWebSocketHandler;
+    private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-
+        registry.addHandler(chatWebSocketHandler, "/ws/chat/{chatRoomId}")
+                .addInterceptors(jwtHandshakeInterceptor)
+                .setAllowedOrigins("http://localhost:3000", "http://localhost:8080");
     }
 }

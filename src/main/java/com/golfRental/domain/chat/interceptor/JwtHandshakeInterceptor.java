@@ -7,14 +7,14 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
+import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import java.util.Map;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
+public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
     private final JwtUtil jwtUtil;
 
@@ -42,13 +42,23 @@ public class JwtHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 
             Long userId = jwtUtil.getUserIdFromToken(token);
             attributes.put("userId", userId);
-            
-            return super.beforeHandshake(request, response, wsHandler, attributes);
+
+            log.info("WebSocket JWT 인증 성공 - userId: {}", userId);
+            return true;
 
         } catch (Exception e) {
             log.error("WebSocket JWT 검증 실패", e);
             return false;
         }
+    }
+
+    @Override
+    public void afterHandshake(
+            ServerHttpRequest request,
+            ServerHttpResponse response,
+            WebSocketHandler wsHandler,
+            Exception exception) {
+        // Do nothing
     }
 
     private String extractToken(String query) {

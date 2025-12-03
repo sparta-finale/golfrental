@@ -7,6 +7,7 @@ import com.golfRental.domain.post.dto.request.PostCreateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
 import com.golfRental.domain.post.dto.response.*;
+import com.golfRental.domain.reservation.dto.response.ReservationGetAllResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
@@ -114,6 +115,17 @@ public interface PostController {
      */
     ResponseEntity<CommonApiResponse<PostGetsPublicResponse>> getPostPublic(
             Long postId
+    );
+
+    /**
+     * 게시물 예약된 날짜 조회 API
+     *
+     * @param postId   게시물 ID
+     * @param pageable 페이지 정보
+     * @return SliceResponse<ReservationGetAllResponse>
+     */
+    ResponseEntity<CommonApiResponse<SliceResponse<ReservationGetAllResponse>>> getPostReservation(
+            Long postId, Pageable pageable
     );
 
     /**

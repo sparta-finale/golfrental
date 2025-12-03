@@ -3,6 +3,7 @@ package com.golfRental.domain.post.service.query;
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.post.dto.response.*;
 import com.golfRental.domain.post.entity.Post;
+import com.golfRental.domain.reservation.dto.response.ReservationGetAllResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface PostQueryService {
@@ -65,6 +66,15 @@ public interface PostQueryService {
      * @return PostGetsPublicResponse
      */
     PostGetsPublicResponse getPostPublic(Long postId);
+
+    /**
+     * 게시물 예약된 날짜 조회
+     *
+     * @param postId   게시물 ID
+     * @param pageable 페이지 데이터
+     * @return SliceResponse<ReservationGetAllResponse>
+     */
+    SliceResponse<ReservationGetAllResponse> getPostReservation(Long postId, Pageable pageable);
 
     Post findById(Long postId);
 }

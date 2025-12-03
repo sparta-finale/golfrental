@@ -34,7 +34,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("SELECT COUNT(r) > 0 FROM Reservation r " +
             "WHERE r.post.id = :postId " +
             "AND r.deletedAt IS NULL " +
-            "AND r.status IN ('REQUESTED', 'RETURNING') " +
+            "AND r.status IN ('REQUESTED', 'APPROVED', 'RENTED', 'RETURNING') " +
             "AND NOT (r.reservationEndAt <= :startAt OR r.reservationStartAt >= :endAt)")
     boolean existsConflictingReservation(
             @Param("postId") Long postId,

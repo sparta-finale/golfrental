@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 @Builder
 public record PointTransactionGetResponse(
         Long transactionId,
-        Integer amount,
+        Long amount,
         PointTransactionType type,
-        Integer balanceAfter,
+        Long balanceAfter,
         LocalDateTime createdAt
 ) {
 }

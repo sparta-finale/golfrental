@@ -77,16 +77,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         log.info("WebSocket 연결 종료 - chatRoomId: {}, sessionId: {}, status: {}",
                 chatRoomId, session.getId(), status);
 
-        Map<String, WebSocketSession> sessions = chatRoomSessions.get(chatRoomId);
-        if (sessions != null) {
-            sessions.remove(session.getId());
-            if (sessions.isEmpty()) {
-                chatRoomSessions.remove(chatRoomId);
-            }
-        }
-
-        log.info("WebSocket 연결 종료 완료 - chatRoomId: {}, 남은 접속자 수: {}",
-                chatRoomId, sessions != null ? sessions.size() : 0);
+        chatRoomSessions.computeIfPresent(chatRoomId, (key, currentSessions) -> {
+            currentSessions.remove(session.getId());
+            int remainingCount = currentSessions.size();
+            log.info("WebSocket 연결 종료 완료 - chatRoomId: {}, 남은 접속자 수: {}",
+                    chatRoomId, remainingCount);
+            return currentSessions.isEmpty() ? null : currentSessions;
+        });
     }
 
     @Override
@@ -125,23 +122,36 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     private Long getChatRoomId(WebSocketSession session) {
-        String uri = session.getUri().toString();
-        String[] parts = uri.split("/");
-        String lastPart = parts[parts.length - 1];
-
-        if (lastPart.contains("?")) {
-            lastPart = lastPart.substring(0, lastPart.indexOf("?"));
+        String path = session.getUri().getPath();
+        if (path == null) {
+            throw new IllegalStateException("URI path is null");
         }
 
-        return Long.parseLong(lastPart);
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        int lastSlashIndex = path.lastIndexOf('/');
+        if (lastSlashIndex == -1) {
+            throw new IllegalStateException("Cannot extract chatRoomId from path: " + path);
+        }
+
+        String chatRoomIdStr = path.substring(lastSlashIndex + 1);
+        try {
+            return Long.parseLong(chatRoomIdStr);
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("Invalid chatRoomId in path: " + chatRoomIdStr, e);
+        }
     }
 
     private Long getUserIdFromSession(WebSocketSession session) {
-        Object userId = session.getAttributes().get("userId");
-        if (userId == null) {
+        Object userIdAttr = session.getAttributes().get("userId");
+        if (userIdAttr == null) {
             throw new IllegalStateException("userId not found in session attributes");
         }
-        return (Long) userId;
+        if (!(userIdAttr instanceof Long)) {
+            throw new IllegalStateException("userId attribute is not of type Long: " + userIdAttr.getClass().getName());
+        }
+        return (Long) userIdAttr;
     }
-
 }

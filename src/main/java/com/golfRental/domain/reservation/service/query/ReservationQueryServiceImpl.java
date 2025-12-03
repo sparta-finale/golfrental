@@ -16,8 +16,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -110,7 +108,26 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
 
     // 게시글 기반 예약 목록 조회
     @Override
-    public List<Reservation> findByPostId(Long postId) {
-        return reservationRepository.findByPostId(postId);
+    public SliceResponse<ReservationGetAllResponse> findByPostId(Long postId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Slice<Reservation> reservations = reservationRepository.findByPostId(postId, pageable);
+
+        Slice<ReservationGetAllResponse> contents = reservations.map(reservation ->
+                ReservationGetAllResponse.builder()
+                        .reservationId(reservation.getId())
+                        .postId(reservation.getPost().getId())
+                        .hostUserId(reservation.getHostUser().getId())
+                        .guestUserId(reservation.getGuestUser().getId())
+                        .reservationStartAt(reservation.getReservationStartAt())
+                        .reservationEndAt(reservation.getReservationEndAt())
+                        .price(reservation.getPrice())
+                        .deposit(reservation.getDeposit())
+                        .status(reservation.getStatus())
+                        .build()
+        );
+
+        return SliceResponse.fromSlice(contents);
     }
 }

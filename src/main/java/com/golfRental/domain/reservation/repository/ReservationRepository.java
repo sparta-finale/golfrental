@@ -47,6 +47,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "JOIN FETCH r.hostUser " +
             "JOIN FETCH r.guestUser " +
             "WHERE r.post.id = :postId " +
+            "AND r.reservationEndAt >= CURRENT_TIMESTAMP " +
             "AND r.deletedAt IS NULL")
     Slice<Reservation> findByPostId(@Param("postId") Long postId, Pageable pageable);
 }

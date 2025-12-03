@@ -5,6 +5,7 @@ import com.golfRental.domain.reservation.dto.response.ReservationGetAllResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationGetResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationUpdateStatusResponse;
 import com.golfRental.domain.reservation.entity.Reservation;
+import org.springframework.data.domain.Pageable;
 
 public interface ReservationQueryService {
 
@@ -16,5 +17,5 @@ public interface ReservationQueryService {
 
     ReservationUpdateStatusResponse getReservationStatus(Long reservationId, Long userId);
 
-    SliceResponse<ReservationGetAllResponse> findByPostId(Long postId, int page, int size);
+    SliceResponse<ReservationGetAllResponse> findByPostId(Long postId, Pageable pageable);
 }

@@ -1,6 +1,7 @@
 package com.golfRental.domain.reservation.service.command;
 
 import com.golfRental.domain.post.entity.Post;
+import com.golfRental.domain.post.enums.TradeStatus;
 import com.golfRental.domain.post.service.query.PostQueryService;
 import com.golfRental.domain.reservation.dto.request.ReservationCreateRequest;
 import com.golfRental.domain.reservation.dto.response.ReservationCreateResponse;
@@ -34,6 +35,9 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
         Post post = postQueryService.findById(request.getPostId());
         User guestUser = userQueryService.findById(userId);
         User hostUser = post.getUser();
+
+        // 검증 로직 시작
+        validateReservationCreation(post, guestUser, request);
 
         Reservation reservation = Reservation.builder()
                 .post(post)
@@ -176,5 +180,36 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
         }
 
         return reservation;
+    }
+
+    // 예약 생성 전 검증 수행
+    private void validateReservationCreation(Post post, User guestUser, ReservationCreateRequest request) {
+
+        // 자기 자신의 게시글 예약 방지
+        if (post.getUser().getId().equals(guestUser.getId())) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_SELF_BOOKING_NOT_ALLOWED);
+        }
+
+        // 예약 날짜 유효성 (시작일 < 종료일)
+        if (!request.getReservationStartAt().isBefore(request.getReservationEndAt())) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_INVALID_DATE_RANGE);
+        }
+
+        // Post 상태 확인 (BEFORE_TRANSACTION 또는 TRADING만 허용)
+        TradeStatus tradeStatus = post.getTradeStatus();
+        if (tradeStatus != TradeStatus.BEFORE_TRANSACTION && tradeStatus != TradeStatus.TRADING) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_POST_NOT_AVAILABLE);
+        }
+
+        // 중복 예약 방지
+        boolean hasConflict = reservationRepository.existsConflictingReservation(
+                post.getId(),
+                request.getReservationStartAt(),
+                request.getReservationEndAt()
+        );
+
+        if (hasConflict) {
+            throw new ReservationException(ReservationErrorCode.RESERVATION_DATE_CONFLICT);
+        }
     }
 }

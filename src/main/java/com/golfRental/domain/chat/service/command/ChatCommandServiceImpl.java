@@ -77,12 +77,8 @@ public class ChatCommandServiceImpl implements ChatCommandService {
         return ChatMessageResponse.from(savedMessage);
     }
 
-    //소영 복귀 후 수정 예정
     private void validateParticipant(Reservation reservation, Long currentUserId) {
-        boolean isHost = reservation.getHostUser().getId().equals(currentUserId);
-        boolean isGuest = reservation.getGuestUser().getId().equals(currentUserId);
-
-        if (!isHost && !isGuest) {
+        if (!reservation.isParticipant(currentUserId)) {
             log.warn("채팅방 생성 권한 없음 - reservationId: {}, userId: {}",
                     reservation.getId(), currentUserId);
             throw new ChatException(ChatErrorCode.CHAT_ROOM_FORBIDDEN);

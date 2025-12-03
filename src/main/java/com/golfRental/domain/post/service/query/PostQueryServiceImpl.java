@@ -237,7 +237,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     @Override
     public SliceResponse<ReservationGetAllResponse> getPostReservation(Long postId, Pageable pageable) {
         return reservationQueryService.findByPostId(
-                postId, pageable.getPageNumber(), pageable.getPageSize());
+                postId, pageable);
     }
 
     @Override

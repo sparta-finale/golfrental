@@ -93,7 +93,7 @@ public class Post extends BaseEntity {
     }
 
     public boolean isOwnedBy(User user) {
-        return this.user.getId().equals(user.getId());
+        return user != null && this.user.getId().equals(user.getId());
     }
 
     public boolean isReservable() {

@@ -91,4 +91,12 @@ public class Post extends BaseEntity {
     public void updateStatus(TradeStatus tradeStatus) {
         this.tradeStatus = tradeStatus;
     }
+
+    public boolean isOwnedBy(User user) {
+        return this.user.getId().equals(user.getId());
+    }
+
+    public boolean isReservable() {
+        return tradeStatus == TradeStatus.BEFORE_TRANSACTION || tradeStatus == TradeStatus.TRADING;
+    }
 }

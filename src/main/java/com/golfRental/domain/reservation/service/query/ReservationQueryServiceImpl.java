@@ -105,4 +105,29 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
                 .status(reservation.getStatus())
                 .build();
     }
+
+    // 게시글 기반 예약 목록 조회
+    @Override
+    public SliceResponse<ReservationGetAllResponse> findByPostId(Long postId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Slice<Reservation> reservations = reservationRepository.findByPostId(postId, pageable);
+
+        Slice<ReservationGetAllResponse> contents = reservations.map(reservation ->
+                ReservationGetAllResponse.builder()
+                        .reservationId(reservation.getId())
+                        .postId(reservation.getPost().getId())
+                        .hostUserId(reservation.getHostUser().getId())
+                        .guestUserId(reservation.getGuestUser().getId())
+                        .reservationStartAt(reservation.getReservationStartAt())
+                        .reservationEndAt(reservation.getReservationEndAt())
+                        .price(reservation.getPrice())
+                        .deposit(reservation.getDeposit())
+                        .status(reservation.getStatus())
+                        .build()
+        );
+
+        return SliceResponse.fromSlice(contents);
+    }
 }

@@ -41,4 +41,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("startAt") LocalDateTime startAt,
             @Param("endAt") LocalDateTime endAt
     );
+
+    @Query("SELECT r FROM Reservation r " +
+            "JOIN FETCH r.post " +
+            "JOIN FETCH r.hostUser " +
+            "JOIN FETCH r.guestUser " +
+            "WHERE r.post.id = :postId " +
+            "AND r.deletedAt IS NULL")
+    Slice<Reservation> findByPostId(@Param("postId") Long postId, Pageable pageable);
 }

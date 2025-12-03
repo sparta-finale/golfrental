@@ -15,4 +15,6 @@ public interface ReservationQueryService {
     SliceResponse<ReservationGetAllResponse> getMyReservations(Long userId, int page, int size);
 
     ReservationUpdateStatusResponse getReservationStatus(Long reservationId, Long userId);
+
+    SliceResponse<ReservationGetAllResponse> findByPostId(Long postId, int page, int size);
 }

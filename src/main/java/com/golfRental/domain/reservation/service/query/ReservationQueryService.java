@@ -6,8 +6,6 @@ import com.golfRental.domain.reservation.dto.response.ReservationGetResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationUpdateStatusResponse;
 import com.golfRental.domain.reservation.entity.Reservation;
 
-import java.util.List;
-
 public interface ReservationQueryService {
 
     ReservationGetResponse findById(Long reservationId, Long currentUserId);
@@ -18,5 +16,5 @@ public interface ReservationQueryService {
 
     ReservationUpdateStatusResponse getReservationStatus(Long reservationId, Long userId);
 
-    List<Reservation> findByPostId(Long postId);
+    SliceResponse<ReservationGetAllResponse> findByPostId(Long postId, int page, int size);
 }

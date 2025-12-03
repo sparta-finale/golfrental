@@ -16,6 +16,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -104,5 +106,11 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
                 .reservationId(reservation.getId())
                 .status(reservation.getStatus())
                 .build();
+    }
+
+    // 게시글 기반 예약 목록 조회
+    @Override
+    public List<Reservation> findByPostId(Long postId) {
+        return reservationRepository.findByPostId(postId);
     }
 }

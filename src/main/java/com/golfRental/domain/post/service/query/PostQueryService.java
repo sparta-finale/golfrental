@@ -50,5 +50,21 @@ public interface PostQueryService {
      */
     SliceResponse<PostGetByFavoritesResponse> getByFavorites(Long userId, Pageable pageable);
 
+    /**
+     * 게시물 목록 조회(public)
+     *
+     * @param pageable 페이지 데이터
+     * @return SliceResponse<PostGetAllPublicResponse>
+     */
+    SliceResponse<PostGetAllPublicResponse> getAllPublic(Pageable pageable);
+
+    /**
+     * 게시물 상세 조회(public)
+     *
+     * @param postId 게시물 ID
+     * @return PostGetsPublicResponse
+     */
+    PostGetsPublicResponse getPostPublic(Long postId);
+
     Post findById(Long postId);
 }

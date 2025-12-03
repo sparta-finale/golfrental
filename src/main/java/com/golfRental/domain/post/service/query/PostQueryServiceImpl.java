@@ -182,6 +182,56 @@ public class PostQueryServiceImpl implements PostQueryService {
     }
 
     @Override
+    public SliceResponse<PostGetAllPublicResponse> getAllPublic(Pageable pageable) {
+        Slice<Post> posts = postRepository.findAllOrderByStatus(pageable);
+
+        Slice<PostGetAllPublicResponse> content = posts.map(post -> PostGetAllPublicResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .methodOfReceive(post.getMethodOfReceive())
+                .methodOfReturn(post.getMethodOfReturn())
+                .price(post.getPrice())
+                .deposit(post.getDeposit())
+                .dailyRate(post.getDailyRate())
+                .tradeStatus(post.getTradeStatus())
+                .userId(post.getUser().getId())
+                .username(post.getUser().getUsername())
+                .address(post.getUser().getAddress())
+                .nickname(post.getUser().getNickname())
+                .categoryId(post.getCategory().getId())
+                .categoryName(post.getCategory().getName())
+                .favorites(false)
+                .build());
+
+        return SliceResponse.fromSlice(content);
+    }
+
+    @Override
+    public PostGetsPublicResponse getPostPublic(Long postId) {
+        Post post = findById(postId);
+
+        return PostGetsPublicResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .methodOfReceive(post.getMethodOfReceive())
+                .methodOfReturn(post.getMethodOfReturn())
+                .price(post.getPrice())
+                .deposit(post.getDeposit())
+                .dailyRate(post.getDailyRate())
+                .tradeStatus(post.getTradeStatus())
+                .userId(post.getUser().getId())
+                .username(post.getUser().getUsername())
+                .address(post.getUser().getAddress())
+                .nickname(post.getUser().getNickname())
+                .categoryId(post.getCategory().getId())
+                .categoryName(post.getCategory().getName())
+                .favorites(false)
+                .build();
+    }
+
+    @Override
     public Post findById(Long postId) {
         return postRepository.findByIdWithUserAndCategory(postId).orElseThrow(
                 () -> new PostException(PostErrorCode.POST_INVALID_ID)

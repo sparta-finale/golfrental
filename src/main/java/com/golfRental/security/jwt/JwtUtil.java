@@ -2,6 +2,7 @@ package com.golfRental.security.jwt;
 
 import com.golfRental.domain.user.enums.UserRole;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -60,5 +61,25 @@ public class JwtUtil {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            extractClaims(token);
+            return true;
+        } catch (JwtException e) {
+            log.warn("JWT 토큰 검증 실패: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = extractClaims(token);
+        try {
+            return Long.parseLong(claims.getSubject());
+        } catch (NumberFormatException e) {
+            log.error("Invalid user ID in JWT subject: {}", claims.getSubject(), e);
+            throw new io.jsonwebtoken.JwtException("Invalid user ID in JWT subject");
+        }
     }
 }

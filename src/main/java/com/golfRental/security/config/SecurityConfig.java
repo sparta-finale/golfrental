@@ -1,6 +1,5 @@
 package com.golfRental.security.config;
 
-import com.golfRental.domain.user.enums.UserRole;
 import com.golfRental.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -52,18 +51,16 @@ public class SecurityConfig {
                         .permitAll()
 
                         .requestMatchers(HttpMethod.GET,
+                                "/api/v1/public/**")
+                        .permitAll()
+
+                        .requestMatchers(HttpMethod.GET,
                                 "/api/v1/categories",
                                 "/api/v1/categories/*")
                         .permitAll()
 
-                        .requestMatchers("/open")
-                        .permitAll()
-
                         .requestMatchers("/api/v1/admin/**")
                         .hasRole("ADMIN")
-
-                        .requestMatchers("/test")
-                        .hasAuthority(UserRole.Authority.ADMIN)
 
                         .anyRequest().authenticated()
                 )

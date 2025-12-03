@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
@@ -41,4 +42,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("startAt") LocalDateTime startAt,
             @Param("endAt") LocalDateTime endAt
     );
+
+    @Query("SELECT r FROM Reservation r " +
+            "JOIN FETCH r.post " +
+            "JOIN FETCH r.hostUser " +
+            "JOIN FETCH r.guestUser " +
+            "WHERE r.post.id = :postId " +
+            "AND r.deletedAt IS NULL " +
+            "ORDER BY r.reservationStartAt ASC")
+    List<Reservation> findByPostId(@Param("postId") Long postId);
 }

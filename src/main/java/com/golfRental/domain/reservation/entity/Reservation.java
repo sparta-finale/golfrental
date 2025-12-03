@@ -160,4 +160,9 @@ public class Reservation extends BaseEntity {
 
         this.status = ReservationStatus.COMPLETED;
     }
+
+    // 참여자 여부 확인
+    public boolean isParticipant(Long userId) {
+        return hostUser.getId().equals(userId) || guestUser.getId().equals(userId);
+    }
 }

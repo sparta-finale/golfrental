@@ -142,7 +142,7 @@ public class PostControllerImpl implements PostController {
     @GetMapping("/posts/{postId}/reservations")
     public ResponseEntity<CommonApiResponse<SliceResponse<ReservationGetAllResponse>>> getPostReservation(
             @PathVariable Long postId,
-            @PageableDefault(page = 0, size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(page = 0, size = 20, sort = "reservationStartAt", direction = Sort.Direction.ASC) Pageable pageable
     ) {
         SliceResponse<ReservationGetAllResponse> reservations = postQueryService.getPostReservation(postId, pageable);
 

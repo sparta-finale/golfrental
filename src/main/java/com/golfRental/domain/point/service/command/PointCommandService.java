@@ -7,5 +7,5 @@ public interface PointCommandService {
 
     PointBalanceResponse getBalance(Long userId);
 
-    PointUseResponse usePoints(Long userId, Integer amount);
+    PointUseResponse usePoints(Long userId, Long amount);
 }

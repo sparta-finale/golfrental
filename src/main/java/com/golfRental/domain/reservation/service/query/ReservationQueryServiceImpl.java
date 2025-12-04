@@ -108,10 +108,7 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
 
     // 게시글 기반 예약 목록 조회
     @Override
-    public SliceResponse<ReservationGetAllResponse> findByPostId(Long postId, int page, int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-
+    public SliceResponse<ReservationGetAllResponse> findByPostId(Long postId, Pageable pageable) {
         Slice<Reservation> reservations = reservationRepository.findByPostId(postId, pageable);
 
         Slice<ReservationGetAllResponse> contents = reservations.map(reservation ->

@@ -40,4 +40,18 @@ public class PointTransaction extends BaseEntity {
         this.type = type;
         this.balanceAfter = balanceAfter;
     }
+
+    public static PointTransaction create(
+            User user,
+            Long amount,
+            PointTransactionType type,
+            Long balanceAfter
+    ) {
+        return PointTransaction.builder()
+                .user(user)
+                .amount(amount)
+                .type(type)
+                .balanceAfter(balanceAfter)
+                .build();
+    }
 }

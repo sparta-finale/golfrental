@@ -7,6 +7,7 @@ import com.golfRental.domain.reservation.dto.response.ReservationCreateResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationUpdateStatusResponse;
 import com.golfRental.domain.reservation.entity.Reservation;
 import com.golfRental.domain.reservation.enums.ReservationStatus;
+import com.golfRental.domain.reservation.event.*;
 import com.golfRental.domain.reservation.exception.ReservationErrorCode;
 import com.golfRental.domain.reservation.exception.ReservationException;
 import com.golfRental.domain.reservation.repository.ReservationRepository;
@@ -14,6 +15,7 @@ import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
     private final ReservationRepository reservationRepository;
     private final PostQueryService postQueryService;
     private final UserQueryService userQueryService;
+    private final ApplicationEventPublisher eventPublisher;
 
     // 예약 생성
     @Override
@@ -51,6 +54,9 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         Reservation saved = reservationRepository.save(reservation);
 
+        // 예약 생성 이벤트 발행
+        eventPublisher.publishEvent(new ReservationCreatedEvent(saved));
+
         return ReservationCreateResponse.builder()
                 .reservationId(saved.getId())
                 .postId(saved.getPost().getId())
@@ -72,6 +78,9 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         reservation.approve(); // 엔티티 도메인 규칙 실행
 
+        // 예약 승인 이벤트 발행
+        eventPublisher.publishEvent(new ReservationApprovedEvent(reservation));
+
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
                 .status(reservation.getStatus())
@@ -85,6 +94,9 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
         Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
 
         reservation.reject(); // 엔티티 도메인 규칙 실행
+
+        // 예약 거절 이벤트 발행
+        eventPublisher.publishEvent(new ReservationRejectedEvent(reservation));
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
@@ -100,6 +112,9 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         reservation.cancel(); // 엔티티 도메인 규칙 실행
 
+        // 예약 취소 이벤트 발행
+        eventPublisher.publishEvent(new ReservationCancelledEvent(reservation));
+
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
                 .status(reservation.getStatus())
@@ -113,6 +128,9 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
         Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
 
         reservation.startRental(); // 엔티티 도메인 규칙 실행
+
+        // 대여 시작 이벤트 발행
+        eventPublisher.publishEvent(new RentalStartedEvent(reservation));
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
@@ -128,6 +146,9 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         reservation.requestReturn(); // 엔티티 도메인 규칙 실행
 
+        // 반납 요청 이벤트 발행
+        eventPublisher.publishEvent(new ReturnRequestedEvent(reservation));
+
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
                 .status(reservation.getStatus())
@@ -142,6 +163,8 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         reservation.complete(); // 엔티티 도메인 규칙 실행
 
+        // 반납 완료 이벤트 발행
+        eventPublisher.publishEvent(new ReturnCompletedEvent(reservation));
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())

@@ -1,9 +1,5 @@
 package com.golfRental.domain.reservation.service.command;
 
-import com.golfRental.domain.notification.dto.request.NotificationCreateRequest;
-import com.golfRental.domain.notification.dto.response.NotificationResponse;
-import com.golfRental.domain.notification.enums.NotificationType;
-import com.golfRental.domain.notification.service.command.NotificationCommandService;
 import com.golfRental.domain.post.entity.Post;
 import com.golfRental.domain.post.service.query.PostQueryService;
 import com.golfRental.domain.reservation.dto.request.ReservationCreateRequest;
@@ -11,6 +7,7 @@ import com.golfRental.domain.reservation.dto.response.ReservationCreateResponse;
 import com.golfRental.domain.reservation.dto.response.ReservationUpdateStatusResponse;
 import com.golfRental.domain.reservation.entity.Reservation;
 import com.golfRental.domain.reservation.enums.ReservationStatus;
+import com.golfRental.domain.reservation.event.*;
 import com.golfRental.domain.reservation.exception.ReservationErrorCode;
 import com.golfRental.domain.reservation.exception.ReservationException;
 import com.golfRental.domain.reservation.repository.ReservationRepository;
@@ -18,13 +15,9 @@ import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service
@@ -35,11 +28,7 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
     private final ReservationRepository reservationRepository;
     private final PostQueryService postQueryService;
     private final UserQueryService userQueryService;
-    private final NotificationCommandService notificationCommandService;
-
-    @Autowired
-    @Lazy
-    private ReservationCommandServiceImpl self;
+    private final ApplicationEventPublisher eventPublisher;
 
     // 예약 생성
     @Override
@@ -65,13 +54,8 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         Reservation saved = reservationRepository.save(reservation);
 
-        // 트랜잭션 커밋 후 알림 전송
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                self.sendReservationCreatedNotification(saved);
-            }
-        });
+        // 예약 생성 이벤트 발행
+        eventPublisher.publishEvent(new ReservationCreatedEvent(saved));
 
         return ReservationCreateResponse.builder()
                 .reservationId(saved.getId())
@@ -92,19 +76,10 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
 
-        log.info("예약 승인 시작 - reservationId: {}, hostUserId: {}, guestUserId: {}",
-                reservationId, reservation.getHostUser().getId(), reservation.getGuestUser().getId());
-
         reservation.approve(); // 엔티티 도메인 규칙 실행
 
-        // 트랜잭션 커밋 후 알림 전송
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                log.info("트랜잭션 커밋 완료 - 알림 전송 시작");
-                self.sendReservationApprovedNotification(reservation);
-            }
-        });
+        // 예약 승인 이벤트 발행
+        eventPublisher.publishEvent(new ReservationApprovedEvent(reservation));
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
@@ -120,13 +95,8 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         reservation.reject(); // 엔티티 도메인 규칙 실행
 
-        // 트랜잭션 커밋 후 알림 전송
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                self.sendReservationRejectedNotification(reservation);
-            }
-        });
+        // 예약 거절 이벤트 발행
+        eventPublisher.publishEvent(new ReservationRejectedEvent(reservation));
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
@@ -142,13 +112,8 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         reservation.cancel(); // 엔티티 도메인 규칙 실행
 
-        // 트랜잭션 커밋 후 알림 전송
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                self.sendReservationCancelledNotification(reservation);
-            }
-        });
+        // 예약 취소 이벤트 발행
+        eventPublisher.publishEvent(new ReservationCancelledEvent(reservation));
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
@@ -164,13 +129,8 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         reservation.startRental(); // 엔티티 도메인 규칙 실행
 
-        // 트랜잭션 커밋 후 알림 전송
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                self.sendRentalStartedNotification(reservation);
-            }
-        });
+        // 대여 시작 이벤트 발행
+        eventPublisher.publishEvent(new RentalStartedEvent(reservation));
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
@@ -186,13 +146,8 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         reservation.requestReturn(); // 엔티티 도메인 규칙 실행
 
-        // 트랜잭션 커밋 후 알림 전송
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                self.sendReturnRequestedNotification(reservation);
-            }
-        });
+        // 반납 요청 이벤트 발행
+        eventPublisher.publishEvent(new ReturnRequestedEvent(reservation));
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
@@ -208,13 +163,8 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         reservation.complete(); // 엔티티 도메인 규칙 실행
 
-        // 트랜잭션 커밋 후 알림 전송
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                self.sendReturnCompletedNotification(reservation);
-            }
-        });
+        // 반납 완료 이벤트 발행
+        eventPublisher.publishEvent(new ReturnCompletedEvent(reservation));
 
         return ReservationUpdateStatusResponse.builder()
                 .reservationId(reservation.getId())
@@ -281,171 +231,6 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         if (hasConflict) {
             throw new ReservationException(ReservationErrorCode.RESERVATION_DATE_CONFLICT);
-        }
-    }
-
-    // 알림 전송 메서드들 (트랜잭션 커밋 후 실행)
-
-    /**
-     * 예약 생성 알림 - Host에게 전송
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sendReservationCreatedNotification(Reservation reservation) {
-        try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getHostUser().getId())
-                    .title("새로운 예약 요청")
-                    .content(String.format("%s님이 예약을 요청했습니다.",
-                            reservation.getGuestUser().getNickname()))
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
-
-            notificationCommandService.createNotification(request);
-
-        } catch (Exception e) {
-            log.error("예약 생성 알림 전송 실패 - reservationId: {}, receiverId: {}",
-                    reservation.getId(), reservation.getHostUser().getId(), e);
-        }
-    }
-
-    /**
-     * 예약 승인 알림 - Guest에게 전송
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sendReservationApprovedNotification(Reservation reservation) {
-        try {
-            log.info("예약 승인 알림 생성 시작 - reservationId: {}, guestUserId: {}",
-                    reservation.getId(), reservation.getGuestUser().getId());
-
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getGuestUser().getId())
-                    .title("예약 승인")
-                    .content("예약이 승인되었습니다.")
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
-
-            NotificationResponse response = notificationCommandService.createNotification(request);
-
-            log.info("예약 승인 알림 생성 완료 - notificationId: {}, receiverId: {}",
-                    response.id(), response.receiverId());
-
-        } catch (Exception e) {
-            log.error("예약 승인 알림 전송 실패 - reservationId: {}, receiverId: {}",
-                    reservation.getId(), reservation.getGuestUser().getId(), e);
-        }
-    }
-
-    /**
-     * 예약 거절 알림 - Guest에게 전송
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sendReservationRejectedNotification(Reservation reservation) {
-        try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getGuestUser().getId())
-                    .title("예약 거절")
-                    .content("예약이 거절되었습니다.")
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
-
-            notificationCommandService.createNotification(request);
-
-        } catch (Exception e) {
-            log.error("예약 거절 알림 전송 실패 - reservationId: {}, receiverId: {}",
-                    reservation.getId(), reservation.getGuestUser().getId(), e);
-        }
-    }
-
-    /**
-     * 예약 취소 알림 - Host에게 전송
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sendReservationCancelledNotification(Reservation reservation) {
-        try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getHostUser().getId())
-                    .title("예약 취소")
-                    .content(String.format("%s님이 예약을 취소했습니다.",
-                            reservation.getGuestUser().getNickname()))
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
-
-            notificationCommandService.createNotification(request);
-
-        } catch (Exception e) {
-            log.error("예약 취소 알림 전송 실패 - reservationId: {}, receiverId: {}",
-                    reservation.getId(), reservation.getHostUser().getId(), e);
-        }
-    }
-
-    /**
-     * 대여 시작 알림 - Guest에게 전송
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sendRentalStartedNotification(Reservation reservation) {
-        try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getGuestUser().getId())
-                    .title("대여 시작")
-                    .content("대여가 시작되었습니다. 물품을 사용하실 수 있습니다.")
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
-
-            notificationCommandService.createNotification(request);
-
-        } catch (Exception e) {
-            log.error("대여 시작 알림 전송 실패 - reservationId: {}, receiverId: {}",
-                    reservation.getId(), reservation.getGuestUser().getId(), e);
-        }
-    }
-
-    /**
-     * 반납 요청 알림 - Host에게 전송
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sendReturnRequestedNotification(Reservation reservation) {
-        try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getHostUser().getId())
-                    .title("반납 요청")
-                    .content(String.format("%s님이 반납을 요청했습니다.",
-                            reservation.getGuestUser().getNickname()))
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
-
-            notificationCommandService.createNotification(request);
-
-        } catch (Exception e) {
-            log.error("반납 요청 알림 전송 실패 - reservationId: {}, receiverId: {}",
-                    reservation.getId(), reservation.getHostUser().getId(), e);
-        }
-    }
-
-    /**
-     * 반납 완료 알림 - Guest에게 전송
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void sendReturnCompletedNotification(Reservation reservation) {
-        try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getGuestUser().getId())
-                    .title("반납 완료")
-                    .content("반납이 완료되었습니다. 이용해 주셔서 감사합니다.")
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
-
-            notificationCommandService.createNotification(request);
-
-        } catch (Exception e) {
-            log.error("반납 완료 알림 전송 실패 - reservationId: {}, receiverId: {}",
-                    reservation.getId(), reservation.getGuestUser().getId(), e);
         }
     }
 }

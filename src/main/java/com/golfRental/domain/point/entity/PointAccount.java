@@ -25,10 +25,13 @@ public class PointAccount extends BaseEntity {
     private User user;
 
     @Column(nullable = false)
-    private Integer balance;
+    private Long balance;
+
+    @Version
+    private Long version;
 
     @Builder
-    private PointAccount(User user, Integer balance) {
+    private PointAccount(User user, Long balance) {
         this.user = user;
         this.balance = balance;
     }
@@ -37,12 +40,12 @@ public class PointAccount extends BaseEntity {
     public static PointAccount createDefault(User user) {
         return PointAccount.builder()
                 .user(user)
-                .balance(0)
+                .balance(0L)
                 .build();
     }
 
     // 포인트 사용 도메인
-    public void use(Integer amount) {
+    public void use(Long amount) {
         if (this.balance < amount) {
             throw new PointException(PointErrorCode.POINT_NOT_ENOUGH);
         }

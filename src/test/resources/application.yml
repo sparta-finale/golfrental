@@ -1,6 +1,9 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
+
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/${SPRING_DATASOURCE_MYSQL_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true
+    url: ${SPRING_DATASOURCE_MYSQL_URL}
     driver-class-name: com.mysql.cj.jdbc.Driver # MySQL JDBC 드라이버 명시
     username: ${SPRING_DATASOURCE_MYSQL_USERNAME}
     password: ${SPRING_DATASOURCE_MYSQL_PASSWORD}

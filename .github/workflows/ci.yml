@@ -13,8 +13,8 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: test_db
+          MYSQL_DATABASE: ${{secrets.SPRING_DATASOURCE_MYSQL_DB_NAME}}
+          MYSQL_ROOT_PASSWORD: ${{secrets.SPRING_DATASOURCE_MYSQL_PASSWORD}}
         ports:
           - 3306:3306
         options: >-

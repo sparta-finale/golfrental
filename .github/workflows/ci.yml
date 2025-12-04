@@ -3,9 +3,6 @@ name: CI
 on:
   pull_request:
     branches: [ dev ]
-  push:
-    branches:
-      - refactor/179-common
 
 jobs:
   build:

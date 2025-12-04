@@ -3,8 +3,9 @@ package com.golfRental.domain.point.dto.response;
 import lombok.Builder;
 
 @Builder
-public record PointBalanceResponse(
+public record PointUseResponse(
         Long pointAccountId,
-        Long balance
+        Long usedAmount,
+        Long balanceAfterUse
 ) {
 }

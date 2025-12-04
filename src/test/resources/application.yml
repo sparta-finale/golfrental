@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_MYSQL_URL:jdbc:mysql://127.0.0.1:3306/test_db?useSSL=false&allowPublicKeyRetrieval=true}
+    url: jdbc:mysql://127.0.0.1:3306/${SPRING_DATASOURCE_MYSQL_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver # MySQL JDBC 드라이버 명시
     username: ${SPRING_DATASOURCE_MYSQL_USERNAME}
     password: ${SPRING_DATASOURCE_MYSQL_PASSWORD}
@@ -16,6 +16,6 @@ spring:
 
 
 jwt:
-  secret: ${JWT_SECRET_KEY:dGVzdC1zZWNyZXQta2V5LWZvci1qdW5pdC10ZXN0LWVudmlyb25tZW50LXRoaXMtaXMtbG9uZy1lbm91Z2gtc2VjcmV0LWtleQ==}
+  secret: ${JWT_SECRET_KEY}
   access-token-validity: 3600000
   refresh-token-validity: 604800000

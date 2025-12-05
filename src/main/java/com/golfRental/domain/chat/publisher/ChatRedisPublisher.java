@@ -2,7 +2,6 @@ package com.golfRental.domain.chat.publisher;
 
 
 import com.golfRental.domain.chat.dto.event.ChatMessageEvent;
-import com.golfRental.domain.chat.entity.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class ChatRedisPublisher {
 
     private static final String CHAT_CHANNEL = "chat:message";
-    private final RedisTemplate<String, ChatMessage> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public void publish(ChatMessageEvent event) {
         try {

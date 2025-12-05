@@ -12,6 +12,8 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
+
 
 @Slf4j
 @Component
@@ -33,7 +35,7 @@ public class ChatRedisSubscriber implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
-            String body = new String(message.getBody());
+            String body = new String(message.getBody(), StandardCharsets.UTF_8);
             ChatMessageEvent event = objectMapper.readValue(body, ChatMessageEvent.class);
 
             log.info("Redis 메시지 수신 - chatRoomId: {}, messageId: {}",

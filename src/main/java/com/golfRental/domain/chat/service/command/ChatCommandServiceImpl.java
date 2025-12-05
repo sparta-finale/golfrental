@@ -79,14 +79,10 @@ public class ChatCommandServiceImpl implements ChatCommandService {
         ChatMessage savedMessage = chatMessageRepository.save(message);
         ChatMessageResponse response = ChatMessageResponse.from(savedMessage);
 
-        try {
-            ChatMessageEvent event = ChatMessageEvent.of(chatRoomId, response);
-            chatRedisPublisher.publish(event);
-            log.info("Redis 메시지 발행 성공 - messageId: {}", savedMessage.getId());
-        } catch (Exception e) {
-            log.error("Redis 메시지 발행 실패 - chatRoomId: {}, messageId: {}",
-                    chatRoomId, savedMessage.getId(), e);
-        }
+        ChatMessageEvent event = ChatMessageEvent.of(chatRoomId, response);
+        chatRedisPublisher.publish(event);
+        log.info("Redis 메시지 발행 성공 - messageId: {}", savedMessage.getId());
+        
         return response;
     }
 

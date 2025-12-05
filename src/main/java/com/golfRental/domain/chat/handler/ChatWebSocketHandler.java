@@ -103,7 +103,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             broadcastMessage(chatRoomId, messageJson);
             log.debug("Redis 메시지 브로드캐스트 성공 - chatRoomId: {}", chatRoomId);
         } catch (Exception e) {
-            log.error("Redis 메시지 브로드캐스트 실패 - chatRoomId: {}", chatRoomId, e);
+            log.error("Redis 메시지 브로드캐스트(JSON 직렬화) 실패 - chatRoomId: {}", chatRoomId, e);
         }
     }
 

@@ -97,6 +97,16 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         session.close(CloseStatus.SERVER_ERROR);
     }
 
+    public void broadcastToRoom(Long chatRoomId, ChatMessageResponse message) {
+        try {
+            String messageJson = objectMapper.writeValueAsString(message);
+            broadcastMessage(chatRoomId, messageJson);
+            log.debug("Redis 메시지 브로드캐스트 성공 - chatRoomId: {}", chatRoomId);
+        } catch (Exception e) {
+            log.error("Redis 메시지 브로드캐스트 실패 - chatRoomId: {}", chatRoomId, e);
+        }
+    }
+
     private void broadcastMessage(Long chatRoomId, String message) {
         Map<String, WebSocketSession> sessions = chatRoomSessions.get(chatRoomId);
         if (sessions == null) {

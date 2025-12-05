@@ -1,5 +1,6 @@
 package com.golfRental.domain.chat.service.command;
 
+import com.golfRental.domain.chat.dto.event.ChatMessageEvent;
 import com.golfRental.domain.chat.dto.request.ChatMessageCreateRequest;
 import com.golfRental.domain.chat.dto.request.ChatRoomCreateRequest;
 import com.golfRental.domain.chat.dto.response.ChatMessageResponse;
@@ -8,6 +9,7 @@ import com.golfRental.domain.chat.entity.ChatMessage;
 import com.golfRental.domain.chat.entity.ChatRoom;
 import com.golfRental.domain.chat.exception.ChatErrorCode;
 import com.golfRental.domain.chat.exception.ChatException;
+import com.golfRental.domain.chat.publisher.ChatRedisPublisher;
 import com.golfRental.domain.chat.repository.ChatMessageRepository;
 import com.golfRental.domain.chat.repository.ChatRoomRepository;
 import com.golfRental.domain.reservation.entity.Reservation;
@@ -29,6 +31,8 @@ public class ChatCommandServiceImpl implements ChatCommandService {
     private final ReservationQueryService reservationQueryService;
     private final UserQueryService userQueryService;
     private final ChatMessageRepository chatMessageRepository;
+
+    private final ChatRedisPublisher chatRedisPublisher;
 
 
     @Override
@@ -61,7 +65,7 @@ public class ChatCommandServiceImpl implements ChatCommandService {
     public ChatMessageResponse sendMessage(Long currentUserId, Long chatRoomId, ChatMessageCreateRequest request) {
         ChatRoom chatRoom = chatRoomRepository.findByIdWithUsers(chatRoomId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
-        
+
         chatRoom.validateParticipant(currentUserId);
 
         User sender = userQueryService.findById(currentUserId);
@@ -73,8 +77,17 @@ public class ChatCommandServiceImpl implements ChatCommandService {
                 .build();
 
         ChatMessage savedMessage = chatMessageRepository.save(message);
+        ChatMessageResponse response = ChatMessageResponse.from(savedMessage);
 
-        return ChatMessageResponse.from(savedMessage);
+        try {
+            ChatMessageEvent event = ChatMessageEvent.of(chatRoomId, response);
+            chatRedisPublisher.publish(event);
+            log.info("Redis 메시지 발행 성공 - messageId: {}", savedMessage.getId());
+        } catch (Exception e) {
+            log.error("Redis 메시지 발행 실패 - chatRoomId: {}, messageId: {}",
+                    chatRoomId, savedMessage.getId(), e);
+        }
+        return response;
     }
 
     private void validateParticipant(Reservation reservation, Long currentUserId) {

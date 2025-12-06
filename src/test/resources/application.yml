@@ -4,7 +4,7 @@ spring:
 
   datasource:
     url: ${SPRING_DATASOURCE_MYSQL_URL}
-    driver-class-name: com.mysql.cj.jdbc.Driver # MySQL JDBC 드라이버 명시
+    driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${SPRING_DATASOURCE_MYSQL_USERNAME}
     password: ${SPRING_DATASOURCE_MYSQL_PASSWORD}
 
@@ -15,8 +15,19 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect # MySQL 방언 설정
+        dialect: org.hibernate.dialect.MySQLDialect
 
+  cloud:
+    aws:
+      s3:
+        bucket: ${AWS_S3_BUCKET}
+      region:
+        static: ${AWS_REGION}
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+      stack:
+        auto: false
 
 jwt:
   secret: ${JWT_SECRET_KEY}

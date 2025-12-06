@@ -7,6 +7,8 @@ import com.golfRental.domain.user.dto.response.UserGetMyInfoResponse;
 import com.golfRental.domain.user.entity.User;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface UserQueryService {
 
     /**
@@ -42,4 +44,6 @@ public interface UserQueryService {
     User findByEmail(String email);
 
     User findById(Long userId);
+
+    List<User> findAll();
 }

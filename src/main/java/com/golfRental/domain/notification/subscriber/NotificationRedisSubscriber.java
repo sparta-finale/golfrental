@@ -35,7 +35,7 @@ public class NotificationRedisSubscriber implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
-            String body = new String(message.getBody());
+            String body = new String(message.getBody(), java.nio.charset.StandardCharsets.UTF_8);
             NotificationEvent event = objectMapper.readValue(body, NotificationEvent.class);
 
             log.info("Redis 알림 수신 - userId: {}, notificationId: {}",

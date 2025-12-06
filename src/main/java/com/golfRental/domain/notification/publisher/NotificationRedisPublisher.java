@@ -17,10 +17,7 @@ public class NotificationRedisPublisher {
     public void publish(NotificationEvent event) {
         try {
             redisTemplate.convertAndSend(NOTIFICATION_CHANNEL, event);
-            log.info("Redis 알림 발행 성공 - userId: {}, notificationId: {}",
-                    event.getUserId(), event.getNotification().id());
         } catch (Exception e) {
-            log.error("Redis 알림 발행 실패 - userId: {}", event.getUserId(), e);
             throw new RuntimeException("Failed to publish notification to Redis", e);
         }
     }

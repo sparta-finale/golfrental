@@ -104,8 +104,7 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
                     savedNotification.getId(), request.getReceiverId(), e);
             // Redis 실패해도 알림은 DB에 저장됨 (DB 우선)
         }
-        sendNotification(request.getReceiverId(), response);
-
+        
         return response;
     }
 

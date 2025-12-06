@@ -45,8 +45,15 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+
 }
 
+dependencyManagement {
+    imports {
+        mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:3.4.0"
+    }
+}
 
 tasks.named('test') {
     useJUnitPlatform()

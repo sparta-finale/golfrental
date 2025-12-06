@@ -1,9 +1,12 @@
 package com.golfRental.domain.notification.service.command;
 
 import com.golfRental.domain.notification.dto.event.NotificationEvent;
+import com.golfRental.domain.notification.dto.request.BroadcastRequest;
 import com.golfRental.domain.notification.dto.request.NotificationCreateRequest;
+import com.golfRental.domain.notification.dto.response.BroadcastResponse;
 import com.golfRental.domain.notification.dto.response.NotificationResponse;
 import com.golfRental.domain.notification.entity.Notification;
+import com.golfRental.domain.notification.enums.NotificationType;
 import com.golfRental.domain.notification.exception.NotificationErrorCode;
 import com.golfRental.domain.notification.exception.NotificationException;
 import com.golfRental.domain.notification.publisher.NotificationRedisPublisher;
@@ -16,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -104,7 +109,7 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
                     savedNotification.getId(), request.getReceiverId(), e);
             // Redis 실패해도 알림은 DB에 저장됨 (DB 우선)
         }
-        
+
         return response;
     }
 
@@ -139,4 +144,81 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
 
         return notification;
     }
+
+    @Override
+    public BroadcastResponse broadcastNotification(BroadcastRequest request) {
+        List<User> allUsers = userQueryService.findAll();
+        int totalUsers = allUsers.size();
+
+        int successCount = 0;
+        int failCount = 0;
+
+        for (User user : allUsers) {
+            try {
+                createNotification(
+                        NotificationCreateRequest.builder()
+                                .receiverId(user.getId())
+                                .title(request.getTitle())
+                                .content(request.getContent())
+                                .type(NotificationType.SYSTEM)
+                                .referenceId(null)
+                                .build()
+                );
+                successCount++;
+            } catch (Exception e) {
+                log.error("알림 전송 실패 - userId: {}", user.getId(), e);
+                failCount++;
+            }
+        }
+
+        return BroadcastResponse.of(totalUsers, successCount, failCount);
+    }
+
+
+//    public void broadcast(NotificationDto notification) {
+//        if (emitters.isEmpty()) {
+//            log.debug("SSE 연결 없음, 브로드캐스트 전송 스킵 - type: {}", notification.type());
+//            return;
+//        }
+//
+//        int successCount = 0;
+//        int failCount = 0;
+//
+//        // Effective Java Item 81: ConcurrentHashMap.entrySet()는 WeaklyConsistent Iterator 제공
+//        // → 반복 중 수정 가능, ConcurrentModificationException 없음
+//        for (Map.Entry<UUID, SseEmitter> entry : emitters.entrySet()) {
+//            UUID userPublicId = entry.getKey();
+//            SseEmitter emitter = entry.getValue();
+//
+//            try {
+//                synchronized (emitter) {  // Spring 공식 권장: send() 호출 시 동기화
+//                    emitter.send(SseEmitter.event()
+//                            .name(SseEventType.NOTIFICATION.getValue())
+//                            .data(notification));
+//                }
+//                successCount++;
+//            } catch (IOException e) {
+//                // 네트워크 오류 → completeWithError() 호출 (Spring 공식 권장)
+//                log.warn("SSE 브로드캐스트 실패 (네트워크 오류) - userPublicId: {}, type: {}",
+//                        userPublicId, notification.type());
+//                removeEmitterSafely(userPublicId, "브로드캐스트 실패 (네트워크 오류)", e);
+//                failCount++;
+//            } catch (IllegalStateException e) {
+//                // 이미 종료된 emitter (Race Condition 정상 시나리오)
+//                log.debug("SSE 브로드캐스트 실패 (이미 종료됨) - userPublicId: {}", userPublicId);
+//                removeEmitterSafely(userPublicId, "브로드캐스트 실패 (이미 종료됨)");
+//                failCount++;
+//            }
+//        }
+//
+//        log.info("SSE 브로드캐스트 완료 - type: {}, 성공: {}, 실패: {}",
+//                notification.type(), successCount, failCount);
+//    }
+//
+//
+//
+//
+//
+//    강준호(Spring_8기) has paused their notifications
+//
 }

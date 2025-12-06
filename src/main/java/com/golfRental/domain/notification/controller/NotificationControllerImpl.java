@@ -3,9 +3,12 @@ package com.golfRental.domain.notification.controller;
 import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.common.response.PageResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
+import com.golfRental.domain.notification.dto.request.BroadcastRequest;
+import com.golfRental.domain.notification.dto.response.BroadcastResponse;
 import com.golfRental.domain.notification.dto.response.NotificationResponse;
 import com.golfRental.domain.notification.service.command.NotificationCommandService;
 import com.golfRental.domain.notification.service.query.NotificationQueryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -59,4 +63,17 @@ public class NotificationControllerImpl implements NotificationController {
         notificationCommandService.deleteNotification(notificationId, authUser.getUserId());
         return CommonApiResponse.deleteSuccess("알림 삭제 성공");
     }
+
+    //관리자 전용페이지 생성시 분리 고려
+    @Override
+    @PostMapping("/broadcast")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CommonApiResponse<BroadcastResponse>> broadcastNotification(
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestBody @Valid BroadcastRequest request
+    ) {
+        BroadcastResponse response = notificationCommandService.broadcastNotification(request);
+        return CommonApiResponse.created(response, "알림 전송 성공");
+    }
+
 }

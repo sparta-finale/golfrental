@@ -1,10 +1,12 @@
 package com.golfRental.domain.notification.service.command;
 
+import com.golfRental.domain.notification.dto.event.NotificationEvent;
 import com.golfRental.domain.notification.dto.request.NotificationCreateRequest;
 import com.golfRental.domain.notification.dto.response.NotificationResponse;
 import com.golfRental.domain.notification.entity.Notification;
 import com.golfRental.domain.notification.exception.NotificationErrorCode;
 import com.golfRental.domain.notification.exception.NotificationException;
+import com.golfRental.domain.notification.publisher.NotificationRedisPublisher;
 import com.golfRental.domain.notification.repository.NotificationRepository;
 import com.golfRental.domain.notification.repository.SseEmitterRepository;
 import com.golfRental.domain.user.entity.User;
@@ -25,6 +27,8 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
     private final NotificationRepository notificationRepository;
     private final UserQueryService userQueryService;
     private final SseEmitterRepository sseEmitterRepository;
+
+    private final NotificationRedisPublisher notificationRedisPublisher;
 
     @Override
     public SseEmitter subscribe(Long userId) {
@@ -91,6 +95,15 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
                 .createdAt(savedNotification.getCreatedAt())
                 .build();
 
+        try {
+            NotificationEvent event = NotificationEvent.of(request.getReceiverId(), response);
+            notificationRedisPublisher.publish(event);
+            log.info("Redis 알림 발행 성공 - notificationId: {}", savedNotification.getId());
+        } catch (Exception e) {
+            log.error("Redis 알림 발행 실패 - notificationId: {}, userId: {}",
+                    savedNotification.getId(), request.getReceiverId(), e);
+            // Redis 실패해도 알림은 DB에 저장됨 (DB 우선)
+        }
         sendNotification(request.getReceiverId(), response);
 
         return response;

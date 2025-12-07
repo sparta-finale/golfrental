@@ -2,7 +2,9 @@ package com.golfRental.domain.image.controller;
 
 import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
+import com.golfRental.domain.image.dto.request.ImageSaveRequest;
 import com.golfRental.domain.image.dto.request.PresignedUrlRequest;
+import com.golfRental.domain.image.dto.response.ImageSavedResponse;
 import com.golfRental.domain.image.dto.response.PresignedUrlResponse;
 import com.golfRental.domain.image.message.ImageSuccessMessage;
 import com.golfRental.domain.image.service.command.ImageCommandService;
@@ -33,5 +35,16 @@ public class ImageControllerImpl implements ImageController {
         PresignedUrlResponse presignedUrlResponse = imageCommandService.getPresignedUrl(presignedUrlRequest);
 
         return CommonApiResponse.success(presignedUrlResponse, ImageSuccessMessage.IMAGE_PRESIGNED_URL_CREATED);
+    }
+
+    @Override
+    @PostMapping
+    public ResponseEntity<CommonApiResponse<ImageSavedResponse>> saveImage(
+            @AuthenticationPrincipal AuthUser authUser,
+            @Valid @RequestBody ImageSaveRequest imageSaveRequest
+    ) {
+        ImageSavedResponse imageSavedResponse = imageCommandService.saveImage(imageSaveRequest);
+
+        return CommonApiResponse.created(imageSavedResponse, ImageSuccessMessage.IMAGE_SAVED_METADATA);
     }
 }

@@ -1,6 +1,8 @@
 package com.golfRental.domain.image.service.command;
 
+import com.golfRental.domain.image.dto.request.ImageSaveRequest;
 import com.golfRental.domain.image.dto.request.PresignedUrlRequest;
+import com.golfRental.domain.image.dto.response.ImageSavedResponse;
 import com.golfRental.domain.image.dto.response.PresignedUrlResponse;
 
 public interface ImageCommandService {
@@ -12,4 +14,12 @@ public interface ImageCommandService {
      * @return PresignedUrlResponse
      */
     PresignedUrlResponse getPresignedUrl(PresignedUrlRequest presignedUrlRequest);
+
+    /**
+     * 이미지 메타데이터 저장
+     *
+     * @param imageSaveRequest 저장할 메타데이터
+     * @return ImageSavedResponse
+     */
+    ImageSavedResponse saveImage(ImageSaveRequest imageSaveRequest);
 }

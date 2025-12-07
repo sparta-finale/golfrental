@@ -34,6 +34,6 @@ public class ChatbotControllerImpl implements ChatbotController {
                 authUser.getUserId(),
                 request.message()
         );
-        return CommonApiResponse.created(response, "챗봇 응답 성공");
+        return CommonApiResponse.success(response, "챗봇 응답 성공");
     }
 }

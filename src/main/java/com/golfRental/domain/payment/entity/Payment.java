@@ -22,7 +22,7 @@ public class Payment extends BaseEntity {
     @Column(nullable = false, unique = true, length = 100)
     private String paymentKey;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, unique = true, length = 100)
     private String orderId;
 
     @Column(nullable = false)

@@ -19,11 +19,11 @@ public class PostImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private boolean is_thumbnail;
+    @Column(name = "is_thumbnail", nullable = false)
+    private boolean isThumbnail;
 
-    @Column(nullable = false)
-    private int sort_order;
+    @Column(name = "sort_order", nullable = false)
+    private int sortOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
@@ -34,9 +34,9 @@ public class PostImage {
     private Image image;
 
     @Builder
-    private PostImage(boolean is_thumbnail, int sort_order, Post post, Image image) {
-        this.is_thumbnail = is_thumbnail;
-        this.sort_order = sort_order;
+    private PostImage(boolean isThumbnail, int sortOrder, Post post, Image image) {
+        this.isThumbnail = isThumbnail;
+        this.sortOrder = sortOrder;
         this.post = post;
         this.image = image;
     }

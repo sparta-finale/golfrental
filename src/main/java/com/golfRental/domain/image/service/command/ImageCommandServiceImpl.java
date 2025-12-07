@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
@@ -41,14 +42,10 @@ public class ImageCommandServiceImpl implements ImageCommandService {
     private String bucket;
 
     @Override
-    public PresignedUrlResponse getPresignedUrl(Long userId, PresignedUrlRequest presignedUrlRequest) {
-
-        validFileName(presignedUrlRequest.getFileName());
-        ImageType imageType = ImageType.fromString(presignedUrlRequest.getType());
-
+    public PresignedUrlResponse getPresignedUrl(PresignedUrlRequest presignedUrlRequest) {
         String extension = getFileExtension(presignedUrlRequest.getFileName());
 
-        String s3Key = createS3Key(imageType, extension);
+        String s3Key = createS3Key(presignedUrlRequest.getType(), extension);
 
         validContentType(presignedUrlRequest.getContentType(), extension);
 
@@ -66,14 +63,8 @@ public class ImageCommandServiceImpl implements ImageCommandService {
     }
 
     // =============================================================== //
-    // ======================== HELPER METHOD ======================== //
+    // =============== getPresignedUrl() HELPER METHOD =============== //
     // =============================================================== //
-    private void validFileName(String fileName) {
-        if (fileName == null || fileName.isBlank()) {
-            throw new ImageException(ImageErrorCode.IMAGE_INVALID_FILE_NAME);
-        }
-    }
-
     private String createS3Key(ImageType imageType, String extension) {
         String s3FileName = UUID.randomUUID() + "." + extension;
         return String.format("%s/%s", imageType.getFolder(), s3FileName);
@@ -143,7 +134,7 @@ public class ImageCommandServiceImpl implements ImageCommandService {
             PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
 
             return presignedRequest.url().toString();
-        } catch (Exception e) {
+        } catch (SdkException e) {
             throw new ImageException(ImageErrorCode.IMAGE_PRESIGNED_URL_GENERATION_FAILED);
         }
     }

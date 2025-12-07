@@ -1,7 +1,10 @@
 package com.golfRental.domain.image.service.command;
 
+import com.golfRental.domain.image.dto.request.ImageSaveRequest;
 import com.golfRental.domain.image.dto.request.PresignedUrlRequest;
+import com.golfRental.domain.image.dto.response.ImageSavedResponse;
 import com.golfRental.domain.image.dto.response.PresignedUrlResponse;
+import com.golfRental.domain.image.entity.Image;
 import com.golfRental.domain.image.enums.ImageType;
 import com.golfRental.domain.image.exception.ImageErrorCode;
 import com.golfRental.domain.image.exception.ImageException;
@@ -62,9 +65,36 @@ public class ImageCommandServiceImpl implements ImageCommandService {
                 .build();
     }
 
+    @Override
+    public ImageSavedResponse saveImage(ImageSaveRequest imageSaveRequest) {
+        // 추구 검증 로직 추가적으로 더 늘릴 예정(contentType S3로부터 검증으로 수정, size 검증)
+        String extension = getFileExtension(imageSaveRequest.getFileName());
+        validContentType(imageSaveRequest.getContentType(), extension);
+
+        Image image = Image.builder()
+                .fileName(imageSaveRequest.getFileName())
+                .url(imageSaveRequest.getUrl())
+                .s3Key(imageSaveRequest.getS3Key())
+                .contentType(imageSaveRequest.getContentType())
+                .size(imageSaveRequest.getSize())
+                .type(imageSaveRequest.getType())
+                .build();
+
+        Image savedImage = imageRepository.save(image);
+
+        return ImageSavedResponse.builder()
+                .id(savedImage.getId())
+                .fileName(savedImage.getFileName())
+                .url(savedImage.getUrl())
+                .s3Key(savedImage.getS3Key())
+                .contentType(savedImage.getContentType())
+                .size(savedImage.getSize())
+                .type(savedImage.getType().toString().toLowerCase())
+                .build();
+    }
+
     // =============================================================== //
-    // =============== getPresignedUrl() HELPER METHOD =============== //
-    // =============================================================== //
+    // ======================== HELPER METHOD ======================== //
     private String createS3Key(ImageType imageType, String extension) {
         String s3FileName = UUID.randomUUID() + "." + extension;
         return String.format("%s/%s", imageType.getFolder(), s3FileName);

@@ -16,7 +16,8 @@ public enum ImageErrorCode implements ErrorCode {
     IMAGE_INVALID_SUB_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 Sub-Type입니다."),
     IMAGE_EXTENSION_SUB_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "확장자와 Sub-Type이 일치하지 않습니다."),
     IMAGE_PRESIGNED_URL_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Presigned URL 생성에 실패했습니다."),
-    IMAGE_INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "지원하지 않는 파일 형식입니다.");
+    IMAGE_INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "지원하지 않는 파일 형식입니다."),
+    IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST, "이미지를 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

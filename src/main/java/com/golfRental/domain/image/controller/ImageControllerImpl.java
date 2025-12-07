@@ -25,13 +25,12 @@ public class ImageControllerImpl implements ImageController {
     private final ImageCommandService imageCommandService;
 
     @Override
-    @PostMapping("/presinged-url")
+    @PostMapping("/presigned-url")
     public ResponseEntity<CommonApiResponse<PresignedUrlResponse>> getPresignedUrl(
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestBody PresignedUrlRequest presignedUrlRequest
     ) {
-        PresignedUrlResponse presignedUrlResponse = imageCommandService.getPresignedUrl(
-                authUser.getUserId(), presignedUrlRequest);
+        PresignedUrlResponse presignedUrlResponse = imageCommandService.getPresignedUrl(presignedUrlRequest);
 
         return CommonApiResponse.success(presignedUrlResponse, ImageSuccessMessage.IMAGE_PRESIGNED_URL_CREATED);
     }

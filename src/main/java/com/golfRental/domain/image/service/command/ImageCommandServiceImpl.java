@@ -67,10 +67,8 @@ public class ImageCommandServiceImpl implements ImageCommandService {
 
     @Override
     public ImageSavedResponse saveImage(ImageSaveRequest imageSaveRequest) {
-        String extension = getFileExtension(imageSaveRequest.getFileName());
-
         // 추구 검증 로직 추가적으로 더 늘릴 예정(contentType S3로부터 검증으로 수정, size 검증)
-        getFileExtension(imageSaveRequest.getFileName());
+        String extension = getFileExtension(imageSaveRequest.getFileName());
         validContentType(imageSaveRequest.getContentType(), extension);
 
         Image image = Image.builder()
@@ -86,7 +84,7 @@ public class ImageCommandServiceImpl implements ImageCommandService {
 
         return ImageSavedResponse.builder()
                 .id(savedImage.getId())
-                .fileName(imageSaveRequest.getFileName())
+                .fileName(savedImage.getFileName())
                 .url(savedImage.getUrl())
                 .s3Key(savedImage.getS3Key())
                 .contentType(savedImage.getContentType())

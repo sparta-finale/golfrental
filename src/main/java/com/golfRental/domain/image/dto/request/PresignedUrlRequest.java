@@ -1,7 +1,8 @@
 package com.golfRental.domain.image.dto.request;
 
+import com.golfRental.domain.image.enums.ImageType;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
@@ -13,8 +14,6 @@ public class PresignedUrlRequest {
     @NotBlank(message = "Content Type은 필수입니다.")
     private String contentType;
 
-    @NotBlank(message = "이미지 타입은 필수입니다.")
-    @Pattern(regexp = "^(post)$",
-            message = "이미지 타입은 post만 가능합니다.")
-    private String type;
+    @NotNull(message = "이미지 타입은 필수입니다.(현재는 post만 가능)")
+    private ImageType type;
 }

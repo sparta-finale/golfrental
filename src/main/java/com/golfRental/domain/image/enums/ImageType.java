@@ -1,7 +1,6 @@
 package com.golfRental.domain.image.enums;
 
-import com.golfRental.domain.image.exception.ImageErrorCode;
-import com.golfRental.domain.image.exception.ImageException;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -9,16 +8,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ImageType {
 
+    @JsonProperty("post")
     POST("posts", "게시물 이미지");
 
     private final String folder;
     private final String description;
-
-    public static ImageType fromString(String type) {
-        try {
-            return ImageType.valueOf(type.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new ImageException(ImageErrorCode.IMAGE_INVALID_TYPE);
-        }
-    }
 }

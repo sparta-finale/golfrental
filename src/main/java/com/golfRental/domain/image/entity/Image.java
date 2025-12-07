@@ -18,11 +18,11 @@ public class Image extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 2048, nullable = false)
-    private String url;
-
     @Column(length = 255, nullable = false)
     private String fileName;
+
+    @Column(length = 2048, nullable = false)
+    private String url;
 
     @Column(length = 300, nullable = false)
     private String s3Key;

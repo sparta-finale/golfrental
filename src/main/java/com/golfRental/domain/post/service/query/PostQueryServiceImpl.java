@@ -6,6 +6,7 @@ import com.golfRental.domain.category.service.query.CategoryQueryService;
 import com.golfRental.domain.post.dto.response.*;
 import com.golfRental.domain.post.entity.Post;
 import com.golfRental.domain.post.entity.PostFavorites;
+import com.golfRental.domain.post.entity.PostImage;
 import com.golfRental.domain.post.exception.PostErrorCode;
 import com.golfRental.domain.post.exception.PostException;
 import com.golfRental.domain.post.repository.PostFavoritesRepository;
@@ -43,24 +44,36 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         Slice<Post> posts = postRepository.findAllOrderByStatus(pageable);
 
-        Slice<PostGetAllResponse> content = posts.map(post -> PostGetAllResponse.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .methodOfReceive(post.getMethodOfReceive())
-                .methodOfReturn(post.getMethodOfReturn())
-                .price(post.getPrice())
-                .deposit(post.getDeposit())
-                .dailyRate(post.getDailyRate())
-                .tradeStatus(post.getTradeStatus())
-                .userId(post.getUser().getId())
-                .username(post.getUser().getUsername())
-                .address(post.getUser().getAddress())
-                .nickname(post.getUser().getNickname())
-                .categoryId(post.getCategory().getId())
-                .categoryName(post.getCategory().getName())
-                .favorites(favoritePostIds.contains(post.getId()))
-                .build());
+        Slice<PostGetAllResponse> content = posts.map(post -> {
+            PostImage postImage = post.getPostImages().stream()
+                    .filter(PostImage::getIsThumbnail)
+                    .findFirst()
+                    .orElse(null);
+
+            return PostGetAllResponse.builder()
+                    .id(post.getId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .methodOfReceive(post.getMethodOfReceive())
+                    .methodOfReturn(post.getMethodOfReturn())
+                    .price(post.getPrice())
+                    .deposit(post.getDeposit())
+                    .dailyRate(post.getDailyRate())
+                    .tradeStatus(post.getTradeStatus())
+                    .userId(post.getUser().getId())
+                    .username(post.getUser().getUsername())
+                    .address(post.getUser().getAddress())
+                    .nickname(post.getUser().getNickname())
+                    .categoryId(post.getCategory().getId())
+                    .categoryName(post.getCategory().getName())
+                    .favorites(favoritePostIds.contains(post.getId()))
+                    .image(postImage != null ? PostImageResponse.builder()
+                            .url(postImage.getImage().getUrl())
+                            .isThumbnail(postImage.getIsThumbnail())
+                            .sortOrder(postImage.getSortOrder())
+                            .build() : null)
+                    .build();
+        });
 
         return SliceResponse.fromSlice(content);
     }

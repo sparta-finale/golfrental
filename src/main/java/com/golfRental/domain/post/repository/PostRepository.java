@@ -14,9 +14,11 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("""
-                    SELECT p FROM Post p
+                    SELECT DISTINCT p FROM Post p
                                 JOIN FETCH p.user
                                 JOIN FETCH p.category
+                                LEFT JOIN FETCH p.postImages pi
+                                LEFT JOIN FETCH pi.image
                     WHERE p.deletedAt IS NULL
                     ORDER BY
                         CASE p.tradeStatus

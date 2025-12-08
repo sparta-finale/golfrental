@@ -25,6 +25,6 @@ public record PostGetsPublicResponse(
         Long categoryId,
         String categoryName,
         boolean favorites,
-        List<PostImageResponse> image
+        List<PostImageResponse> images
 ) {
 }

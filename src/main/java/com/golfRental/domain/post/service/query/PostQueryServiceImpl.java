@@ -309,7 +309,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .categoryId(post.getCategory().getId())
                 .categoryName(post.getCategory().getName())
                 .favorites(false)
-                .image(postImages)
+                .images(postImages)
                 .build();
     }
 

@@ -1,6 +1,10 @@
 package com.golfRental.domain.chatbot.service.command;
 
 import com.golfRental.domain.chatbot.dto.response.ChatbotMessageResponse;
+import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,9 +16,45 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ChatbotCommandServiceImpl implements ChatbotCommandService {
 
-    public ChatbotMessageResponse chat(Long userId, String message) {
+    private final ChatLanguageModel chatLanguageModel;
 
-        String chatbotAnswer = message;
-        return ChatbotMessageResponse.of(chatbotAnswer);
+    @Override
+    public ChatbotMessageResponse chat(Long userId, String message) {
+        log.info("챗봇 처리 시작 - userId: {}, message: {}", userId, message);
+
+        try {
+            // AI Assistant 생성 (Gemini만)
+            GolfRentalAssistant assistant = AiServices.builder(GolfRentalAssistant.class)
+                    .chatLanguageModel(chatLanguageModel)
+                    .build();
+
+            // AI 응답 생성
+            String aiResponse = assistant.chat(message);
+            
+            return ChatbotMessageResponse.of(aiResponse);
+
+        } catch (Exception e) {
+            log.error("챗봇 처리 중 오류 발생 - userId: {}", userId, e);
+
+            String errorMessage = "죄송합니다. 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+            return ChatbotMessageResponse.of(errorMessage);
+        }
+    }
+
+    interface GolfRentalAssistant {
+
+        @SystemMessage("""
+                당신은 골프 장비 렌탈 서비스 'golfRental'의 친절한 AI 어시스턴트입니다.
+                
+                역할:
+                - 골프 장비 추천 및 검색
+                - 렌탈 가격 안내
+                - 장비 상세 정보 제공
+                - 예약/취소/환불 정책 안내
+                - 이용약관 설명
+                
+                말투: 친절하고 전문적이며 간결하게 답변하세요.
+                """)
+        String chat(@UserMessage String message);
     }
 }

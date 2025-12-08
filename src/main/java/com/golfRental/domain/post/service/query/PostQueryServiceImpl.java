@@ -22,6 +22,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -86,6 +87,14 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         boolean postFavorites = postFavoritesRepository.existsByUserAndPost(user, post);
 
+        List<PostImageResponse> postImages = post.getPostImages().stream()
+                .map(postImage -> PostImageResponse.builder()
+                        .url(postImage.getImage().getUrl())
+                        .isThumbnail(postImage.getIsThumbnail())
+                        .sortOrder(postImage.getSortOrder())
+                        .build())
+                .toList();
+
         return PostGetsResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -103,6 +112,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .categoryId(post.getCategory().getId())
                 .categoryName(post.getCategory().getName())
                 .favorites(postFavorites)
+                .images(postImages)
                 .build();
     }
 

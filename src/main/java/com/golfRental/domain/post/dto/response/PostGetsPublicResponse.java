@@ -5,6 +5,7 @@ import com.golfRental.domain.post.enums.TradeStatus;
 import lombok.Builder;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Builder
 public record PostGetsPublicResponse(
@@ -23,6 +24,7 @@ public record PostGetsPublicResponse(
         String nickname,
         Long categoryId,
         String categoryName,
-        boolean favorites
+        boolean favorites,
+        List<PostImageResponse> image
 ) {
 }

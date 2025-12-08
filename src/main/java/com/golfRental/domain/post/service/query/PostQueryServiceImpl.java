@@ -284,6 +284,14 @@ public class PostQueryServiceImpl implements PostQueryService {
     public PostGetsPublicResponse getPostPublic(Long postId) {
         Post post = findById(postId);
 
+        List<PostImageResponse> postImages = post.getPostImages().stream()
+                .map(postImage -> PostImageResponse.builder()
+                        .url(postImage.getImage().getUrl())
+                        .isThumbnail(postImage.getIsThumbnail())
+                        .sortOrder(postImage.getSortOrder())
+                        .build())
+                .toList();
+
         return PostGetsPublicResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -301,6 +309,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .categoryId(post.getCategory().getId())
                 .categoryName(post.getCategory().getName())
                 .favorites(false)
+                .image(postImages)
                 .build();
     }
 

@@ -47,6 +47,12 @@ dependencies {
 
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
+    implementation 'dev.langchain4j:langchain4j:0.35.0'
+    implementation 'dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2:0.35.0'
+
+    implementation 'dev.langchain4j:langchain4j-google-ai-gemini:0.36.2'
+
+
 }
 
 dependencyManagement {

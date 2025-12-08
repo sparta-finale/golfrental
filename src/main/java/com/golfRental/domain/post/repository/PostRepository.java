@@ -56,9 +56,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Slice<Post> findAllByUserOrderByStatus(@Param("user") User user, Pageable pageable);
 
     @Query("""
-                    SELECT p FROM Post p
+                    SELECT DISTINCT p FROM Post p
                                 JOIN FETCH p.user
                                 JOIN FETCH p.category
+                                LEFT JOIN FETCH p.postImages pi
+                                LEFT JOIN FETCH pi.image
                     WHERE p.category = :category AND p.deletedAt IS NULL
                     ORDER BY
                         CASE p.tradeStatus

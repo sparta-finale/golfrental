@@ -20,10 +20,10 @@ public class PostImage {
     private Long id;
 
     @Column(name = "is_thumbnail", nullable = false)
-    private boolean isThumbnail;
+    private Boolean isThumbnail;
 
     @Column(name = "sort_order", nullable = false)
-    private int sortOrder;
+    private Integer sortOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
@@ -34,7 +34,7 @@ public class PostImage {
     private Image image;
 
     @Builder
-    private PostImage(boolean isThumbnail, int sortOrder, Post post, Image image) {
+    private PostImage(Boolean isThumbnail, Integer sortOrder, Post post, Image image) {
         this.isThumbnail = isThumbnail;
         this.sortOrder = sortOrder;
         this.post = post;

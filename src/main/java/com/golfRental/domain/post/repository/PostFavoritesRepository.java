@@ -19,12 +19,14 @@ public interface PostFavoritesRepository extends JpaRepository<PostFavorites, Lo
     Set<Long> findPostIdsByUser(@Param("user") User user);
 
     @Query("""
-            SELECT pf
-            FROM PostFavorites pf
-            JOIN FETCH pf.post p
-            JOIN FETCH p.user
-            JOIN FETCH p.category
-            WHERE pf.user = :user
+                SELECT pf
+                FROM PostFavorites pf
+                    JOIN FETCH pf.post p
+                    JOIN FETCH p.user
+                    JOIN FETCH p.category
+                    LEFT JOIN FETCH p.postImages pi
+                    LEFT JOIN FETCH pi.image
+                WHERE pf.user = :user
             """)
     Slice<PostFavorites> findByUserWithPostAndUser(@Param("user") User user, Pageable pageable);
 

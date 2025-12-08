@@ -23,6 +23,7 @@ public record PostGetByFavoritesResponse(
         String nickname,
         Long categoryId,
         String categoryName,
-        boolean favorites
+        boolean favorites,
+        PostImageResponse image
 ) {
 }

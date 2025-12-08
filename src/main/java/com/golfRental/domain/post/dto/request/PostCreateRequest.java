@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 public class PostCreateRequest {
@@ -40,4 +41,15 @@ public class PostCreateRequest {
 
     @NotNull(message = "카테고리 아이디는 필수 입력값입니다.")
     private Long categoryId;
+
+    @NotNull
+    @Size(min = 1, max = 10, message = "이미지는 최소 1개, 최대 10개까지 등록 가능합니다.")
+    private List<PostImageInfoCreateRequest> images;
+
+    public record PostImageInfoCreateRequest(
+            @NotNull Long imageId,
+            @NotNull Boolean isThumbnail,
+            @NotNull @Min(0) Integer sortOrder
+    ) {
+    }
 }

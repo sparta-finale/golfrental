@@ -26,7 +26,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+
+import static java.util.function.UnaryOperator.identity;
+import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @Service
@@ -72,20 +76,17 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         List<Image> images = imageQueryService.findAllByImage(imageIds);
 
-        List<PostImage> postImages = postCreateRequest.getImages().stream()
-                .map(imageInfo -> {
-                    Image image = images.stream()
-                            .filter(img -> Objects.equals(img.getId(), imageInfo.imageId()))
-                            .findFirst()
-                            .orElse(null);
+        Map<Long, Image> imageMap = images.stream()
+                .collect(toMap(Image::getId, identity()));
 
-                    return PostImage.builder()
-                            .post(post)
-                            .image(image)
-                            .isThumbnail(imageInfo.isThumbnail())
-                            .sortOrder(imageInfo.sortOrder())
-                            .build();
-                }).toList();
+        List<PostImage> postImages = postCreateRequest.getImages().stream()
+                .map(imageInfo -> PostImage.builder()
+                        .post(post)
+                        .image(imageMap.get(imageInfo.imageId()))
+                        .isThumbnail(imageInfo.isThumbnail())
+                        .sortOrder(imageInfo.sortOrder())
+                        .build()
+                ).toList();
 
         postImageRepository.saveAll(postImages);
 

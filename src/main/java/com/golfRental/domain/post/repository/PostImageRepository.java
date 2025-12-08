@@ -10,8 +10,8 @@ public interface PostImageRepository extends JpaRepository<PostImage, Long> {
 
     @Query("""
             SELECT pi FROM PostImage pi
-                JOIN FETCH Post p
-                JOIN FETCH Image i
+                JOIN FETCH pi.post p
+                JOIN FETCH pi.image i
             WHERE p.deletedAt IS NULL
                 AND i.deletedAt IS NULL
             ORDER BY pi.sortOrder ASC

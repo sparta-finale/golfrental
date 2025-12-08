@@ -25,13 +25,6 @@ public record PostCreateResponse(
         Long categoryId,
         String categoryName,
         Boolean favorites,
-        List<PostImageInfoCreateResponse> images
+        List<PostImageResponse> images
 ) {
-    @Builder
-    public record PostImageInfoCreateResponse(
-            String url,
-            Boolean isThumbnail,
-            Integer sortOrder
-    ) {
-    }
 }

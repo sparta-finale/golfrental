@@ -1,12 +1,17 @@
 package com.golfRental.domain.chatbot.service.command;
 
 import com.golfRental.domain.chatbot.dto.response.ChatbotMessageResponse;
+import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.store.embedding.EmbeddingStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,15 +22,28 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatbotCommandServiceImpl implements ChatbotCommandService {
 
     private final ChatLanguageModel chatLanguageModel;
+    private final EmbeddingModel embeddingModel;
+
+    @Qualifier("postStore")
+    private final EmbeddingStore<TextSegment> postStore;
 
     @Override
     public ChatbotMessageResponse chat(Long userId, String message) {
         log.info("챗봇 처리 시작 - userId: {}, message: {}", userId, message);
 
         try {
-            // AI Assistant 생성 (Gemini만)
+            // ContentRetriever 생성 (RAG 검색)
+            EmbeddingStoreContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
+                    .embeddingStore(postStore)
+                    .embeddingModel(embeddingModel)
+                    .maxResults(5)
+                    .minScore(0.6)
+                    .build();
+
+            // AI Assistant 생성
             GolfRentalAssistant assistant = AiServices.builder(GolfRentalAssistant.class)
                     .chatLanguageModel(chatLanguageModel)
+                    .contentRetriever(retriever)  //RAG 검색 추가
                     .build();
 
             // AI 응답 생성

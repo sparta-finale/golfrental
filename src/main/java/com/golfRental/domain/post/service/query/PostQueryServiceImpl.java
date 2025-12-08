@@ -208,24 +208,36 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         Slice<PostFavorites> postFavorites = postFavoritesRepository.findByUserWithPostAndUser(user, pageable);
 
-        Slice<PostGetByFavoritesResponse> contents = postFavorites.map(pf -> PostGetByFavoritesResponse.builder()
-                .id(pf.getPost().getId())
-                .title(pf.getPost().getTitle())
-                .content(pf.getPost().getContent())
-                .methodOfReceive(pf.getPost().getMethodOfReceive())
-                .methodOfReturn(pf.getPost().getMethodOfReturn())
-                .price(pf.getPost().getPrice())
-                .deposit(pf.getPost().getDeposit())
-                .dailyRate(pf.getPost().getDailyRate())
-                .tradeStatus(pf.getPost().getTradeStatus())
-                .userId(pf.getPost().getUser().getId())
-                .username(pf.getPost().getUser().getUsername())
-                .address(pf.getPost().getUser().getAddress())
-                .nickname(pf.getPost().getUser().getNickname())
-                .categoryId(pf.getPost().getCategory().getId())
-                .categoryName(pf.getPost().getCategory().getName())
-                .favorites(true)
-                .build());
+        Slice<PostGetByFavoritesResponse> contents = postFavorites.map(pf -> {
+            PostImage postImage = pf.getPost().getPostImages().stream()
+                    .filter(PostImage::getIsThumbnail)
+                    .findFirst()
+                    .orElse(null);
+
+            return PostGetByFavoritesResponse.builder()
+                    .id(pf.getPost().getId())
+                    .title(pf.getPost().getTitle())
+                    .content(pf.getPost().getContent())
+                    .methodOfReceive(pf.getPost().getMethodOfReceive())
+                    .methodOfReturn(pf.getPost().getMethodOfReturn())
+                    .price(pf.getPost().getPrice())
+                    .deposit(pf.getPost().getDeposit())
+                    .dailyRate(pf.getPost().getDailyRate())
+                    .tradeStatus(pf.getPost().getTradeStatus())
+                    .userId(pf.getPost().getUser().getId())
+                    .username(pf.getPost().getUser().getUsername())
+                    .address(pf.getPost().getUser().getAddress())
+                    .nickname(pf.getPost().getUser().getNickname())
+                    .categoryId(pf.getPost().getCategory().getId())
+                    .categoryName(pf.getPost().getCategory().getName())
+                    .favorites(true)
+                    .image(postImage != null ? PostImageResponse.builder()
+                            .url(postImage.getImage().getUrl())
+                            .isThumbnail(postImage.getIsThumbnail())
+                            .sortOrder(postImage.getSortOrder())
+                            .build() : null)
+                    .build();
+        });
 
         return SliceResponse.fromSlice(contents);
     }

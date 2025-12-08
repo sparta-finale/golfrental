@@ -18,8 +18,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                 JOIN FETCH p.user
                                 JOIN FETCH p.category
                                 LEFT JOIN FETCH p.postImages pi
-                                LEFT JOIN FETCH pi.image
+                                LEFT JOIN FETCH pi.image i
                     WHERE p.deletedAt IS NULL
+                    AND i.deletedAt IS NULL
                     ORDER BY
                         CASE p.tradeStatus
                             WHEN 'BEFORE_TRANSACTION' THEN 0
@@ -34,8 +35,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                     JOIN FETCH p.user
                     JOIN FETCH p.category
                     LEFT JOIN FETCH p.postImages pi
-                    LEFT JOIN FETCH pi.image
+                    LEFT JOIN FETCH pi.image i
             WHERE p.id = :postId AND p.deletedAt IS NULL
+            AND i.deletedAt IS NULL
             """)
     Optional<Post> findByIdWithUserAndCategory(@Param("postId") Long postId);
 
@@ -44,8 +46,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                 JOIN FETCH p.user
                                 JOIN FETCH p.category
                                 LEFT JOIN FETCH p.postImages pi
-                                LEFT JOIN FETCH pi.image
+                                LEFT JOIN FETCH pi.image i
                     WHERE p.user = :user AND p.deletedAt IS NULL
+                    AND i.deletedAt IS NULL
                     ORDER BY
                         CASE p.tradeStatus
                             WHEN 'BEFORE_TRANSACTION' THEN 0
@@ -60,8 +63,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                                 JOIN FETCH p.user
                                 JOIN FETCH p.category
                                 LEFT JOIN FETCH p.postImages pi
-                                LEFT JOIN FETCH pi.image
+                                LEFT JOIN FETCH pi.image i
                     WHERE p.category = :category AND p.deletedAt IS NULL
+                    AND i.deletedAt IS NULL
                     ORDER BY
                         CASE p.tradeStatus
                             WHEN 'BEFORE_TRANSACTION' THEN 0

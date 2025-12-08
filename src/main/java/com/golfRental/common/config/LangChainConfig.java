@@ -40,6 +40,13 @@ public class LangChainConfig {
                 .build();
     }
 
+    @Bean("postStore")
+    public EmbeddingStore<TextSegment> postStore() {
+        log.info("Post Vector Store 초기화");
+
+        return new InMemoryEmbeddingStore<>();
+    }
+
     @Bean
     public EmbeddingModel embeddingModel() {
         log.info("Embedding Model 초기화 - All-MiniLM-L6-v2");

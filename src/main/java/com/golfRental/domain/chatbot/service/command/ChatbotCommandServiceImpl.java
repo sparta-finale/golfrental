@@ -30,10 +30,10 @@ public class ChatbotCommandServiceImpl implements ChatbotCommandService {
 
             // AI 응답 생성
             String aiResponse = assistant.chat(message);
-            
+
             return ChatbotMessageResponse.of(aiResponse);
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("챗봇 처리 중 오류 발생 - userId: {}", userId, e);
 
             String errorMessage = "죄송합니다. 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";

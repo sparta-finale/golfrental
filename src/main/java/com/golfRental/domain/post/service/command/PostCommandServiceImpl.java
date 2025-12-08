@@ -8,6 +8,7 @@ import com.golfRental.domain.post.dto.request.PostCreateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
 import com.golfRental.domain.post.dto.response.PostCreateResponse;
+import com.golfRental.domain.post.dto.response.PostImageResponse;
 import com.golfRental.domain.post.dto.response.PostUpdateResponse;
 import com.golfRental.domain.post.dto.response.PostUpdateStatusResponse;
 import com.golfRental.domain.post.entity.Post;
@@ -90,8 +91,8 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         postImageRepository.saveAll(postImages);
 
-        List<PostCreateResponse.PostImageInfoCreateResponse> imagesResponse = postImages.stream()
-                .map(postImage -> PostCreateResponse.PostImageInfoCreateResponse.builder()
+        List<PostImageResponse> imagesResponse = postImages.stream()
+                .map(postImage -> PostImageResponse.builder()
                         .url(postImage.getImage().getUrl())
                         .isThumbnail(postImage.getIsThumbnail())
                         .sortOrder(postImage.getSortOrder())

@@ -280,6 +280,11 @@ public class PostQueryServiceImpl implements PostQueryService {
         );
     }
 
+    @Override
+    public List<Post> findAll() {
+        return postRepository.findAllOrderByTradeStatus();
+    }
+
     private PostImageResponse toPostImageResponse(PostImage image) {
         if (image == null) return null;
         return PostImageResponse.builder()

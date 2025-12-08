@@ -22,6 +22,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -46,10 +47,7 @@ public class PostQueryServiceImpl implements PostQueryService {
         Slice<Post> posts = postRepository.findAllOrderByStatus(pageable);
 
         Slice<PostGetAllResponse> content = posts.map(post -> {
-            PostImage postImage = post.getPostImages().stream()
-                    .filter(PostImage::getIsThumbnail)
-                    .findFirst()
-                    .orElse(null);
+            PostImageResponse postImageResponse = getThumbnailResponse(post);
 
             return PostGetAllResponse.builder()
                     .id(post.getId())
@@ -68,11 +66,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                     .categoryId(post.getCategory().getId())
                     .categoryName(post.getCategory().getName())
                     .favorites(favoritePostIds.contains(post.getId()))
-                    .image(postImage != null ? PostImageResponse.builder()
-                            .url(postImage.getImage().getUrl())
-                            .isThumbnail(postImage.getIsThumbnail())
-                            .sortOrder(postImage.getSortOrder())
-                            .build() : null)
+                    .image(postImageResponse)
                     .build();
         });
 
@@ -87,13 +81,7 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         boolean postFavorites = postFavoritesRepository.existsByUserAndPost(user, post);
 
-        List<PostImageResponse> postImages = post.getPostImages().stream()
-                .map(postImage -> PostImageResponse.builder()
-                        .url(postImage.getImage().getUrl())
-                        .isThumbnail(postImage.getIsThumbnail())
-                        .sortOrder(postImage.getSortOrder())
-                        .build())
-                .toList();
+        List<PostImageResponse> postImages = getImageResponseList(post);
 
         return PostGetsResponse.builder()
                 .id(post.getId())
@@ -125,10 +113,7 @@ public class PostQueryServiceImpl implements PostQueryService {
         Slice<Post> posts = postRepository.findAllByUserOrderByStatus(user, pageable);
 
         Slice<PostGetMyResponse> contents = posts.map(post -> {
-            PostImage postImage = post.getPostImages().stream()
-                    .filter(PostImage::getIsThumbnail)
-                    .findFirst()
-                    .orElse(null);
+            PostImageResponse postImageResponse = getThumbnailResponse(post);
 
             return PostGetMyResponse.builder()
                     .id(post.getId())
@@ -147,11 +132,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                     .categoryId(post.getCategory().getId())
                     .categoryName(post.getCategory().getName())
                     .favorites(favoritePostIds.contains(post.getId()))
-                    .image(postImage != null ? PostImageResponse.builder()
-                            .url(postImage.getImage().getUrl())
-                            .isThumbnail(postImage.getIsThumbnail())
-                            .sortOrder(postImage.getSortOrder())
-                            .build() : null)
+                    .image(postImageResponse)
                     .build();
         });
 
@@ -169,10 +150,7 @@ public class PostQueryServiceImpl implements PostQueryService {
         Slice<Post> posts = postRepository.findAllByCategoryOrderByStatus(category, pageable);
 
         Slice<PostGetByCategoryResponse> contents = posts.map(post -> {
-            PostImage postImage = post.getPostImages().stream()
-                    .filter(PostImage::getIsThumbnail)
-                    .findFirst()
-                    .orElse(null);
+            PostImageResponse postImageResponse = getThumbnailResponse(post);
 
             return PostGetByCategoryResponse.builder()
                     .id(post.getId())
@@ -191,11 +169,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                     .categoryId(post.getCategory().getId())
                     .categoryName(post.getCategory().getName())
                     .favorites(favoritePostIds.contains(post.getId()))
-                    .image(postImage != null ? PostImageResponse.builder()
-                            .url(postImage.getImage().getUrl())
-                            .isThumbnail(postImage.getIsThumbnail())
-                            .sortOrder(postImage.getSortOrder())
-                            .build() : null)
+                    .image(postImageResponse)
                     .build();
         });
 
@@ -209,10 +183,7 @@ public class PostQueryServiceImpl implements PostQueryService {
         Slice<PostFavorites> postFavorites = postFavoritesRepository.findByUserWithPostAndUser(user, pageable);
 
         Slice<PostGetByFavoritesResponse> contents = postFavorites.map(pf -> {
-            PostImage postImage = pf.getPost().getPostImages().stream()
-                    .filter(PostImage::getIsThumbnail)
-                    .findFirst()
-                    .orElse(null);
+            PostImageResponse postImageResponse = getThumbnailResponse(pf.getPost());
 
             return PostGetByFavoritesResponse.builder()
                     .id(pf.getPost().getId())
@@ -231,11 +202,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                     .categoryId(pf.getPost().getCategory().getId())
                     .categoryName(pf.getPost().getCategory().getName())
                     .favorites(true)
-                    .image(postImage != null ? PostImageResponse.builder()
-                            .url(postImage.getImage().getUrl())
-                            .isThumbnail(postImage.getIsThumbnail())
-                            .sortOrder(postImage.getSortOrder())
-                            .build() : null)
+                    .image(postImageResponse)
                     .build();
         });
 
@@ -247,10 +214,7 @@ public class PostQueryServiceImpl implements PostQueryService {
         Slice<Post> posts = postRepository.findAllOrderByStatus(pageable);
 
         Slice<PostGetAllPublicResponse> content = posts.map(post -> {
-            PostImage postImage = post.getPostImages().stream()
-                    .filter(PostImage::getIsThumbnail)
-                    .findFirst()
-                    .orElse(null);
+            PostImageResponse postImageResponse = getThumbnailResponse(post);
 
             return PostGetAllPublicResponse.builder()
                     .id(post.getId())
@@ -269,11 +233,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                     .categoryId(post.getCategory().getId())
                     .categoryName(post.getCategory().getName())
                     .favorites(false)
-                    .image(postImage != null ? PostImageResponse.builder()
-                            .url(postImage.getImage().getUrl())
-                            .isThumbnail(postImage.getIsThumbnail())
-                            .sortOrder(postImage.getSortOrder())
-                            .build() : null)
+                    .image(postImageResponse)
                     .build();
         });
 
@@ -284,13 +244,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     public PostGetsPublicResponse getPostPublic(Long postId) {
         Post post = findById(postId);
 
-        List<PostImageResponse> postImages = post.getPostImages().stream()
-                .map(postImage -> PostImageResponse.builder()
-                        .url(postImage.getImage().getUrl())
-                        .isThumbnail(postImage.getIsThumbnail())
-                        .sortOrder(postImage.getSortOrder())
-                        .build())
-                .toList();
+        List<PostImageResponse> postImages = getImageResponseList(post);
 
         return PostGetsPublicResponse.builder()
                 .id(post.getId())
@@ -324,5 +278,29 @@ public class PostQueryServiceImpl implements PostQueryService {
         return postRepository.findByIdWithUserAndCategory(postId).orElseThrow(
                 () -> new PostException(PostErrorCode.POST_INVALID_ID)
         );
+    }
+
+    private PostImageResponse toPostImageResponse(PostImage image) {
+        if (image == null) return null;
+        return PostImageResponse.builder()
+                .url(image.getImage().getUrl())
+                .isThumbnail(image.getIsThumbnail())
+                .sortOrder(image.getSortOrder())
+                .build();
+    }
+
+    private PostImageResponse getThumbnailResponse(Post post) {
+        return post.getPostImages().stream()
+                .filter(PostImage::getIsThumbnail)
+                .findFirst()
+                .map(this::toPostImageResponse)
+                .orElse(null);
+    }
+
+    private List<PostImageResponse> getImageResponseList(Post post) {
+        return post.getPostImages().stream()
+                .map(this::toPostImageResponse)
+                .sorted(Comparator.comparing(PostImageResponse::sortOrder))
+                .toList();
     }
 }

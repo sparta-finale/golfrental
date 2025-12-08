@@ -124,24 +124,36 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         Slice<Post> posts = postRepository.findAllByUserOrderByStatus(user, pageable);
 
-        Slice<PostGetMyResponse> contents = posts.map(post -> PostGetMyResponse.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .methodOfReceive(post.getMethodOfReceive())
-                .methodOfReturn(post.getMethodOfReturn())
-                .price(post.getPrice())
-                .deposit(post.getDeposit())
-                .dailyRate(post.getDailyRate())
-                .tradeStatus(post.getTradeStatus())
-                .userId(post.getUser().getId())
-                .username(post.getUser().getUsername())
-                .address(post.getUser().getAddress())
-                .nickname(post.getUser().getNickname())
-                .categoryId(post.getCategory().getId())
-                .categoryName(post.getCategory().getName())
-                .favorites(favoritePostIds.contains(post.getId()))
-                .build());
+        Slice<PostGetMyResponse> contents = posts.map(post -> {
+            PostImage postImage = post.getPostImages().stream()
+                    .filter(PostImage::getIsThumbnail)
+                    .findFirst()
+                    .orElse(null);
+
+            return PostGetMyResponse.builder()
+                    .id(post.getId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .methodOfReceive(post.getMethodOfReceive())
+                    .methodOfReturn(post.getMethodOfReturn())
+                    .price(post.getPrice())
+                    .deposit(post.getDeposit())
+                    .dailyRate(post.getDailyRate())
+                    .tradeStatus(post.getTradeStatus())
+                    .userId(post.getUser().getId())
+                    .username(post.getUser().getUsername())
+                    .address(post.getUser().getAddress())
+                    .nickname(post.getUser().getNickname())
+                    .categoryId(post.getCategory().getId())
+                    .categoryName(post.getCategory().getName())
+                    .favorites(favoritePostIds.contains(post.getId()))
+                    .image(postImage != null ? PostImageResponse.builder()
+                            .url(postImage.getImage().getUrl())
+                            .isThumbnail(postImage.getIsThumbnail())
+                            .sortOrder(postImage.getSortOrder())
+                            .build() : null)
+                    .build();
+        });
 
         return SliceResponse.fromSlice(contents);
     }

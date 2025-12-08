@@ -40,9 +40,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findByIdWithUserAndCategory(@Param("postId") Long postId);
 
     @Query("""
-                    SELECT p FROM Post p
+                    SELECT DISTINCT p FROM Post p
                                 JOIN FETCH p.user
                                 JOIN FETCH p.category
+                                LEFT JOIN FETCH p.postImages pi
+                                LEFT JOIN FETCH pi.image
                     WHERE p.user = :user AND p.deletedAt IS NULL
                     ORDER BY
                         CASE p.tradeStatus

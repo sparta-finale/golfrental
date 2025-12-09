@@ -95,4 +95,23 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                         p.createdAt DESC
             """)
     List<Post> findAllOrderByTradeStatus();
+
+    @Query("""
+                    SELECT DISTINCT p FROM Post p
+                                JOIN FETCH p.user
+                                JOIN FETCH p.category c
+                                LEFT JOIN FETCH p.postImages pi
+                                LEFT JOIN FETCH pi.image i
+                    WHERE p.deletedAt IS NULL
+                    AND i.deletedAt IS NULL
+                    AND c.name = :categoryName
+                    ORDER BY
+                        CASE p.tradeStatus
+                            WHEN 'BEFORE_TRANSACTION' THEN 0
+                            WHEN 'TRADING' THEN 1
+                            WHEN 'TRANSACTION_COMPLETED' THEN 2
+                        END ASC,
+                        p.createdAt DESC
+            """)
+    List<Post> findAllByCategoryName(@Param("categoryName") String categoryName);
 }

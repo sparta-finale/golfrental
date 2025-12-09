@@ -285,6 +285,11 @@ public class PostQueryServiceImpl implements PostQueryService {
         return postRepository.findAllOrderByTradeStatus();
     }
 
+    @Override
+    public List<Post> findAllByCategoryName(String categoryName) {
+        return postRepository.findAllByCategoryName(categoryName);
+    }
+
     private PostImageResponse toPostImageResponse(PostImage image) {
         if (image == null) return null;
         return PostImageResponse.builder()

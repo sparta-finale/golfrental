@@ -7,4 +7,6 @@ import java.util.List;
 public interface ImageQueryService {
 
     List<Image> findAllByImage(List<Long> imageIds);
+
+    Image findById(Long imageId);
 }

@@ -81,4 +81,6 @@ public interface PostQueryService {
     Post findById(Long postId);
 
     List<Post> findAll();
+
+    List<Post> findAllByCategoryName(String categoryName);
 }

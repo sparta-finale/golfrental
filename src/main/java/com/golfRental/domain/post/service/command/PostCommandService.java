@@ -4,6 +4,7 @@ import com.golfRental.domain.post.dto.request.PostCreateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
 import com.golfRental.domain.post.dto.response.PostCreateResponse;
+import com.golfRental.domain.post.dto.response.PostImageThumbnailUpdateResponse;
 import com.golfRental.domain.post.dto.response.PostUpdateResponse;
 import com.golfRental.domain.post.dto.response.PostUpdateStatusResponse;
 
@@ -45,6 +46,16 @@ public interface PostCommandService {
      * @return PostUpdateStatusResponse
      */
     PostUpdateStatusResponse updateStatusPost(Long userId, Long postId, PostUpdateStatusRequest postUpdateStatusRequest);
+
+    /**
+     * 게시물 대표 이미지 수정
+     *
+     * @param userId  인증된 유저 ID
+     * @param postId  게시물 ID
+     * @param imageId 대표 이미지 ID
+     * @return PostImageThumbnailUpdateResponse
+     */
+    PostImageThumbnailUpdateResponse updateThumbnail(Long userId, Long postId, Long imageId);
 
     /**
      * 게시물 삭제

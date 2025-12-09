@@ -2,17 +2,15 @@ package com.golfRental.domain.payment.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
 
-@Getter
-public class PaymentConfirmRequest {
+public record PaymentConfirmRequest(
+        @NotBlank
+        String paymentKey,
 
-    @NotBlank
-    private String paymentKey;
+        @NotBlank
+        String orderId,
 
-    @NotBlank
-    private String orderId;
-
-    @NotNull
-    private Long amount;
+        @NotNull
+        Long amount
+) {
 }

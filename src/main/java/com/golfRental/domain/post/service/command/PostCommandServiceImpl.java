@@ -148,13 +148,7 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         boolean postFavorites = postFavoritesRepository.existsByUserAndPost(user, post);
 
-        List<PostImageResponse> postImages = post.getPostImages().stream()
-                .map(postImage -> PostImageResponse.builder()
-                        .url(postImage.getImage().getUrl())
-                        .isThumbnail(postImage.getIsThumbnail())
-                        .sortOrder(postImage.getSortOrder())
-                        .build())
-                .toList();
+        List<PostImageResponse> postImages = createPostImageResponses(post);
 
         return PostUpdateResponse.builder()
                 .id(post.getId())
@@ -190,21 +184,11 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         post.getPostImages().forEach(postImage -> {
-            if (postImage.getIsThumbnail()) {
-                postImage.updateThumbnail(false);
-            }
-            if (Objects.equals(postImage.getImage().getId(), imageId)) {
-                postImage.updateThumbnail(true);
-            }
+            boolean isNewThumbnail = Objects.equals(postImage.getImage().getId(), imageId);
+            postImage.updateThumbnail(isNewThumbnail);
         });
 
-        List<PostImageResponse> postImages = post.getPostImages().stream()
-                .map(postImage -> PostImageResponse.builder()
-                        .url(postImage.getImage().getUrl())
-                        .isThumbnail(postImage.getIsThumbnail())
-                        .sortOrder(postImage.getSortOrder())
-                        .build())
-                .toList();
+        List<PostImageResponse> postImages = createPostImageResponses(post);
 
         return PostImageThumbnailUpdateResponse.from(post, postFavorites, postImages);
     }
@@ -250,5 +234,15 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         return post;
+    }
+
+    private List<PostImageResponse> createPostImageResponses(Post post) {
+        return post.getPostImages().stream()
+                .map(postImage -> PostImageResponse.builder()
+                        .url(postImage.getImage().getUrl())
+                        .isThumbnail(postImage.getIsThumbnail())
+                        .sortOrder(postImage.getSortOrder())
+                        .build())
+                .toList();
     }
 }

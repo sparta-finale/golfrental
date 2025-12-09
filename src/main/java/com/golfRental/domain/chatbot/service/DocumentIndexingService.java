@@ -2,14 +2,12 @@ package com.golfRental.domain.chatbot.service;
 
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.DocumentSplitter;
-import dev.langchain4j.data.document.parser.TextDocumentParser;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
@@ -22,16 +20,21 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class DocumentIndexingService {
 
     private final EmbeddingModel embeddingModel;
-
-    @Qualifier("documentStore")
     private final EmbeddingStore<TextSegment> documentStore;
+
+    public DocumentIndexingService(EmbeddingModel embeddingModel,
+                                   @Qualifier("documentStore") EmbeddingStore<TextSegment> documentStore) {
+        this.embeddingModel = embeddingModel;
+        this.documentStore = documentStore;
+    }
 
     @PostConstruct
     public void indexAllDocuments() {
@@ -47,7 +50,7 @@ public class DocumentIndexingService {
             }
 
             // 문서 분할 (300자 단위, 오버랩 없음)
-            DocumentSplitter splitter = DocumentSplitters.recursive(300, 0);
+            DocumentSplitter splitter = DocumentSplitters.recursive(300, 30);
 
             List<TextSegment> allSegments = new ArrayList<>();
 
@@ -80,11 +83,9 @@ public class DocumentIndexingService {
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         Resource[] resources = resolver.getResources("classpath:documents/*.md");
 
-        TextDocumentParser parser = new TextDocumentParser();
-
         for (Resource resource : resources) {
             try {
-                String content = new String(resource.getInputStream().readAllBytes());
+                String content = resource.getContentAsString(UTF_8);
                 Document doc = Document.from(content);
 
                 // 메타데이터에 파일명 추가

@@ -5,7 +5,6 @@ import com.golfRental.domain.payment.enums.PaymentStatus;
 import com.golfRental.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -36,7 +35,6 @@ public class Payment extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Builder
     private Payment(String paymentKey,
                     String orderId,
                     Long amount,
@@ -48,5 +46,15 @@ public class Payment extends BaseEntity {
         this.amount = amount;
         this.status = status;
         this.user = user;
+    }
+
+    // 결제 승인 완료 시 생성 (User 포함)
+    public static Payment createSuccess(String paymentKey, String orderId, Long amount, User user) {
+        return new Payment(paymentKey, orderId, amount, PaymentStatus.SUCCESS, user);
+    }
+
+    // 결제 승인 완료 시 생성 (User 없이)
+    public static Payment createSuccessWithoutUser(String paymentKey, String orderId, Long amount) {
+        return new Payment(paymentKey, orderId, amount, PaymentStatus.SUCCESS, null);
     }
 }

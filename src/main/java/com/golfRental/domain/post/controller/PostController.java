@@ -141,7 +141,7 @@ public interface PostController {
     );
 
     /**
-     * 게시글 거래 상태 수정 API
+     * 게시물 거래 상태 수정 API
      *
      * @param authUser 토큰 정보
      * @param postId   게시물 ID
@@ -150,6 +150,19 @@ public interface PostController {
     ResponseEntity<CommonApiResponse<PostUpdateStatusResponse>> updateStatusPost(
             AuthUser authUser,
             Long postId, PostUpdateStatusRequest postUpdateStatusRequest
+    );
+
+    /**
+     * 게시물 대표 이미지 수정
+     *
+     * @param authUser 토큰 정보
+     * @param postId   게시물 ID
+     * @param imageId  대표 이미지 ID
+     * @return PostImageThumbnailUpdateResponse
+     */
+    ResponseEntity<CommonApiResponse<PostImageThumbnailUpdateResponse>> updateThumbnail(
+            AuthUser authUser,
+            Long postId, Long imageId
     );
 
     /**

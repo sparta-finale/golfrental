@@ -4,6 +4,7 @@ import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
+import com.golfRental.domain.post.dto.request.PostImageDeleteRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
 import com.golfRental.domain.post.dto.response.*;
@@ -206,5 +207,17 @@ public class PostControllerImpl implements PostController {
         postCommandService.deleteFavorites(authUser.getUserId(), postId);
 
         return CommonApiResponse.deleteSuccess(PostSuccessMessage.POST_FAVORITES_DELETED);
+    }
+
+    @Override
+    @DeleteMapping("/posts/{postId}/images")
+    public ResponseEntity<CommonApiResponse<Void>> deleteImages(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long postId,
+            @RequestBody PostImageDeleteRequest postImageDeleteRequest
+    ) {
+        postCommandService.deleteImages(authUser.getUserId(), postId, postImageDeleteRequest);
+
+        return CommonApiResponse.deleteSuccess(PostSuccessMessage.POST_IMAGES_DELETED);
     }
 }

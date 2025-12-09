@@ -22,7 +22,10 @@ public enum PostErrorCode implements ErrorCode {
     POST_NOT_FAVORITES(HttpStatus.BAD_REQUEST, "이미 해당 게시물의 즐겨찾기 되어있지 않습니다."),
 
     // createPost
-    DUPLICATE_IMAGE_IDS(HttpStatus.BAD_REQUEST, "중복된 이미지 ID가 포함되어 있습니다.");
+    DUPLICATE_IMAGE_IDS(HttpStatus.BAD_REQUEST, "중복된 이미지 ID가 포함되어 있습니다."),
+
+    // updateThumbnail
+    POST_IMAGE_NOT_EXIST(HttpStatus.BAD_REQUEST, "게시물에 이미지가 존재하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

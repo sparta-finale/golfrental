@@ -27,3 +27,12 @@ langchain:
   chat:
     memory:
       max-messages: 10
+
+rag:
+  retriever:
+    post:
+      max-results: 5
+      min-score: 0.6
+    document:
+      max-results: 3
+      min-score: 0.7

@@ -1,12 +1,13 @@
 package com.golfRental.domain.chatbot.service.command;
 
 import com.golfRental.domain.chatbot.dto.response.ChatbotMessageResponse;
+import com.golfRental.domain.chatbot.service.ChatbotToolsService;
 import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.rag.content.retriever.ContentRetriever;
-import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.store.embedding.EmbeddingStore;
@@ -22,9 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ChatbotCommandServiceImpl implements ChatbotCommandService {
 
+    private static final long TIMEOUT_SECONDS = 30;
+    private static final int MAX_MESSAGE_LENGTH = 1000;
     private final ChatLanguageModel chatLanguageModel;
     private final EmbeddingModel embeddingModel;
-
+    private final ChatMemoryProvider chatMemoryProvider;
+    private final ChatbotToolsService chatbotToolsService;
     @Qualifier("postStore")
     private final EmbeddingStore<TextSegment> postStore;
 
@@ -36,35 +40,21 @@ public class ChatbotCommandServiceImpl implements ChatbotCommandService {
         log.info("챗봇 처리 시작 - userId: {}, message: {}", userId, message);
 
         try {
-            // 의도 파악 (간단한 키워드 기반)
-            boolean isPostSearch = java.util.List.of("장비", "추천", "드라이버", "아이언")
-                    .stream().anyMatch(message::contains);
-
-            EmbeddingStore<TextSegment> store = isPostSearch ? postStore : documentStore;
-            int maxResults = isPostSearch ? 5 : 3;
-            double minScore = isPostSearch ? 0.6 : 0.7;
-
-            ContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
-                    .embeddingStore(store)
-                    .embeddingModel(embeddingModel)
-                    .maxResults(maxResults)
-                    .minScore(minScore)
-                    .build();
-
-            // AI Assistant 생성
+            // AI Assistant 생성 (Tools 추가!)
             GolfRentalAssistant assistant = AiServices.builder(GolfRentalAssistant.class)
                     .chatLanguageModel(chatLanguageModel)
-                    .contentRetriever(retriever)  // 의도에 따라 다른 Retriever
+                    .chatMemoryProvider(chatMemoryProvider)
+                    .tools(chatbotToolsService)
                     .build();
 
-            // AI 응답 생성
-            String aiResponse = assistant.chat(message);
+            // AI 응답 생성 (userId는 자동으로 Object로 업캐스팅됨)
+            String aiResponse = assistant.chat(userId, message);
 
-            log.info("AI 응답 생성 완료 - userId: {}, 의도: {}", userId, isPostSearch ? "Post검색" : "정책문의");
+            log.info("AI 응답 생성 완료 - userId: {}", userId);
 
             return ChatbotMessageResponse.of(aiResponse);
 
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             log.error("챗봇 처리 중 오류 발생 - userId: {}", userId, e);
 
             String errorMessage = "죄송합니다. 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
@@ -86,6 +76,6 @@ public class ChatbotCommandServiceImpl implements ChatbotCommandService {
                 
                 말투: 친절하고 전문적이며 간결하게 답변하세요.
                 """)
-        String chat(@UserMessage String message);
+        String chat(@MemoryId Object memoryId, @UserMessage String message);
     }
 }

@@ -235,33 +235,33 @@ public class PostCommandServiceImpl implements PostCommandService {
             throw new PostException(PostErrorCode.POST_NOT_EQUAL_CREATOR);
         }
 
-        List<PostImage> imagesToDelete = post.getPostImages().stream()
+        List<PostImage> activeImages = post.getPostImages().stream()
+                .filter(postImage -> postImage.getDeletedAt() == null)
+                .toList();
+
+        List<PostImage> imagesToDelete = activeImages.stream()
                 .filter(postImage -> postImageDeleteRequest.imageIds().contains(postImage.getImage().getId()))
                 .toList();
 
         if (imagesToDelete.size() != postImageDeleteRequest.imageIds().size()) {
             throw new PostException(PostErrorCode.POST_IMAGE_NOT_EXIST);
         }
-
-        if (post.getPostImages().size() - imagesToDelete.size() < 1) {
+        if (activeImages.size() - imagesToDelete.size() < 1) {
             throw new PostException(PostErrorCode.POST_IMAGE_NEED);
         }
 
-        // 썸네일이 삭제될 예정인지 확인
         boolean thumbnailWillBeDeleted = imagesToDelete.stream()
                 .anyMatch(PostImage::getIsThumbnail);
 
-        // 이미지 삭제
         imagesToDelete.forEach(postImage -> {
             postImage.delete();
             postImage.getImage().delete();
         });
 
-        // 썸네일이 삭제되었다면, 남은 이미지 중 sortOrder가 가장 낮은 이미지를 썸네일로 설정
         if (thumbnailWillBeDeleted) {
             post.getPostImages().stream()
-                    .filter(postImage -> !imagesToDelete.contains(postImage))
-                    .min((p1, p2) -> Integer.compare(p1.getSortOrder(), p2.getSortOrder()))
+                    .filter(postImage -> postImage.getDeletedAt() == null)
+                    .min(java.util.Comparator.comparingInt(PostImage::getSortOrder))
                     .ifPresent(postImage -> postImage.updateThumbnail(true));
         }
     }

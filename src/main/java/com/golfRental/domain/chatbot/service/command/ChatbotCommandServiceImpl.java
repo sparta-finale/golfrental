@@ -4,6 +4,7 @@ import com.golfRental.domain.chatbot.dto.response.ChatbotMessageResponse;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
@@ -27,27 +28,47 @@ public class ChatbotCommandServiceImpl implements ChatbotCommandService {
     @Qualifier("postStore")
     private final EmbeddingStore<TextSegment> postStore;
 
+    @Qualifier("documentStore")
+    private final EmbeddingStore<TextSegment> documentStore;
+
     @Override
     public ChatbotMessageResponse chat(Long userId, String message) {
         log.info("챗봇 처리 시작 - userId: {}, message: {}", userId, message);
 
         try {
-            // ContentRetriever 생성 (RAG 검색)
-            EmbeddingStoreContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
-                    .embeddingStore(postStore)
-                    .embeddingModel(embeddingModel)
-                    .maxResults(5)
-                    .minScore(0.6)
-                    .build();
+            // 의도 파악 (간단한 키워드 기반)
+            boolean isPostSearch = message.contains("장비") || message.contains("추천") ||
+                    message.contains("드라이버") || message.contains("아이언");
+
+            ContentRetriever retriever;
+
+            if (isPostSearch) {
+                retriever = EmbeddingStoreContentRetriever.builder()
+                        .embeddingStore(postStore)
+                        .embeddingModel(embeddingModel)
+                        .maxResults(5)
+                        .minScore(0.6)
+                        .build();
+            } else {
+                // 정책/FAQ 검색용 Retriever
+                retriever = EmbeddingStoreContentRetriever.builder()
+                        .embeddingStore(documentStore)
+                        .embeddingModel(embeddingModel)
+                        .maxResults(3)
+                        .minScore(0.7)
+                        .build();
+            }
 
             // AI Assistant 생성
             GolfRentalAssistant assistant = AiServices.builder(GolfRentalAssistant.class)
                     .chatLanguageModel(chatLanguageModel)
-                    .contentRetriever(retriever)  //RAG 검색 추가
+                    .contentRetriever(retriever)  // 의도에 따라 다른 Retriever
                     .build();
 
             // AI 응답 생성
             String aiResponse = assistant.chat(message);
+
+            log.info("AI 응답 생성 완료 - userId: {}, 의도: {}", userId, isPostSearch ? "Post검색" : "정책문의");
 
             return ChatbotMessageResponse.of(aiResponse);
 

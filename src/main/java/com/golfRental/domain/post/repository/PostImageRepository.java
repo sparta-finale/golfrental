@@ -1,5 +1,7 @@
 package com.golfRental.domain.post.repository;
 
+import com.golfRental.domain.image.entity.Image;
+import com.golfRental.domain.post.entity.Post;
 import com.golfRental.domain.post.entity.PostImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,4 +19,6 @@ public interface PostImageRepository extends JpaRepository<PostImage, Long> {
             ORDER BY pi.sortOrder ASC
             """)
     List<PostImage> findAllByIdWithDetail();
+
+    boolean existsByPostAndImage(Post post, Image image);
 }

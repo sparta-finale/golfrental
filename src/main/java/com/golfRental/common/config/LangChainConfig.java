@@ -22,6 +22,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Configuration
 public class LangChainConfig {
 
+    @Value("${langchain.chat.memory.max-messages:10}")
+    private int maxMessages;
+    
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
@@ -68,21 +71,20 @@ public class LangChainConfig {
     }
 
     @Bean
-    public Map<Object, ChatMemory> chatMemoryStore() {
+    public Map<Long, ChatMemory> chatMemoryStore() {
         log.info("Chat Memory Store 초기화");
-
         return new ConcurrentHashMap<>();
     }
 
     @Bean
     public ChatMemoryProvider chatMemoryProvider(
-            Map<Object, ChatMemory> chatMemoryStore
+            Map<Long, ChatMemory> chatMemoryStore
     ) {
-        log.info("Chat Memory Provider 초기화 - maxMessages: 10");
+        log.info("Chat Memory Provider 초기화 - maxMessages: {}", maxMessages);
 
-        return (ChatMemoryProvider) memoryId -> chatMemoryStore.computeIfAbsent(memoryId, id ->
+        return memoryId -> chatMemoryStore.computeIfAbsent((Long) memoryId, id ->
                 MessageWindowChatMemory.builder()
-                        .maxMessages(10)  // 최대 10개 메시지 기억
+                        .maxMessages(maxMessages)
                         .build()
         );
     }

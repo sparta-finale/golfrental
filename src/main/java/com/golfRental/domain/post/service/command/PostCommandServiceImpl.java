@@ -5,6 +5,7 @@ import com.golfRental.domain.category.service.query.CategoryQueryService;
 import com.golfRental.domain.image.entity.Image;
 import com.golfRental.domain.image.service.query.ImageQueryService;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
+import com.golfRental.domain.post.dto.request.PostImageDeleteRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
 import com.golfRental.domain.post.dto.response.*;
@@ -179,7 +180,7 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         boolean postFavorites = postFavoritesRepository.existsByUserAndPost(user, post);
 
-        if (!postImageRepository.existsByPostAndImage(post, image)) {
+        if (!postImageRepository.existsByPostAndImageAndDeletedAtIsNull(post, image)) {
             throw new PostException(PostErrorCode.POST_IMAGE_NOT_EXIST);
         }
 
@@ -222,6 +223,47 @@ public class PostCommandServiceImpl implements PostCommandService {
         );
 
         postFavoritesRepository.delete(postFavorites);
+    }
+
+    @Override
+    public void deleteImages(Long userId, Long postId, PostImageDeleteRequest postImageDeleteRequest) {
+        Post post = postRepository.findByIdWithUserAndCategory(postId).orElseThrow(
+                () -> new PostException(PostErrorCode.POST_INVALID_ID)
+        );
+
+        if (!Objects.equals(post.getUser().getId(), userId)) {
+            throw new PostException(PostErrorCode.POST_NOT_EQUAL_CREATOR);
+        }
+
+        List<PostImage> imagesToDelete = post.getPostImages().stream()
+                .filter(postImage -> postImageDeleteRequest.imageIds().contains(postImage.getImage().getId()))
+                .toList();
+
+        if (imagesToDelete.size() != postImageDeleteRequest.imageIds().size()) {
+            throw new PostException(PostErrorCode.POST_IMAGE_NOT_EXIST);
+        }
+
+        if (post.getPostImages().size() - imagesToDelete.size() < 1) {
+            throw new PostException(PostErrorCode.POST_IMAGE_NEED);
+        }
+
+        // 썸네일이 삭제될 예정인지 확인
+        boolean thumbnailWillBeDeleted = imagesToDelete.stream()
+                .anyMatch(PostImage::getIsThumbnail);
+
+        // 이미지 삭제
+        imagesToDelete.forEach(postImage -> {
+            postImage.delete();
+            postImage.getImage().delete();
+        });
+
+        // 썸네일이 삭제되었다면, 남은 이미지 중 sortOrder가 가장 낮은 이미지를 썸네일로 설정
+        if (thumbnailWillBeDeleted) {
+            post.getPostImages().stream()
+                    .filter(postImage -> !imagesToDelete.contains(postImage))
+                    .min((p1, p2) -> Integer.compare(p1.getSortOrder(), p2.getSortOrder()))
+                    .ifPresent(postImage -> postImage.updateThumbnail(true));
+        }
     }
 
     private Post findPostAndCheckOwner(Long userId, Long postId) {

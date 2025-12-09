@@ -29,4 +29,10 @@ public class ImageQueryServiceImpl implements ImageQueryService {
 
         return images;
     }
+
+    public Image findById(Long imageId) {
+        return imageRepository.findByIdAndDeletedAtIsNull(imageId).orElseThrow(
+                () -> new ImageException(ImageErrorCode.IMAGE_NOT_FOUND)
+        );
+    }
 }

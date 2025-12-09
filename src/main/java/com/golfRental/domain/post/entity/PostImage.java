@@ -40,4 +40,8 @@ public class PostImage {
         this.post = post;
         this.image = image;
     }
+
+    public void updateThumbnail(boolean isThumbnail) {
+        this.isThumbnail = isThumbnail;
+    }
 }

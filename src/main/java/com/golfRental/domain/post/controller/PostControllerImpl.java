@@ -174,6 +174,19 @@ public class PostControllerImpl implements PostController {
     }
 
     @Override
+    @PatchMapping("/posts/{postId}/images/{imageId}")
+    public ResponseEntity<CommonApiResponse<PostImageThumbnailUpdateResponse>> updateThumbnail(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long postId,
+            @PathVariable Long imageId
+    ) {
+        PostImageThumbnailUpdateResponse postImageThumbnailUpdateResponse = postCommandService
+                .updateThumbnail(authUser.getUserId(), postId, imageId);
+
+        return CommonApiResponse.success(postImageThumbnailUpdateResponse, PostSuccessMessage.POST_UPDATED_THUMBNAIL);
+    }
+
+    @Override
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<CommonApiResponse<Void>> deletePost(
             @AuthenticationPrincipal AuthUser authUser,

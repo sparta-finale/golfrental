@@ -1,7 +1,7 @@
 package com.golfRental.domain.chatbot.service;
 
 import com.golfRental.domain.post.entity.Post;
-import com.golfRental.domain.post.repository.PostRepository;
+import com.golfRental.domain.post.service.query.PostQueryService;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.data.embedding.Embedding;
@@ -19,14 +19,13 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatbotToolsService {
 
-    private final PostRepository postRepository;
+    private final PostQueryService postQueryService;
     private final EmbeddingModel embeddingModel;
 
     @Qualifier("postStore")
@@ -82,7 +81,7 @@ public class ChatbotToolsService {
 
             return result.toString();
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("게시글 검색 중 오류 발생", e);
             return "게시글 검색 중 오류가 발생했습니다.";
         }
@@ -123,7 +122,7 @@ public class ChatbotToolsService {
 
             return result.toString();
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("정책 검색 중 오류 발생", e);
             return "정책 검색 중 오류가 발생했습니다.";
         }
@@ -135,9 +134,7 @@ public class ChatbotToolsService {
 
         try {
             // 카테고리명으로 게시글 필터링
-            List<Post> posts = postRepository.findAll().stream()
-                    .filter(p -> p.getCategory().getName().contains(categoryName))
-                    .collect(Collectors.toList());
+            List<Post> posts = postQueryService.findAllByCategoryName(categoryName);
 
             if (posts.isEmpty()) {
                 return String.format("%s 카테고리의 게시글이 없습니다.", categoryName);

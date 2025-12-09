@@ -15,3 +15,7 @@ jwt:
   secret: ${JWT_SECRET_KEY}
   access-token-validity: 3600000
   refresh-token-validity: 604800000
+
+toss:
+  secret-key: ${TOSS_SECRET_KEY}
+  payment-confirm-url: ${TOSS_PAYMENT_CONFIRM_URL}

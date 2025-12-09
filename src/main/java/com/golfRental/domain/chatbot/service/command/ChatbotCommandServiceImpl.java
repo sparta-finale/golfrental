@@ -37,27 +37,19 @@ public class ChatbotCommandServiceImpl implements ChatbotCommandService {
 
         try {
             // 의도 파악 (간단한 키워드 기반)
-            boolean isPostSearch = message.contains("장비") || message.contains("추천") ||
-                    message.contains("드라이버") || message.contains("아이언");
+            boolean isPostSearch = java.util.List.of("장비", "추천", "드라이버", "아이언")
+                    .stream().anyMatch(message::contains);
 
-            ContentRetriever retriever;
+            EmbeddingStore<TextSegment> store = isPostSearch ? postStore : documentStore;
+            int maxResults = isPostSearch ? 5 : 3;
+            double minScore = isPostSearch ? 0.6 : 0.7;
 
-            if (isPostSearch) {
-                retriever = EmbeddingStoreContentRetriever.builder()
-                        .embeddingStore(postStore)
-                        .embeddingModel(embeddingModel)
-                        .maxResults(5)
-                        .minScore(0.6)
-                        .build();
-            } else {
-                // 정책/FAQ 검색용 Retriever
-                retriever = EmbeddingStoreContentRetriever.builder()
-                        .embeddingStore(documentStore)
-                        .embeddingModel(embeddingModel)
-                        .maxResults(3)
-                        .minScore(0.7)
-                        .build();
-            }
+            ContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
+                    .embeddingStore(store)
+                    .embeddingModel(embeddingModel)
+                    .maxResults(maxResults)
+                    .minScore(minScore)
+                    .build();
 
             // AI Assistant 생성
             GolfRentalAssistant assistant = AiServices.builder(GolfRentalAssistant.class)

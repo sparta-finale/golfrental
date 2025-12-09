@@ -1,5 +1,6 @@
 package com.golfRental.domain.post.entity;
 
+import com.golfRental.common.entity.BaseEntity;
 import com.golfRental.domain.image.entity.Image;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
         @UniqueConstraint(columnNames = {"post_id", "image_id"})
 })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostImage {
+public class PostImage extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

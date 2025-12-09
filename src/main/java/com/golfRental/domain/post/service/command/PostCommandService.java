@@ -1,6 +1,7 @@
 package com.golfRental.domain.post.service.command;
 
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
+import com.golfRental.domain.post.dto.request.PostImageDeleteRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
 import com.golfRental.domain.post.dto.response.PostCreateResponse;
@@ -72,4 +73,13 @@ public interface PostCommandService {
      * @param postId 게시물 ID
      */
     void deleteFavorites(Long userId, Long postId);
+
+    /**
+     * 게시물 이미지 삭제 API
+     *
+     * @param userId                 인증된 유저 ID
+     * @param postId                 게시물 ID
+     * @param postImageDeleteRequest 삭제할 게시물 ID들
+     */
+    void deleteImages(Long userId, Long postId, PostImageDeleteRequest postImageDeleteRequest);
 }

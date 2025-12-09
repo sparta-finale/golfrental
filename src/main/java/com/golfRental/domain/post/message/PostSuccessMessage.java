@@ -20,6 +20,7 @@ public final class PostSuccessMessage {
 
     public final static String POST_DELETED = "게시물 삭제에 성공하였습니다.";
     public final static String POST_FAVORITES_DELETED = "즐겨찾기 삭제에 성공하였습니다.";
+    public final static String POST_IMAGES_DELETED = "이미지 삭제에 성공하였습니다.";
 
     private PostSuccessMessage() {
     }

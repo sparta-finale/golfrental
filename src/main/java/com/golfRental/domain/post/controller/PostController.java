@@ -4,6 +4,7 @@ import com.golfRental.common.response.CommonApiResponse;
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.auth.dto.AuthUser;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
+import com.golfRental.domain.post.dto.request.PostImageDeleteRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
 import com.golfRental.domain.post.dto.response.*;
@@ -187,5 +188,18 @@ public interface PostController {
     ResponseEntity<CommonApiResponse<Void>> deleteFavorites(
             AuthUser authUser,
             Long postId
+    );
+
+    /**
+     * 게시물 이미지 삭제 API
+     *
+     * @param authUser               토큰 정보
+     * @param postId                 게시물 ID
+     * @param postImageDeleteRequest 삭제할 게시물 ID들
+     * @return void
+     */
+    ResponseEntity<CommonApiResponse<Void>> deleteImages(
+            AuthUser authUser,
+            Long postId, PostImageDeleteRequest postImageDeleteRequest
     );
 }

@@ -122,7 +122,7 @@ public class ChatbotToolsService {
 
             return result.toString();
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("정책 검색 중 오류 발생", e);
             return "정책 검색 중 오류가 발생했습니다.";
         }

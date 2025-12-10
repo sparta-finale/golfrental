@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class ChatbotCommandServiceImpl implements ChatbotCommandService {
-    
+
     private final ChatLanguageModel chatLanguageModel;
     private final ChatMemoryProvider chatMemoryProvider;
     private final ChatbotToolsService chatbotToolsService;
@@ -78,35 +78,33 @@ public class ChatbotCommandServiceImpl implements ChatbotCommandService {
 
     private String generateAiResponse(Long userId, String message) {
         try {
-            // AI 응답 생성 (초기화된 assistant 재사용)
             String aiResponse = assistant.chat(userId, message);
-
             if (aiResponse == null || aiResponse.isBlank()) {
-                log.error("AI 응답이 비어있음 - userId: {}", userId);
                 throw new ChatbotException(ChatbotErrorCode.AI_MODEL_ERROR);
             }
-
             return aiResponse;
 
         } catch (ChatbotException e) {
             throw e;
 
+            // 1. 네트워크 레벨의 타임아웃은 확실하게 클래스로 잡을 수 있음 (가장 중요)
         } catch (RuntimeException e) {
-            log.error("AI 응답 생성 실패 - userId: {}", userId, e);
+            log.error("Gemini API 호출 중 오류 발생 - userId: {}", userId, e);
 
-            // 타임아웃 여부 체크
-            if (e.getMessage() != null && e.getMessage().contains("timeout")) {
-                throw new ChatbotException(ChatbotErrorCode.AI_TIMEOUT);
+            String errorMsg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+
+            if (errorMsg.contains("429") || errorMsg.contains("resource_exhausted") || errorMsg.contains("quota")) {
+                throw new ChatbotException(ChatbotErrorCode.AI_RATE_LIMIT_EXCEEDED);
             }
 
-            // Rate Limit 체크
-            if (e.getMessage() != null && e.getMessage().contains("rate limit")) {
-                throw new ChatbotException(ChatbotErrorCode.AI_RATE_LIMIT_EXCEEDED);
+            if (errorMsg.contains("timeout") || errorMsg.contains("deadline_exceeded")) {
+                throw new ChatbotException(ChatbotErrorCode.AI_TIMEOUT);
             }
 
             throw new ChatbotException(ChatbotErrorCode.AI_MODEL_ERROR);
         }
     }
+
 
     private void saveChatHistory(User user, String message, boolean isUserMessage) {
         try {

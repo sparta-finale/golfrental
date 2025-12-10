@@ -4,10 +4,11 @@ import com.golfRental.domain.payment.dto.request.PaymentConfirmRequest;
 import com.golfRental.domain.payment.dto.response.PaymentConfirmResponse;
 import com.golfRental.domain.payment.dto.response.TossConfirmResponse;
 import com.golfRental.domain.payment.entity.Payment;
-import com.golfRental.domain.payment.enums.PaymentStatus;
 import com.golfRental.domain.payment.exception.PaymentErrorCode;
 import com.golfRental.domain.payment.exception.PaymentException;
 import com.golfRental.domain.payment.repository.PaymentRepository;
+import com.golfRental.domain.user.entity.User;
+import com.golfRental.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
@@ -24,34 +25,48 @@ public class PaymentCommandServiceImpl implements PaymentCommandService {
 
     private final WebClient tossWebClient;
     private final PaymentRepository paymentRepository;
+    private final UserRepository userRepository;
 
     @Override
     public PaymentConfirmResponse confirmPayment(PaymentConfirmRequest request, Long userId) {
 
+        // ---- Toss 서버 결제 승인 요청 ----
         TossConfirmResponse tossResponse = tossWebClient.post()
                 .uri("/confirm")
                 .bodyValue(request)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response ->
                         response.bodyToMono(String.class)
-                                .flatMap(body -> Mono.error(
-                                        new PaymentException(PaymentErrorCode.PAYMENT_VALIDATION_FAILED)
-                                ))
+                                .flatMap(body -> {
+                                    log.error("Toss Payments 4xx error response: {}", body);
+                                    return Mono.error(new PaymentException(PaymentErrorCode.PAYMENT_VALIDATION_FAILED));
+                                })
                 )
                 .onStatus(HttpStatusCode::is5xxServerError, response ->
                         response.bodyToMono(String.class)
-                                .flatMap(body -> Mono.error(
-                                        new PaymentException(PaymentErrorCode.PAYMENT_SERVER_ERROR)
-                                ))
+                                .flatMap(body -> {
+                                    log.error("Toss Payments 5xx error response: {}", body);
+                                    return Mono.error(new PaymentException(PaymentErrorCode.PAYMENT_SERVER_ERROR));
+                                })
                 )
                 .bodyToMono(TossConfirmResponse.class)
                 .block();
 
+        // ---- 유저 조회 ----
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new PaymentException(PaymentErrorCode.PAYMENT_VALIDATION_FAILED));
+
+        // ---- 결제 금액 검증 ----
+        if (!request.amount().equals(tossResponse.totalAmount())) {
+            throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_AMOUNT);
+        }
+
         // ---- 결제 정보 저장 ----
-        Payment payment = Payment.createSuccessWithoutUser(
+        Payment payment = Payment.createSuccess(
                 tossResponse.paymentKey(),
                 tossResponse.orderId(),
-                tossResponse.totalAmount()
+                tossResponse.totalAmount(),
+                user
         );
 
         Payment savedPayment = paymentRepository.save(payment);

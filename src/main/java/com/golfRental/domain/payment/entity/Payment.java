@@ -31,6 +31,9 @@ public class Payment extends BaseEntity {
     @Column(nullable = false, length = 20)
     private PaymentStatus status;
 
+    @Column(nullable = false, length = 20)
+    private String method;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -39,16 +42,18 @@ public class Payment extends BaseEntity {
                     String orderId,
                     Long amount,
                     PaymentStatus status,
+                    String method,
                     User user
     ) {
         this.paymentKey = paymentKey;
         this.orderId = orderId;
         this.amount = amount;
         this.status = status;
+        this.method = method;
         this.user = user;
     }
 
-    public static Payment createSuccess(String paymentKey, String orderId, Long amount, User user) {
-        return new Payment(paymentKey, orderId, amount, PaymentStatus.SUCCESS, user);
+    public static Payment createSuccess(String paymentKey, String orderId, Long amount, String method, User user) {
+        return new Payment(paymentKey, orderId, amount, PaymentStatus.SUCCESS, method, user);
     }
 }

@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +21,7 @@ public class PaymentQueryServiceImpl implements PaymentQueryService {
     @Override
     public Slice<PaymentHistoryResponse> getMyPayments(Long userId, int page, int size) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page, size);
 
         return paymentRepository.findAllByUserId(userId, pageable)
                 .map(PaymentHistoryResponse::fromProjection);

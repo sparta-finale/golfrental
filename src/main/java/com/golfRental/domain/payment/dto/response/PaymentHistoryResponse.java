@@ -12,12 +12,13 @@ public record PaymentHistoryResponse(
         String method,
         LocalDateTime createdAt
 ) {
+
     public static PaymentHistoryResponse fromProjection(PaymentHistoryProjection p) {
         return new PaymentHistoryResponse(
                 p.getPaymentId(),
                 p.getAmount(),
-                p.getStatus(),
-                "TOSS",
+                PaymentStatus.valueOf(p.getStatus()),
+                p.getMethod(),
                 p.getCreatedAt()
         );
     }

@@ -16,11 +16,11 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findByPaymentKey(String paymentKey);
 
     @Query("""
-            SELECT 
-                p.id AS paymentId,
-                p.amount AS amount,
-                p.status AS status,
-                p.createdAt AS createdAt
+            SELECT p.id AS paymentId,
+                   p.amount AS amount,
+                   p.status AS status,
+                   p.method AS method,
+                   p.createdAt AS createdAt
             FROM Payment p
             WHERE p.user.id = :userId
             ORDER BY p.createdAt DESC

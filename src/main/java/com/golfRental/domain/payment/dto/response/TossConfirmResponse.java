@@ -1,0 +1,8 @@
+package com.golfRental.domain.payment.dto.response;
+
+public record TossConfirmResponse(
+        String paymentKey,
+        String orderId,
+        Long totalAmount
+) {
+}

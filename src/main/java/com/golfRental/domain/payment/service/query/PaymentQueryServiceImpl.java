@@ -1,7 +1,6 @@
 package com.golfRental.domain.payment.service.query;
 
 import com.golfRental.domain.payment.dto.response.PaymentHistoryResponse;
-import com.golfRental.domain.payment.entity.Payment;
 import com.golfRental.domain.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +24,7 @@ public class PaymentQueryServiceImpl implements PaymentQueryService {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Slice<Payment> payments = paymentRepository
-                .findByUserIdOrderByCreatedAtDesc(userId, pageable);
-
-        return payments.map(PaymentHistoryResponse::from);
+        return paymentRepository.findAllByUserId(userId, pageable)
+                .map(PaymentHistoryResponse::fromProjection);
     }
 }

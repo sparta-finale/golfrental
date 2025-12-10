@@ -15,6 +15,9 @@ public class WebClientConfig {
     @Value("${toss.secret-key}")
     private String secretKey;
 
+    @Value("${toss.base-url}")
+    private String tossBaseUrl;
+
     @Bean
     public WebClient tossWebClient() {
 
@@ -23,7 +26,7 @@ public class WebClientConfig {
                 .encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
 
         return WebClient.builder()
-                .baseUrl("https://api.tosspayments.com/v1/payments")
+                .baseUrl(tossBaseUrl)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodedKey)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
                 .build();

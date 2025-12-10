@@ -2,22 +2,20 @@ package com.golfRental.domain.chatbot.service.command;
 
 import com.golfRental.domain.chatbot.dto.response.ChatbotMessageResponse;
 import com.golfRental.domain.chatbot.entity.ChatHistory;
+import com.golfRental.domain.chatbot.exception.ChatbotErrorCode;
+import com.golfRental.domain.chatbot.exception.ChatbotException;
 import com.golfRental.domain.chatbot.repository.ChatHistoryRepository;
 import com.golfRental.domain.chatbot.service.ChatbotToolsService;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
-import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.MemoryId;
-import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
-import dev.langchain4j.store.embedding.EmbeddingStore;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,58 +25,109 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ChatbotCommandServiceImpl implements ChatbotCommandService {
 
-    private static final long TIMEOUT_SECONDS = 30;
     private final ChatLanguageModel chatLanguageModel;
-    private final EmbeddingModel embeddingModel;
     private final ChatMemoryProvider chatMemoryProvider;
     private final ChatbotToolsService chatbotToolsService;
     private final ChatHistoryRepository chatHistoryRepository;
     private final UserQueryService userQueryService;
 
+    private GolfRentalAssistant assistant;
 
-    @Qualifier("postStore")
-    private final EmbeddingStore<TextSegment> postStore;
-
-    @Qualifier("documentStore")
-    private final EmbeddingStore<TextSegment> documentStore;
+    @PostConstruct
+    public void initAssistant() {
+        this.assistant = AiServices.builder(GolfRentalAssistant.class)
+                .chatLanguageModel(chatLanguageModel)
+                .chatMemoryProvider(chatMemoryProvider)
+                .tools(chatbotToolsService)
+                .build();
+    }
 
     @Override
     public ChatbotMessageResponse chat(Long userId, String message) {
-        log.info("챗봇 처리 시작 - userId: {}, message: {}", userId, message);
+        User user = null;
 
         try {
-            User user = userQueryService.findById(userId);
+            user = userQueryService.findById(userId);
 
-            ChatHistory userMessage = ChatHistory.createUserMessage(user, message);
-            chatHistoryRepository.save(userMessage);
+            saveChatHistory(user, message, true);
 
-            // AI Assistant 생성 (Tools 추가!)
-            GolfRentalAssistant assistant = AiServices.builder(GolfRentalAssistant.class)
-                    .chatLanguageModel(chatLanguageModel)
-                    .chatMemoryProvider(chatMemoryProvider)
-                    .tools(chatbotToolsService)
-                    .build();
+            String aiResponse = generateAiResponse(userId, message);
 
-            // AI 응답 생성 (userId는 자동으로 Object로 업캐스팅됨)
-            String aiResponse = assistant.chat(userId, message);
+            saveChatHistory(user, aiResponse, false);
 
-            ChatHistory assistantMessage = ChatHistory.createAssistantMessage(user, message);
-            chatHistoryRepository.save(assistantMessage);
-            log.info("AI 응답 저장 완료 - userId: {}", userId);
+            log.info("챗봇 처리 완료 - userId: {}, responseLength: {}", userId, aiResponse.length());
 
             return ChatbotMessageResponse.of(aiResponse);
 
-        } catch (Exception e) {
-            log.error("챗봇 처리 중 오류 발생 - userId: {}", userId, e);
+        } catch (RuntimeException e) {
+            log.error("챗봇 처리 중 예상치 못한 오류 - userId: {}", userId, e);
 
             String errorMessage = "죄송합니다. 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+
+            if (user != null) {
+                try {
+                    saveChatHistory(user, errorMessage, false);
+                } catch (RuntimeException saveError) {
+                    log.error("에러 메시지 저장 실패 - userId: {}", userId, saveError);
+                }
+            }
+
             return ChatbotMessageResponse.of(errorMessage);
         }
     }
 
+    private String generateAiResponse(Long userId, String message) {
+        try {
+            String aiResponse = assistant.chat(userId, message);
+            if (aiResponse == null || aiResponse.isBlank()) {
+                throw new ChatbotException(ChatbotErrorCode.AI_MODEL_ERROR);
+            }
+            return aiResponse;
+
+        } catch (ChatbotException e) {
+            throw e;
+
+            // 1. 네트워크 레벨의 타임아웃은 확실하게 클래스로 잡을 수 있음 (가장 중요)
+        } catch (RuntimeException e) {
+            log.error("Gemini API 호출 중 오류 발생 - userId: {}", userId, e);
+
+            String errorMsg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+
+            if (errorMsg.contains("429") || errorMsg.contains("resource_exhausted") || errorMsg.contains("quota")) {
+                throw new ChatbotException(ChatbotErrorCode.AI_RATE_LIMIT_EXCEEDED);
+            }
+
+            if (errorMsg.contains("timeout") || errorMsg.contains("deadline_exceeded")) {
+                throw new ChatbotException(ChatbotErrorCode.AI_TIMEOUT);
+            }
+
+            throw new ChatbotException(ChatbotErrorCode.AI_MODEL_ERROR);
+        }
+    }
+
+
+    private void saveChatHistory(User user, String message, boolean isUserMessage) {
+        try {
+            ChatHistory chatHistory = isUserMessage
+                    ? ChatHistory.createUserMessage(user, message)
+                    : ChatHistory.createAssistantMessage(user, message);
+
+            chatHistoryRepository.save(chatHistory);
+
+            log.debug("{} 메시지 저장 완료 - userId: {}",
+                    isUserMessage ? "사용자" : "AI", user.getId());
+
+        } catch (RuntimeException e) {
+            log.error("대화 히스토리 저장 실패 - userId: {}, isUserMessage: {}",
+                    user.getId(), isUserMessage, e);
+            throw new ChatbotException(ChatbotErrorCode.CHAT_HISTORY_SAVE_ERROR);
+        }
+    }
+
+
     interface GolfRentalAssistant {
 
-        @SystemMessage("""
+        @dev.langchain4j.service.SystemMessage("""
                 당신은 골프 장비 렌탈 서비스 'golfRental'의 친절한 AI 어시스턴트입니다.
                 
                 역할:
@@ -88,8 +137,21 @@ public class ChatbotCommandServiceImpl implements ChatbotCommandService {
                 - 예약/취소/환불 정책 안내
                 - 이용약관 설명
                 
+                도구 사용:
+                - 장비 정보가 필요하면 searchEquipment 도구를 사용하세요
+                - 정책/FAQ가 필요하면 searchPolicy 도구를 사용하세요
+                - 가격 통계가 필요하면 getPriceStatistics 도구를 사용하세요
+                
                 말투: 친절하고 전문적이며 간결하게 답변하세요.
+                
+                중요: 
+                - 도구에서 받은 정보를 바탕으로 정확하게 답변하세요.
+                - 정책 관련 답변 시 출처(예: FAQ, 이용약관 제5조)를 명시하세요.
+                - 확실하지 않은 내용은 추측하지 말고 "확인이 필요합니다"라고 답하세요.
+                - 이전 대화 내용을 기억하고 맥락에 맞게 답변하세요.
+                - 응답은 간결하고 명확하게 작성하세요 (최대 500자).
                 """)
-        String chat(@MemoryId Object memoryId, @UserMessage String message);
+        String chat(@MemoryId Object memoryId,
+                    @UserMessage String message);
     }
 }

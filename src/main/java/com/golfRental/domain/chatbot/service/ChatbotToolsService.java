@@ -96,13 +96,13 @@ public class ChatbotToolsService {
             Embedding queryEmbedding = embeddingModel.embed(question).content();
 
             // 벡터 검색 (설정값 사용)
-            EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
+            EmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()
                     .queryEmbedding(queryEmbedding)
                     .maxResults(documentMaxResults)
                     .minScore(documentMinScore)
                     .build();
 
-            EmbeddingSearchResult<TextSegment> searchResult = documentStore.search(request);
+            EmbeddingSearchResult<TextSegment> searchResult = documentStore.search(searchRequest);
             List<EmbeddingMatch<TextSegment>> matches = searchResult.matches();
 
             if (matches.isEmpty()) {

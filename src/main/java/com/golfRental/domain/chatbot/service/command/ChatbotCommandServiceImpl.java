@@ -1,7 +1,11 @@
 package com.golfRental.domain.chatbot.service.command;
 
 import com.golfRental.domain.chatbot.dto.response.ChatbotMessageResponse;
+import com.golfRental.domain.chatbot.entity.ChatHistory;
+import com.golfRental.domain.chatbot.repository.ChatHistoryRepository;
 import com.golfRental.domain.chatbot.service.ChatbotToolsService;
+import com.golfRental.domain.user.entity.User;
+import com.golfRental.domain.user.service.query.UserQueryService;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.model.chat.ChatLanguageModel;
@@ -24,11 +28,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatbotCommandServiceImpl implements ChatbotCommandService {
 
     private static final long TIMEOUT_SECONDS = 30;
-    private static final int MAX_MESSAGE_LENGTH = 1000;
     private final ChatLanguageModel chatLanguageModel;
     private final EmbeddingModel embeddingModel;
     private final ChatMemoryProvider chatMemoryProvider;
     private final ChatbotToolsService chatbotToolsService;
+    private final ChatHistoryRepository chatHistoryRepository;
+    private final UserQueryService userQueryService;
+
+
     @Qualifier("postStore")
     private final EmbeddingStore<TextSegment> postStore;
 
@@ -40,6 +47,11 @@ public class ChatbotCommandServiceImpl implements ChatbotCommandService {
         log.info("챗봇 처리 시작 - userId: {}, message: {}", userId, message);
 
         try {
+            User user = userQueryService.findById(userId);
+
+            ChatHistory userMessage = ChatHistory.createUserMessage(user, message);
+            chatHistoryRepository.save(userMessage);
+
             // AI Assistant 생성 (Tools 추가!)
             GolfRentalAssistant assistant = AiServices.builder(GolfRentalAssistant.class)
                     .chatLanguageModel(chatLanguageModel)
@@ -50,7 +62,9 @@ public class ChatbotCommandServiceImpl implements ChatbotCommandService {
             // AI 응답 생성 (userId는 자동으로 Object로 업캐스팅됨)
             String aiResponse = assistant.chat(userId, message);
 
-            log.info("AI 응답 생성 완료 - userId: {}", userId);
+            ChatHistory assistantMessage = ChatHistory.createAssistantMessage(user, message);
+            chatHistoryRepository.save(assistantMessage);
+            log.info("AI 응답 저장 완료 - userId: {}", userId);
 
             return ChatbotMessageResponse.of(aiResponse);
 

@@ -68,4 +68,4 @@ logging:
 
 toss:
   secret-key: ${TOSS_SECRET_KEY}
-  payment-confirm-url: ${TOSS_PAYMENT_CONFIRM_URL}
+  base-url: https://api.tosspayments.com/v1/payments

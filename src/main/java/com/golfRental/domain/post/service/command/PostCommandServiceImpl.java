@@ -2,17 +2,20 @@ package com.golfRental.domain.post.service.command;
 
 import com.golfRental.domain.category.entity.Category;
 import com.golfRental.domain.category.service.query.CategoryQueryService;
+import com.golfRental.domain.image.entity.Image;
+import com.golfRental.domain.image.service.query.ImageQueryService;
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
+import com.golfRental.domain.post.dto.request.PostImageDeleteRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
-import com.golfRental.domain.post.dto.response.PostCreateResponse;
-import com.golfRental.domain.post.dto.response.PostUpdateResponse;
-import com.golfRental.domain.post.dto.response.PostUpdateStatusResponse;
+import com.golfRental.domain.post.dto.response.*;
 import com.golfRental.domain.post.entity.Post;
 import com.golfRental.domain.post.entity.PostFavorites;
+import com.golfRental.domain.post.entity.PostImage;
 import com.golfRental.domain.post.exception.PostErrorCode;
 import com.golfRental.domain.post.exception.PostException;
 import com.golfRental.domain.post.repository.PostFavoritesRepository;
+import com.golfRental.domain.post.repository.PostImageRepository;
 import com.golfRental.domain.post.repository.PostRepository;
 import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
@@ -21,7 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+
+import static java.util.function.UnaryOperator.identity;
+import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @Service
@@ -33,6 +41,8 @@ public class PostCommandServiceImpl implements PostCommandService {
     private final PostFavoritesRepository postFavoritesRepository;
     private final UserQueryService userQueryService;
     private final CategoryQueryService categoryQueryService;
+    private final ImageQueryService imageQueryService;
+    private final PostImageRepository postImageRepository;
 
     @Override
     public PostCreateResponse createPost(Long userId, PostCreateRequest postCreateRequest) {
@@ -53,6 +63,39 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         Post savedPost = postRepository.save(post);
 
+        List<Long> imageIds = postCreateRequest.getImages().stream()
+                .map(PostCreateRequest.PostImageInfoCreateRequest::imageId)
+                .toList();
+
+        long distinctCount = imageIds.stream().distinct().count();
+        if (distinctCount != imageIds.size()) {
+            throw new PostException(PostErrorCode.DUPLICATE_IMAGE_IDS);
+        }
+
+        List<Image> images = imageQueryService.findAllByImage(imageIds);
+
+        Map<Long, Image> imageMap = images.stream()
+                .collect(toMap(Image::getId, identity()));
+
+        List<PostImage> postImages = postCreateRequest.getImages().stream()
+                .map(imageInfo -> PostImage.builder()
+                        .post(post)
+                        .image(imageMap.get(imageInfo.imageId()))
+                        .isThumbnail(imageInfo.isThumbnail())
+                        .sortOrder(imageInfo.sortOrder())
+                        .build()
+                ).toList();
+
+        postImageRepository.saveAll(postImages);
+
+        List<PostImageResponse> imagesResponse = postImages.stream()
+                .map(postImage -> PostImageResponse.builder()
+                        .url(postImage.getImage().getUrl())
+                        .isThumbnail(postImage.getIsThumbnail())
+                        .sortOrder(postImage.getSortOrder())
+                        .build()
+                ).toList();
+
         return PostCreateResponse.builder()
                 .id(savedPost.getId())
                 .title(savedPost.getTitle())
@@ -70,6 +113,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .categoryId(category.getId())
                 .categoryName(category.getName())
                 .favorites(false)
+                .images(imagesResponse)
                 .build();
     }
 
@@ -105,6 +149,8 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         boolean postFavorites = postFavoritesRepository.existsByUserAndPost(user, post);
 
+        List<PostImageResponse> postImages = createPostImageResponses(post);
+
         return PostUpdateResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -122,7 +168,30 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .categoryId(post.getCategory().getId())
                 .categoryName(post.getCategory().getName())
                 .favorites(postFavorites)
+                .images(postImages)
                 .build();
+    }
+
+    @Override
+    public PostImageThumbnailUpdateResponse updateThumbnail(Long userId, Long postId, Long imageId) {
+        User user = userQueryService.findById(userId);
+        Post post = findPostAndCheckOwner(userId, postId);
+        Image image = imageQueryService.findById(imageId);
+
+        boolean postFavorites = postFavoritesRepository.existsByUserAndPost(user, post);
+
+        if (!postImageRepository.existsByPostAndImageAndDeletedAtIsNull(post, image)) {
+            throw new PostException(PostErrorCode.POST_IMAGE_NOT_EXIST);
+        }
+
+        post.getPostImages().forEach(postImage -> {
+            boolean isNewThumbnail = Objects.equals(postImage.getImage().getId(), imageId);
+            postImage.updateThumbnail(isNewThumbnail);
+        });
+
+        List<PostImageResponse> postImages = createPostImageResponses(post);
+
+        return PostImageThumbnailUpdateResponse.from(post, postFavorites, postImages);
     }
 
     @Override
@@ -156,6 +225,47 @@ public class PostCommandServiceImpl implements PostCommandService {
         postFavoritesRepository.delete(postFavorites);
     }
 
+    @Override
+    public void deleteImages(Long userId, Long postId, PostImageDeleteRequest postImageDeleteRequest) {
+        Post post = postRepository.findByIdWithUserAndCategory(postId).orElseThrow(
+                () -> new PostException(PostErrorCode.POST_INVALID_ID)
+        );
+
+        if (!Objects.equals(post.getUser().getId(), userId)) {
+            throw new PostException(PostErrorCode.POST_NOT_EQUAL_CREATOR);
+        }
+
+        List<PostImage> activeImages = post.getPostImages().stream()
+                .filter(postImage -> postImage.getDeletedAt() == null)
+                .toList();
+
+        List<PostImage> imagesToDelete = activeImages.stream()
+                .filter(postImage -> postImageDeleteRequest.imageIds().contains(postImage.getImage().getId()))
+                .toList();
+
+        if (imagesToDelete.size() != postImageDeleteRequest.imageIds().size()) {
+            throw new PostException(PostErrorCode.POST_IMAGE_NOT_EXIST);
+        }
+        if (activeImages.size() - imagesToDelete.size() < 1) {
+            throw new PostException(PostErrorCode.POST_IMAGE_NEED);
+        }
+
+        boolean thumbnailWillBeDeleted = imagesToDelete.stream()
+                .anyMatch(PostImage::getIsThumbnail);
+
+        imagesToDelete.forEach(postImage -> {
+            postImage.delete();
+            postImage.getImage().delete();
+        });
+
+        if (thumbnailWillBeDeleted) {
+            post.getPostImages().stream()
+                    .filter(postImage -> postImage.getDeletedAt() == null)
+                    .min(java.util.Comparator.comparingInt(PostImage::getSortOrder))
+                    .ifPresent(postImage -> postImage.updateThumbnail(true));
+        }
+    }
+
     private Post findPostAndCheckOwner(Long userId, Long postId) {
         Post post = postRepository.findByIdWithUserAndCategory(postId).orElseThrow(
                 () -> new PostException(PostErrorCode.POST_INVALID_ID)
@@ -166,5 +276,15 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         return post;
+    }
+
+    private List<PostImageResponse> createPostImageResponses(Post post) {
+        return post.getPostImages().stream()
+                .map(postImage -> PostImageResponse.builder()
+                        .url(postImage.getImage().getUrl())
+                        .isThumbnail(postImage.getIsThumbnail())
+                        .sortOrder(postImage.getSortOrder())
+                        .build())
+                .toList();
     }
 }

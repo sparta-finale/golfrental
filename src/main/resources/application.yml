@@ -1,8 +1,17 @@
 spring:
+  application:
+    name: golf-rental-server
   config:
     import: optional:file:.env[.properties]
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
 
   cloud:
     aws:
@@ -11,10 +20,51 @@ spring:
       region:
         static: ${AWS_REGION}
 
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
 jwt:
   secret: ${JWT_SECRET_KEY}
   access-token-validity: 3600000
   refresh-token-validity: 604800000
+
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
+    model-name: gemini-2.0-flash
+    temperature: 0.7
+    max-tokens: 2048
+
+langchain:
+  chat:
+    memory:
+      max-messages: 10
+
+rag:
+  retriever:
+    post:
+      max-results: 5
+      min-score: 0.6
+    document:
+      max-results: 3
+      min-score: 0.7
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.springframework.core.env: DEBUG
+    org.springframework.boot.context.config: DEBUG
+    com.zaxxer.hikari: DEBUG
 
 toss:
   secret-key: ${TOSS_SECRET_KEY}

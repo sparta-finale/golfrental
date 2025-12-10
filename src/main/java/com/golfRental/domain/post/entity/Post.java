@@ -13,7 +13,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 @Entity
 @Getter
@@ -62,6 +64,9 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<PostImage> postImages = new ArrayList<>();
 
     @Builder
     private Post(

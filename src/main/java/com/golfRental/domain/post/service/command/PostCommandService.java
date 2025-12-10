@@ -1,9 +1,11 @@
 package com.golfRental.domain.post.service.command;
 
 import com.golfRental.domain.post.dto.request.PostCreateRequest;
+import com.golfRental.domain.post.dto.request.PostImageDeleteRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateRequest;
 import com.golfRental.domain.post.dto.request.PostUpdateStatusRequest;
 import com.golfRental.domain.post.dto.response.PostCreateResponse;
+import com.golfRental.domain.post.dto.response.PostImageThumbnailUpdateResponse;
 import com.golfRental.domain.post.dto.response.PostUpdateResponse;
 import com.golfRental.domain.post.dto.response.PostUpdateStatusResponse;
 
@@ -47,6 +49,16 @@ public interface PostCommandService {
     PostUpdateStatusResponse updateStatusPost(Long userId, Long postId, PostUpdateStatusRequest postUpdateStatusRequest);
 
     /**
+     * 게시물 대표 이미지 수정
+     *
+     * @param userId  인증된 유저 ID
+     * @param postId  게시물 ID
+     * @param imageId 대표 이미지 ID
+     * @return PostImageThumbnailUpdateResponse
+     */
+    PostImageThumbnailUpdateResponse updateThumbnail(Long userId, Long postId, Long imageId);
+
+    /**
      * 게시물 삭제
      *
      * @param userId 인증된 유저 ID
@@ -61,4 +73,13 @@ public interface PostCommandService {
      * @param postId 게시물 ID
      */
     void deleteFavorites(Long userId, Long postId);
+
+    /**
+     * 게시물 이미지 삭제 API
+     *
+     * @param userId                 인증된 유저 ID
+     * @param postId                 게시물 ID
+     * @param postImageDeleteRequest 삭제할 게시물 ID들
+     */
+    void deleteImages(Long userId, Long postId, PostImageDeleteRequest postImageDeleteRequest);
 }

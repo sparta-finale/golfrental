@@ -1,7 +1,7 @@
 package com.golfRental.domain.payment.dto.response;
 
-import com.golfRental.domain.payment.entity.Payment;
 import com.golfRental.domain.payment.enums.PaymentStatus;
+import com.golfRental.domain.payment.repository.projection.PaymentHistoryProjection;
 
 import java.time.LocalDateTime;
 
@@ -12,13 +12,13 @@ public record PaymentHistoryResponse(
         String method,
         LocalDateTime createdAt
 ) {
-    public static PaymentHistoryResponse from(Payment payment) {
+    public static PaymentHistoryResponse fromProjection(PaymentHistoryProjection p) {
         return new PaymentHistoryResponse(
-                payment.getId(),
-                payment.getAmount(),
-                payment.getStatus(),
-                "TOSS", // 현재 단일 결제 방식
-                payment.getCreatedAt()
+                p.getPaymentId(),
+                p.getAmount(),
+                p.getStatus(),
+                "TOSS",
+                p.getCreatedAt()
         );
     }
 }

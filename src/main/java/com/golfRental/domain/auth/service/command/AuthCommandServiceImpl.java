@@ -29,29 +29,29 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
     @Override
     public void signup(AuthSignupRequest authSignupRequest) {
-        if (userQueryService.existsByEmail(authSignupRequest.getEmail())) {
-            log.warn("회원가입 실패 - 이메일 중복 - email: {}", authSignupRequest.getEmail());
+        if (userQueryService.existsByEmail(authSignupRequest.email())) {
+            log.warn("회원가입 실패 - 이메일 중복 - email: {}", authSignupRequest.email());
             throw new AuthException(AuthErrorCode.AUTH_DUPLICATE_EMAIL);
         }
-        if (userQueryService.existsByNickname(authSignupRequest.getNickname())) {
-            log.warn("회원가입 실패 - 닉네임 중복 - nickname: {}", authSignupRequest.getNickname());
+        if (userQueryService.existsByNickname(authSignupRequest.nickname())) {
+            log.warn("회원가입 실패 - 닉네임 중복 - nickname: {}", authSignupRequest.nickname());
             throw new AuthException(AuthErrorCode.AUTH_DUPLICATE_NICKNAME);
         }
-        if (userQueryService.existsByPhoneNumber(authSignupRequest.getPhoneNumber())) {
-            log.warn("회원가입 실패 - 전화번호 중복 - phoneNumber: {}", authSignupRequest.getPhoneNumber());
+        if (userQueryService.existsByPhoneNumber(authSignupRequest.phoneNumber())) {
+            log.warn("회원가입 실패 - 전화번호 중복 - phoneNumber: {}", authSignupRequest.phoneNumber());
             throw new AuthException(AuthErrorCode.AUTH_DUPLICATE_PHONE_NUMBER);
         }
 
-        String encodedPassword = passwordEncoder.encode(authSignupRequest.getPassword());
+        String encodedPassword = passwordEncoder.encode(authSignupRequest.password());
 
-        User user = User.builder()
-                .email(authSignupRequest.getEmail())
-                .password(encodedPassword)
-                .username(authSignupRequest.getUsername())
-                .phoneNumber(authSignupRequest.getPhoneNumber())
-                .address(authSignupRequest.getAddress())
-                .nickname(authSignupRequest.getNickname())
-                .build();
+        User user = User.create(
+                authSignupRequest.email(),
+                encodedPassword,
+                authSignupRequest.username(),
+                authSignupRequest.phoneNumber(),
+                authSignupRequest.address(),
+                authSignupRequest.nickname()
+        );
 
         userCommandService.save(user);
     }
@@ -59,18 +59,16 @@ public class AuthCommandServiceImpl implements AuthCommandService {
     @Override
     public AuthLoginResponse login(AuthLoginRequest authLoginRequest) {
 
-        User user = userQueryService.findByEmail(authLoginRequest.getEmail());
+        User user = userQueryService.findByEmail(authLoginRequest.email());
 
-        if (!passwordEncoder.matches(authLoginRequest.getPassword(), user.getPassword())) {
-            log.warn("로그인 실패 - 잘못된 비밀번호 - email: {}", authLoginRequest.getEmail());
+        if (!passwordEncoder.matches(authLoginRequest.password(), user.getPassword())) {
+            log.warn("로그인 실패 - 잘못된 비밀번호 - email: {}", authLoginRequest.email());
             throw new AuthException(AuthErrorCode.AUTH_INVALID_PASSWORD);
         }
 
         String accessToken = jwtUtil.createToken(user.getId(), user.getRole());
 
-        AuthLoginResponse authLoginResponse = AuthLoginResponse.builder().accessToken(accessToken).build();
-
-        return authLoginResponse;
+        return AuthLoginResponse.create(accessToken);
     }
 
     @Override

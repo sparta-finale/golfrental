@@ -53,6 +53,12 @@ public class User extends BaseEntity {
         this.role = UserRole.ROLE_USER;
     }
 
+    public static User create(
+            String email, String password, String username, String phoneNumber, String address, String nickname
+    ) {
+        return new User(email, password, username, phoneNumber, address, nickname);
+    }
+
     public void updateMyInfo(
             String email, String username, String phoneNumber, String address, String nickname
     ) {

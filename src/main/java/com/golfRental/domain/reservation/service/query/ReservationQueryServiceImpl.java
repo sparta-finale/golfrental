@@ -36,20 +36,10 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
             throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
         }
 
-        return ReservationGetResponse.builder()
-                .reservationId(reservation.getId())
-                .postId(reservation.getPost().getId())
-                .hostUserId(reservation.getHostUser().getId())
-                .guestUserId(reservation.getGuestUser().getId())
-                .reservationStartAt(reservation.getReservationStartAt())
-                .reservationEndAt(reservation.getReservationEndAt())
-                .price(reservation.getPrice())
-                .deposit(reservation.getDeposit())
-                .status(reservation.getStatus())
-                .build();
+        return ReservationGetResponse.from(reservation);
     }
 
-    // 예약 상세 조회 (내부용)
+    // 내부 조회용
     @Override
     public Reservation findById(Long reservationId) {
         return getReservationOrThrow(reservationId);
@@ -70,19 +60,7 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
         Slice<Reservation> reservations =
                 reservationRepository.findMyReservations(userId, pageable);
 
-        Slice<ReservationGetAllResponse> contents = reservations.map(reservation ->
-                ReservationGetAllResponse.builder()
-                        .reservationId(reservation.getId())
-                        .postId(reservation.getPost().getId())
-                        .hostUserId(reservation.getHostUser().getId())
-                        .guestUserId(reservation.getGuestUser().getId())
-                        .reservationStartAt(reservation.getReservationStartAt())
-                        .reservationEndAt(reservation.getReservationEndAt())
-                        .price(reservation.getPrice())
-                        .deposit(reservation.getDeposit())
-                        .status(reservation.getStatus())
-                        .build()
-        );
+        Slice<ReservationGetAllResponse> contents = reservations.map(ReservationGetAllResponse::from);
 
         return SliceResponse.fromSlice(contents);
     }
@@ -91,8 +69,7 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
     @Override
     public ReservationUpdateStatusResponse getReservationStatus(Long reservationId, Long userId) {
 
-        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
-                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+        Reservation reservation = getReservationOrThrow(reservationId);
 
         // 호스트 또는 게스트만 조회 가능
         if (!reservation.getHostUser().getId().equals(userId)
@@ -100,30 +77,16 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
             throw new ReservationException(ReservationErrorCode.RESERVATION_FORBIDDEN);
         }
 
-        return ReservationUpdateStatusResponse.builder()
-                .reservationId(reservation.getId())
-                .status(reservation.getStatus())
-                .build();
+        return ReservationUpdateStatusResponse.from(reservation);
     }
 
     // 게시글 기반 예약 목록 조회
     @Override
     public SliceResponse<ReservationGetAllResponse> findByPostId(Long postId, Pageable pageable) {
+
         Slice<Reservation> reservations = reservationRepository.findByPostId(postId, pageable);
 
-        Slice<ReservationGetAllResponse> contents = reservations.map(reservation ->
-                ReservationGetAllResponse.builder()
-                        .reservationId(reservation.getId())
-                        .postId(reservation.getPost().getId())
-                        .hostUserId(reservation.getHostUser().getId())
-                        .guestUserId(reservation.getGuestUser().getId())
-                        .reservationStartAt(reservation.getReservationStartAt())
-                        .reservationEndAt(reservation.getReservationEndAt())
-                        .price(reservation.getPrice())
-                        .deposit(reservation.getDeposit())
-                        .status(reservation.getStatus())
-                        .build()
-        );
+        Slice<ReservationGetAllResponse> contents = reservations.map(ReservationGetAllResponse::from);
 
         return SliceResponse.fromSlice(contents);
     }

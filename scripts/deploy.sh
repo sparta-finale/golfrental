@@ -8,6 +8,9 @@ set -euo pipefail
 : "${CONTAINER_NAME:?CONTAINER_NAME required}"
 : "${APP_PORT:?APP_PORT required}"
 : "${SPRING_PROFILE:?SPRING_PROFILE required}"
+: "${REDIS_HOST:?REDIS_HOST required}"
+: "${REDIS_PORT:?REDIS_PORT required}"
+: "${JAVA_OPTS:-'-Xms512m -Xmx1024m'}"
 
 # ===== ECR 경로 파싱 =====
 REG_URI="$(echo "${FULL_URI}" | cut -d/ -f1)"
@@ -30,13 +33,11 @@ echo "[INFO] COMMENT=${COMMENT}"
 CMDS=(
   "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${REG_URI}"
   "docker pull ${FULL_URI}"
-  "docker ps -a --filter name=golf-rental-redis --format '{{.Names}}' | grep -q golf-rental-redis || docker run -d --name golf-rental-redis --restart=always -p
-    6379:6379 redis:7-alpine"
+  "docker network create ${REDIS_HOST} || true"
+  "docker ps -a --filter name=${REDIS_HOST} --format '{{.Names}}' | grep -q ${REDIS_HOST} || docker run -d --name ${REDIS_HOST} --restart=always --network ${REDIS_HOST} -p ${REDIS_PORT}:${REDIS_PORT} redis:7-alpine"
   "docker stop ${CONTAINER_NAME} || true"
   "docker rm   ${CONTAINER_NAME} || true"
-  "docker network create golf-rental-network || true"
-  "docker network connect golf-rental-network golf-rental-redis || true"
-  "docker run -d --name ${CONTAINER_NAME} --restart=always --network golf-rental-network -p ${APP_PORT}:${APP_PORT} -e SPRING_PROFILES_ACTIVE=${SPRING_PROFILE} -e AWS_REGION=${AWS_REGION} ${FULL_URI}"
+  "docker run -d --name ${CONTAINER_NAME} --restart=always --network golf-rental-network -p ${APP_PORT}:${APP_PORT} -e SPRING_PROFILES_ACTIVE=${SPRING_PROFILE} -e AWS_REGION=${AWS_REGION} -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e JAVA_OPTS=\"${JAVA_OPTS}\" ${FULL_URI}"
 )
 
 # Bash 배열 → JSON 배열 변환 (jq 필수)

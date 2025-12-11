@@ -27,13 +27,8 @@ public class PointCommandServiceImpl implements PointCommandService {
 
     @Override
     public PointBalanceResponse getBalance(Long userId) {
-
-        PointAccount pointAccount = getOrCreateAccount(userId);
-
-        return PointBalanceResponse.builder()
-                .pointAccountId(pointAccount.getId())
-                .balance(pointAccount.getBalance())
-                .build();
+        PointAccount account = getOrCreateAccount(userId);
+        return PointBalanceResponse.from(account);
     }
 
     @Override
@@ -57,11 +52,7 @@ public class PointCommandServiceImpl implements PointCommandService {
 
         pointTransactionRepository.save(transaction);
 
-        return PointUseResponse.builder()
-                .pointAccountId(account.getId())
-                .usedAmount(amount)
-                .balanceAfterUse(account.getBalance())
-                .build();
+        return PointUseResponse.from(account, amount);
     }
 
     /**
@@ -69,16 +60,16 @@ public class PointCommandServiceImpl implements PointCommandService {
      * 동시성 문제로 인한 unique 제약 위반 시 재조회를 시도
      */
     private PointAccount getOrCreateAccount(Long userId) {
-        return pointAccountRepository.findByUserId(userId).orElseGet(() -> {
-            try {
-                User user = userQueryService.findById(userId);
-                return pointAccountRepository.save(PointAccount.createDefault(user));
-            } catch (DataIntegrityViolationException e) {
-                // 동시성으로 인해 이미 다른 트랜잭션에서 생성된 경우 재조회
-                log.warn("Concurrent account creation detected for userId: {}", userId);
-                return pointAccountRepository.findByUserId(userId)
-                        .orElseThrow(() -> new IllegalStateException("계좌 생성 실패"));
-            }
-        });
+        return pointAccountRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    try {
+                        User user = userQueryService.findById(userId);
+                        return pointAccountRepository.save(PointAccount.createDefault(user));
+                    } catch (DataIntegrityViolationException e) {
+                        log.warn("Concurrent account creation detected for userId: {}", userId);
+                        return pointAccountRepository.findByUserId(userId)
+                                .orElseThrow(() -> new IllegalStateException("계좌 생성 실패"));
+                    }
+                });
     }
 }

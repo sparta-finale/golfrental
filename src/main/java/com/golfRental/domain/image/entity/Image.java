@@ -4,7 +4,6 @@ import com.golfRental.common.entity.BaseEntity;
 import com.golfRental.domain.image.enums.ImageType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -37,7 +36,6 @@ public class Image extends BaseEntity {
     @Column(nullable = false, length = 20)
     private ImageType type;
 
-    @Builder
     private Image(
             String url,
             String fileName,
@@ -52,5 +50,12 @@ public class Image extends BaseEntity {
         this.contentType = contentType;
         this.size = size;
         this.type = type;
+    }
+
+    public static Image create(
+            String url, String fileName, String s3Key,
+            String contentType, Long size, ImageType type
+    ) {
+        return new Image(url, fileName, s3Key, contentType, size, type);
     }
 }

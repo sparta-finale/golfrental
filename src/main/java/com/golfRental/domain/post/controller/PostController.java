@@ -28,7 +28,7 @@ public interface PostController {
      */
     @Operation(
             summary = "게시물 생성",
-            description = "게시물을 생성합니다.",
+            description = "새로운 골프 용품 대여 게시물을 등록합니다. 게시물 내용과 함께 이미지 정보도 필요합니다.",
             security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "201", description = "생성 성공"),

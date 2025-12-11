@@ -36,7 +36,7 @@ public interface ImageController {
      */
     @Operation(
             summary = "이미지 메타데이터 저장",
-            description = "이미지 메타데이터를 저장합니다.",
+            description = "S3에 이미지 업로드를 완료한 후, 해당 이미지의 메타데이터를 서버에 저장합니다.",
             security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "201", description = "생성 성공"),

@@ -7,7 +7,7 @@ public record UserGetMyInfoResponse(
         String address,
         String nickname
 ) {
-    public static UserGetMyInfoResponse create(
+    public static UserGetMyInfoResponse from(
             String email, String username, String phoneNumber, String address, String nickname
     ) {
         return new UserGetMyInfoResponse(email, username, phoneNumber, address, nickname);

@@ -7,7 +7,7 @@ public record UserGetAllResponse(
         String address,
         String nickname
 ) {
-    public static UserGetAllResponse create(
+    public static UserGetAllResponse from(
             String email, String username, String phoneNumber, String address, String nickname
     ) {
         return new UserGetAllResponse(email, username, phoneNumber, address, nickname);

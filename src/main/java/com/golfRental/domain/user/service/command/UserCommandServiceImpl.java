@@ -45,7 +45,7 @@ public class UserCommandServiceImpl implements UserCommandService {
                 userUpdateMyInfoRequest.nickname()
         );
 
-        return UserUpdateMyInfoResponse.create(
+        return UserUpdateMyInfoResponse.from(
                 user.getEmail(), user.getUsername(), user.getPhoneNumber(), user.getAddress(), user.getNickname()
         );
     }

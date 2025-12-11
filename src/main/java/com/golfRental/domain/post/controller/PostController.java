@@ -140,6 +140,7 @@ public interface PostController {
     @Operation(
             summary = "게시물 예약된 날짜 조회",
             description = "게시물에 예약된 날짜를 조회합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "200", description = "게시물 예약된 날짜 조회 성공")
             }
@@ -151,6 +152,7 @@ public interface PostController {
     @Operation(
             summary = "게시물 수정",
             description = "게시물을 수정합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "200", description = "게시물 수정 성공"),
                     @ApiResponse(responseCode = "403", description = "게시물의 생성자만이 수정을 할 수 있음 실패"),
@@ -165,6 +167,7 @@ public interface PostController {
     @Operation(
             summary = "게시물 거래 상태 수정",
             description = "게시물 거래 상태를 수정합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "200", description = "게시물 거래 상태 수정 성공"),
                     @ApiResponse(responseCode = "403", description = "게시물의 생성자만이 수정을 할 수 있음 실패"),
@@ -179,6 +182,7 @@ public interface PostController {
     @Operation(
             summary = "게시물 대표 이미지 수정",
             description = "게시물 대표 이미지를 수정합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "200", description = "게시물 대표 이미지 수정 성공"),
                     @ApiResponse(responseCode = "400", description = "게시물에 이미지가 존재하지 않음 실패"),
@@ -194,6 +198,7 @@ public interface PostController {
     @Operation(
             summary = "게시물 삭제",
             description = "게시물을 삭제합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "200", description = "게시물 삭제 성공"),
                     @ApiResponse(responseCode = "403", description = "게시물의 생성자만이 수정을 할 수 있음 실패"),
@@ -208,6 +213,7 @@ public interface PostController {
     @Operation(
             summary = "게시물 즐겨찾기 삭제",
             description = "게시물 즐겨찾기를 삭제합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "200", description = "게시물 즐겨찾기 삭제 성공"),
                     @ApiResponse(responseCode = "400", description = "해당 게시물의 즐겨찾기가 되어있지 않음 실패"),
@@ -222,6 +228,7 @@ public interface PostController {
     @Operation(
             summary = "게시물 이미지 삭제",
             description = "게시물 이미지를 삭제합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "200", description = "게시물 이미지 삭제 성공"),
                     @ApiResponse(responseCode = "400", description = "게시물에 이미지가 존재하지 않음 실패"),

@@ -34,7 +34,7 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
     @Override
     public ReservationCreateResponse createReservation(ReservationCreateRequest request, Long userId) {
 
-        Post post = postQueryService.findById(request.getPostId());
+        Post post = postQueryService.findById(request.postId());
         User guestUser = userQueryService.findById(userId);
         User hostUser = post.getUser();
 
@@ -45,10 +45,10 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
                 .post(post)
                 .hostUser(hostUser)
                 .guestUser(guestUser)
-                .reservationStartAt(request.getReservationStartAt())
-                .reservationEndAt(request.getReservationEndAt())
-                .price(request.getPrice())
-                .deposit(request.getDeposit())
+                .reservationStartAt(request.reservationStartAt())
+                .reservationEndAt(request.reservationEndAt())
+                .price(request.price())
+                .deposit(request.deposit())
                 .status(ReservationStatus.REQUESTED)
                 .build();
 
@@ -57,17 +57,7 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
         // 예약 생성 이벤트 발행
         eventPublisher.publishEvent(new ReservationCreatedEvent(saved));
 
-        return ReservationCreateResponse.builder()
-                .reservationId(saved.getId())
-                .postId(saved.getPost().getId())
-                .hostUserId(saved.getHostUser().getId())
-                .guestUserId(saved.getGuestUser().getId())
-                .reservationStartAt(saved.getReservationStartAt())
-                .reservationEndAt(saved.getReservationEndAt())
-                .price(saved.getPrice())
-                .deposit(saved.getDeposit())
-                .status(saved.getStatus())
-                .build();
+        return ReservationCreateResponse.from(saved);
     }
 
     // 승인
@@ -76,15 +66,12 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
 
-        reservation.approve(); // 엔티티 도메인 규칙 실행
+        reservation.approve();
 
         // 예약 승인 이벤트 발행
         eventPublisher.publishEvent(new ReservationApprovedEvent(reservation));
 
-        return ReservationUpdateStatusResponse.builder()
-                .reservationId(reservation.getId())
-                .status(reservation.getStatus())
-                .build();
+        return ReservationUpdateStatusResponse.from(reservation);
     }
 
     // 거절
@@ -93,15 +80,12 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
 
-        reservation.reject(); // 엔티티 도메인 규칙 실행
+        reservation.reject();
 
         // 예약 거절 이벤트 발행
         eventPublisher.publishEvent(new ReservationRejectedEvent(reservation));
 
-        return ReservationUpdateStatusResponse.builder()
-                .reservationId(reservation.getId())
-                .status(reservation.getStatus())
-                .build();
+        return ReservationUpdateStatusResponse.from(reservation);
     }
 
     // 취소
@@ -110,15 +94,12 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         Reservation reservation = findReservationAndVerifyGuest(reservationId, userId);
 
-        reservation.cancel(); // 엔티티 도메인 규칙 실행
+        reservation.cancel();
 
         // 예약 취소 이벤트 발행
         eventPublisher.publishEvent(new ReservationCancelledEvent(reservation));
 
-        return ReservationUpdateStatusResponse.builder()
-                .reservationId(reservation.getId())
-                .status(reservation.getStatus())
-                .build();
+        return ReservationUpdateStatusResponse.from(reservation);
     }
 
     // 대여 시작
@@ -127,15 +108,12 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
 
-        reservation.startRental(); // 엔티티 도메인 규칙 실행
+        reservation.startRental();
 
         // 대여 시작 이벤트 발행
         eventPublisher.publishEvent(new RentalStartedEvent(reservation));
 
-        return ReservationUpdateStatusResponse.builder()
-                .reservationId(reservation.getId())
-                .status(reservation.getStatus())
-                .build();
+        return ReservationUpdateStatusResponse.from(reservation);
     }
 
     // 반납 요청
@@ -144,40 +122,32 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         Reservation reservation = findReservationAndVerifyGuest(reservationId, userId);
 
-        reservation.requestReturn(); // 엔티티 도메인 규칙 실행
+        reservation.requestReturn();
 
         // 반납 요청 이벤트 발행
         eventPublisher.publishEvent(new ReturnRequestedEvent(reservation));
 
-        return ReservationUpdateStatusResponse.builder()
-                .reservationId(reservation.getId())
-                .status(reservation.getStatus())
-                .build();
+        return ReservationUpdateStatusResponse.from(reservation);
     }
 
-    // 반납 승인(완료)
+    // 반납 완료
     @Override
     public ReservationUpdateStatusResponse completeReservation(Long reservationId, Long userId) {
 
         Reservation reservation = findReservationAndVerifyHost(reservationId, userId);
 
-        reservation.complete(); // 엔티티 도메인 규칙 실행
+        reservation.complete();
 
         // 반납 완료 이벤트 발행
         eventPublisher.publishEvent(new ReturnCompletedEvent(reservation));
 
-        return ReservationUpdateStatusResponse.builder()
-                .reservationId(reservation.getId())
-                .status(reservation.getStatus())
-                .build();
+        return ReservationUpdateStatusResponse.from(reservation);
     }
 
     // 공통 조회 메서드
     private Reservation findReservationById(Long reservationId) {
         return reservationRepository.findByIdWithDetails(reservationId)
-                .orElseThrow(() ->
-                        new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND)
-                );
+                .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
     }
 
     // 호스트 검증
@@ -213,7 +183,7 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
         }
 
         // 예약 날짜 유효성 (시작일 < 종료일)
-        if (!request.getReservationStartAt().isBefore(request.getReservationEndAt())) {
+        if (!request.reservationStartAt().isBefore(request.reservationEndAt())) {
             throw new ReservationException(ReservationErrorCode.RESERVATION_INVALID_DATE_RANGE);
         }
 
@@ -225,8 +195,8 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
         // 중복 예약 방지
         boolean hasConflict = reservationRepository.existsConflictingReservation(
                 post.getId(),
-                request.getReservationStartAt(),
-                request.getReservationEndAt()
+                request.reservationStartAt(),
+                request.reservationEndAt()
         );
 
         if (hasConflict) {

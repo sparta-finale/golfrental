@@ -8,6 +8,8 @@ set -euo pipefail
 : "${CONTAINER_NAME:?CONTAINER_NAME required}"
 : "${APP_PORT:?APP_PORT required}"
 : "${SPRING_PROFILE:?SPRING_PROFILE required}"
+: "${REDIS_HOST:?REDIS_HOST required}"
+: "${REDIS_PORT:?REDIS_PORT required}"
 
 # ===== ECR 경로 파싱 =====
 REG_URI="$(echo "${FULL_URI}" | cut -d/ -f1)"
@@ -36,7 +38,7 @@ CMDS=(
   "docker rm   ${CONTAINER_NAME} || true"
   "docker network create golf-rental-network || true"
   "docker network connect golf-rental-network golf-rental-redis || true"
-  "docker run -d --name ${CONTAINER_NAME} --restart=always --network golf-rental-network -p ${APP_PORT}:${APP_PORT} -e SPRING_PROFILES_ACTIVE=${SPRING_PROFILE} -e AWS_REGION=${AWS_REGION} -e JAVA_OPTS='-Xms512m -Xmx1024m' ${FULL_URI}"
+  "docker run -d --name ${CONTAINER_NAME} --restart=always --network golf-rental-network -p ${APP_PORT}:${APP_PORT} -e SPRING_PROFILES_ACTIVE=${SPRING_PROFILE} -e AWS_REGION=${AWS_REGION} -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e JAVA_OPTS='-Xms512m -Xmx1024m' ${FULL_URI}"
 )
 
 # Bash 배열 → JSON 배열 변환 (jq 필수)

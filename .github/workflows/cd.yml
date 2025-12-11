@@ -17,6 +17,8 @@ env:
   CONTAINER_NAME: app
   APP_PORT: "8080"
   SPRING_PROFILE: dev
+  REDIS_HOST: ${{secrets.REDIS_HOST}}
+  REDIS_PORT: ${{secrets.REDIS_PORT}}
 
 jobs:
   deploy:

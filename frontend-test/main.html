@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메인 페이지</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .main-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        button {
+            padding: 15px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .logout-btn {
+            background-color: #dc3545;
+            margin-top: 20px;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+
+        .user-info {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>메인 페이지</h1>
+        <div class="user-info">
+            <p>로그인 상태: <strong>인증됨</strong></p>
+        </div>
+        <div class="button-group">
+            <button onclick="goToChat()">채팅 테스트</button>
+            <button onclick="goToChatbot()">챗봇 테스트</button>
+            <button class="logout-btn" onclick="logout()">로그아웃</button>
+        </div>
+    </div>
+
+    <script>
+        // 토큰 확인 - 없으면 로그인 페이지로 이동
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // 페이지 로드 시 인증 확인
+        checkAuth();
+
+        // 채팅 페이지로 이동
+        function goToChat() {
+            window.location.href = 'chat.html';
+        }
+
+        // 챗봇 페이지로 이동
+        function goToChatbot() {
+            window.location.href = 'chatbot.html';
+        }
+
+        // 로그아웃
+        function logout() {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                // localStorage에서 토큰 삭제
+                localStorage.removeItem('token');
+
+                alert('로그아웃되었습니다.');
+
+                // 로그인 페이지로 이동
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

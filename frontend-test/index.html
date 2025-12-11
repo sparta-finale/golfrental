@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            color: green;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>로그인</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">이메일</label>
+                <input type="email" id="email" name="email" required placeholder="example@email.com">
+            </div>
+            <div class="form-group">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" name="password" required placeholder="비밀번호를 입력하세요">
+            </div>
+            <button type="submit" id="loginBtn">로그인</button>
+            <div id="message"></div>
+        </form>
+    </div>
+
+    <script>
+        // 이미 로그인되어 있으면 메인 페이지로 이동
+        if (localStorage.getItem('token')) {
+            window.location.href = 'main.html';
+        }
+
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const messageDiv = document.getElementById('message');
+
+        // 로그인 폼 제출 처리
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // 버튼 비활성화
+            loginBtn.disabled = true;
+            loginBtn.textContent = '로그인 중...';
+            messageDiv.textContent = '';
+
+            try {
+                // 로그인 API 호출
+                const response = await fetch('http://localhost:8080/api/v1/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // JWT 토큰을 localStorage에 저장
+                    localStorage.setItem('token', data.data.accessToken);
+
+                    // 성공 메시지 표시
+                    messageDiv.className = 'success-message';
+                    messageDiv.textContent = '로그인 성공! 메인 페이지로 이동합니다...';
+
+                    // 메인 페이지로 이동
+                    setTimeout(() => {
+                        window.location.href = 'main.html';
+                    }, 1000);
+                } else {
+                    // 에러 메시지 표시
+                    messageDiv.className = 'error-message';
+                    messageDiv.textContent = data.message || '로그인에 실패했습니다.';
+
+                    // 버튼 다시 활성화
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = '로그인';
+                }
+            } catch (error) {
+                console.error('로그인 에러:', error);
+                messageDiv.className = 'error-message';
+                messageDiv.textContent = '서버 연결에 실패했습니다. 다시 시도해주세요.';
+
+                // 버튼 다시 활성화
+                loginBtn.disabled = false;
+                loginBtn.textContent = '로그인';
+            }
+        });
+    </script>
+</body>
+</html>

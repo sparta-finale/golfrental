@@ -19,22 +19,13 @@ import org.springframework.http.ResponseEntity;
 @Tag(name = "게시물 관리", description = "게시물 관련 API")
 public interface PostController {
 
-    /**
-     * 게시물 생성 API
-     *
-     * @param authUser          토큰 정보
-     * @param postCreateRequest 게시물 생성을 위한 데이터
-     * @return PostCreateResponse
-     */
     @Operation(
             summary = "게시물 생성",
-            description = "새로운 골프 용품 대여 게시물을 등록합니다. 게시물 내용과 함께 이미지 정보도 필요합니다.",
+            description = "게시물을 생성합니다.",
             security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
-                    @ApiResponse(responseCode = "201", description = "생성 성공"),
-                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-                    @ApiResponse(responseCode = "401", description = "인증 실패"),
-                    @ApiResponse(responseCode = "404", description = "요청 리소스를 찾을 수 없음")
+                    @ApiResponse(responseCode = "201", description = "게시물 생성 성공"),
+                    @ApiResponse(responseCode = "400", description = "중복된 이미지 ID 실패")
             }
     )
     ResponseEntity<CommonApiResponse<PostCreateResponse>> createPost(
@@ -42,178 +33,203 @@ public interface PostController {
             PostCreateRequest postCreateRequest
     );
 
-    /**
-     * 즐겨찾기 추가
-     *
-     * @param authUser 토큰 정보
-     * @param postId   게시물 ID
-     * @return void
-     */
+    @Operation(
+            summary = "게시물 즐겨찾기 추가",
+            description = "게시물을 자신의 즐겨찾기에 추가합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "즐겨찾기 추가 성공"),
+                    @ApiResponse(responseCode = "400", description = "이미 해당 게시물의 즐겨찾기 추가가 되어있음 실패"),
+                    @ApiResponse(responseCode = "404", description = "해당 ID를 가진 게시물을 찾을 수 없음 실패")
+            }
+    )
     ResponseEntity<CommonApiResponse<Void>> addFavorites(
             AuthUser authUser,
             Long postId
     );
 
-    /**
-     * 게시물 목록 조회 API
-     *
-     * @param authUser 토큰 정보
-     * @param pageable 페이지 정보
-     * @return SliceResponse<PostGetAllResponse>
-     */
+    @Operation(
+            summary = "게시물 목록 조회",
+            description = "게시물 목록을 조회합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "게시물 목록 조회 성공")
+            }
+    )
     ResponseEntity<CommonApiResponse<SliceResponse<PostGetAllResponse>>> getAll(
             AuthUser authUser,
             Pageable pageable
     );
 
-    /**
-     * 게시물 상세 조회 API
-     *
-     * @param authUser 토큰 정보
-     * @param postId   게시물 아이디
-     * @return PostGetsResponse
-     */
+    @Operation(
+            summary = "게시물 상세 조회",
+            description = "게시물을 상세 조회합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "게시물 상세 조회 성공"),
+                    @ApiResponse(responseCode = "404", description = "해당 ID를 가진 게시물을 찾을 수 없음 실패")
+            }
+    )
     ResponseEntity<CommonApiResponse<PostGetsResponse>> getPost(
             AuthUser authUser,
             Long postId
     );
 
-    /**
-     * 나의 게시물 조회 API
-     *
-     * @param authUser 토큰 정보
-     * @param pageable 페이지 정보
-     * @return SliceResponse<PostGetMyResponse>
-     */
+    @Operation(
+            summary = "나의 게시물 목록 조회",
+            description = "나의 게시물 목록을 조회합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "나의 게시물 목록 조회 성공")
+            }
+    )
     ResponseEntity<CommonApiResponse<SliceResponse<PostGetMyResponse>>> getMyPost(
             AuthUser authUser,
             Pageable pageable
     );
 
-    /**
-     * 카테고리를 통한 게시물 조회 API
-     *
-     * @param authUser   토큰 정보
-     * @param categoryId 카테고리 ID
-     * @param pageable   페이지 정보
-     * @return SliceResponse<PostGetByCategoryResponse>
-     */
+    @Operation(
+            summary = "카테고리를 통한 게시물 목록 조회",
+            description = "카테고리를 통한 게시물 목록을 조회합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "카테고리를 통한 게시물 목록 조회 성공")
+            }
+    )
     ResponseEntity<CommonApiResponse<SliceResponse<PostGetByCategoryResponse>>> getByCategory(
             AuthUser authUser,
             Long categoryId, Pageable pageable
     );
 
-    /**
-     * 즐겨찾기를 통한 게시물 조회 API
-     *
-     * @param authUser 토큰 정보
-     * @param pageable 페이지 정보
-     * @return SliceResponse<PostGetByFavoritesResponse>
-     */
+    @Operation(
+            summary = "즐겨찾기를 통한 게시물 목록 조회",
+            description = "즐겨찾기를 통한 게시물 목록을 조회합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "즐겨찾기를 통한 게시물 목록 조회 성공")
+            }
+    )
     ResponseEntity<CommonApiResponse<SliceResponse<PostGetByFavoritesResponse>>> getByFavorites(
             AuthUser authUser,
             Pageable pageable
     );
 
-    /**
-     * 게시물 목록 조회 API (public)
-     *
-     * @param pageable 페이지 정보
-     * @return SliceResponse<PostGetAllPublicResponse>
-     */
+    @Operation(
+            summary = "게시물 목록 조회(public)",
+            description = "게시물 목록을 조회합니다.(public)",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "게시물 목록 조회(public) 성공")
+            }
+    )
     ResponseEntity<CommonApiResponse<SliceResponse<PostGetAllPublicResponse>>> getAllPublic(
             Pageable pageable
     );
 
-    /**
-     * 게시물 상세 조회 API (public)
-     *
-     * @return PostGetsPublicResponse
-     */
+    @Operation(
+            summary = "게시물 상세 조회(public)",
+            description = "게시물을 상세 조회합니다.(public)",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "게시물 상세 조회(public) 성공"),
+                    @ApiResponse(responseCode = "404", description = "해당 ID를 가진 게시물을 찾을 수 없음 실패")
+            }
+    )
     ResponseEntity<CommonApiResponse<PostGetsPublicResponse>> getPostPublic(
             Long postId
     );
 
-    /**
-     * 게시물 예약된 날짜 조회 API
-     *
-     * @param postId   게시물 ID
-     * @param pageable 페이지 정보
-     * @return SliceResponse<ReservationGetAllResponse>
-     */
+    @Operation(
+            summary = "게시물 예약된 날짜 조회",
+            description = "게시물에 예약된 날짜를 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "게시물 예약된 날짜 조회 성공")
+            }
+    )
     ResponseEntity<CommonApiResponse<SliceResponse<ReservationGetAllResponse>>> getPostReservation(
             Long postId, Pageable pageable
     );
 
-    /**
-     * 게시물 수정 API
-     *
-     * @param authUser 토큰 정보
-     * @param postId   게시물 ID
-     * @return PostUpdateResponse
-     */
+    @Operation(
+            summary = "게시물 수정",
+            description = "게시물을 수정합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "게시물 수정 성공"),
+                    @ApiResponse(responseCode = "403", description = "게시물의 생성자만이 수정을 할 수 있음 실패"),
+                    @ApiResponse(responseCode = "404", description = "해당 ID를 가진 게시물을 찾을 수 없음 실패")
+            }
+    )
     ResponseEntity<CommonApiResponse<PostUpdateResponse>> updatePost(
             AuthUser authUser,
             Long postId, PostUpdateRequest postUpdateRequest
     );
 
-    /**
-     * 게시물 거래 상태 수정 API
-     *
-     * @param authUser 토큰 정보
-     * @param postId   게시물 ID
-     * @return PostUpdateStatusResponse
-     */
+    @Operation(
+            summary = "게시물 거래 상태 수정",
+            description = "게시물 거래 상태를 수정합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "게시물 거래 상태 수정 성공"),
+                    @ApiResponse(responseCode = "403", description = "게시물의 생성자만이 수정을 할 수 있음 실패"),
+                    @ApiResponse(responseCode = "404", description = "해당 ID를 가진 게시물을 찾을 수 없음 실패")
+            }
+    )
     ResponseEntity<CommonApiResponse<PostUpdateStatusResponse>> updateStatusPost(
             AuthUser authUser,
             Long postId, PostUpdateStatusRequest postUpdateStatusRequest
     );
 
-    /**
-     * 게시물 대표 이미지 수정
-     *
-     * @param authUser 토큰 정보
-     * @param postId   게시물 ID
-     * @param imageId  대표 이미지 ID
-     * @return PostImageThumbnailUpdateResponse
-     */
+    @Operation(
+            summary = "게시물 대표 이미지 수정",
+            description = "게시물 대표 이미지를 수정합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "게시물 대표 이미지 수정 성공"),
+                    @ApiResponse(responseCode = "400", description = "게시물에 이미지가 존재하지 않음 실패"),
+                    @ApiResponse(responseCode = "403", description = "게시물의 생성자만이 수정을 할 수 있음 실패"),
+                    @ApiResponse(responseCode = "404", description = "해당 ID를 가진 게시물을 찾을 수 없음 실패")
+            }
+    )
     ResponseEntity<CommonApiResponse<PostImageThumbnailUpdateResponse>> updateThumbnail(
             AuthUser authUser,
             Long postId, Long imageId
     );
 
-    /**
-     * 게시물 삭제 API
-     *
-     * @param authUser 토큰 정보
-     * @param postId   게시물 ID
-     * @return void
-     */
+    @Operation(
+            summary = "게시물 삭제",
+            description = "게시물을 삭제합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "게시물 삭제 성공"),
+                    @ApiResponse(responseCode = "403", description = "게시물의 생성자만이 수정을 할 수 있음 실패"),
+                    @ApiResponse(responseCode = "404", description = "해당 ID를 가진 게시물을 찾을 수 없음 실패")
+            }
+    )
     ResponseEntity<CommonApiResponse<Void>> deletePost(
             AuthUser authUser,
             Long postId
     );
 
-    /**
-     * 즐겨찾기 삭제 API
-     *
-     * @param authUser 토큰 정보
-     * @param postId   게시물 ID
-     * @return void
-     */
+    @Operation(
+            summary = "게시물 즐겨찾기 삭제",
+            description = "게시물 즐겨찾기를 삭제합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "게시물 즐겨찾기 삭제 성공"),
+                    @ApiResponse(responseCode = "400", description = "해당 게시물의 즐겨찾기가 되어있지 않음 실패"),
+                    @ApiResponse(responseCode = "404", description = "해당 ID를 가진 게시물을 찾을 수 없음 실패")
+            }
+    )
     ResponseEntity<CommonApiResponse<Void>> deleteFavorites(
             AuthUser authUser,
             Long postId
     );
 
-    /**
-     * 게시물 이미지 삭제 API
-     *
-     * @param authUser               토큰 정보
-     * @param postId                 게시물 ID
-     * @param postImageDeleteRequest 삭제할 게시물 ID들
-     * @return void
-     */
+    @Operation(
+            summary = "게시물 이미지 삭제",
+            description = "게시물 이미지를 삭제합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "게시물 이미지 삭제 성공"),
+                    @ApiResponse(responseCode = "400", description = "게시물에 이미지가 존재하지 않음 실패"),
+                    @ApiResponse(responseCode = "400", description = "게시물에 하나 이상의 이미지 있어야 함 실패"),
+                    @ApiResponse(responseCode = "403", description = "게시물의 생성자만이 수정을 할 수 있음 실패"),
+                    @ApiResponse(responseCode = "404", description = "해당 ID를 가진 게시물을 찾을 수 없음 실패")
+            }
+    )
     ResponseEntity<CommonApiResponse<Void>> deleteImages(
             AuthUser authUser,
             Long postId, PostImageDeleteRequest postImageDeleteRequest

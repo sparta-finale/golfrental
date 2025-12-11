@@ -66,6 +66,7 @@ public class PaymentCommandServiceImpl implements PaymentCommandService {
                 tossResponse.paymentKey(),
                 tossResponse.orderId(),
                 tossResponse.totalAmount(),
+                "TOSS",
                 user
         );
 

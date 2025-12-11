@@ -3,7 +3,6 @@ package com.golfRental.domain.post.entity;
 import com.golfRental.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,9 +26,12 @@ public class PostFavorites {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @Builder
     private PostFavorites(User user, Post post) {
         this.user = user;
         this.post = post;
+    }
+
+    public static PostFavorites create(User user, Post post) {
+        return new PostFavorites(user, post);
     }
 }

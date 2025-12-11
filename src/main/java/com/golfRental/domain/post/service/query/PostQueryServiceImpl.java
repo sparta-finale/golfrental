@@ -49,25 +49,7 @@ public class PostQueryServiceImpl implements PostQueryService {
         Slice<PostGetAllResponse> content = posts.map(post -> {
             PostImageResponse postImageResponse = getThumbnailResponse(post);
 
-            return PostGetAllResponse.builder()
-                    .id(post.getId())
-                    .title(post.getTitle())
-                    .content(post.getContent())
-                    .methodOfReceive(post.getMethodOfReceive())
-                    .methodOfReturn(post.getMethodOfReturn())
-                    .price(post.getPrice())
-                    .deposit(post.getDeposit())
-                    .dailyRate(post.getDailyRate())
-                    .tradeStatus(post.getTradeStatus())
-                    .userId(post.getUser().getId())
-                    .username(post.getUser().getUsername())
-                    .address(post.getUser().getAddress())
-                    .nickname(post.getUser().getNickname())
-                    .categoryId(post.getCategory().getId())
-                    .categoryName(post.getCategory().getName())
-                    .favorites(favoritePostIds.contains(post.getId()))
-                    .image(postImageResponse)
-                    .build();
+            return PostGetAllResponse.from(post, favoritePostIds.contains(post.getId()), postImageResponse);
         });
 
         return SliceResponse.fromSlice(content);
@@ -83,25 +65,7 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         List<PostImageResponse> postImages = getImageResponseList(post);
 
-        return PostGetsResponse.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .methodOfReceive(post.getMethodOfReceive())
-                .methodOfReturn(post.getMethodOfReturn())
-                .price(post.getPrice())
-                .deposit(post.getDeposit())
-                .dailyRate(post.getDailyRate())
-                .tradeStatus(post.getTradeStatus())
-                .userId(post.getUser().getId())
-                .username(post.getUser().getUsername())
-                .address(post.getUser().getAddress())
-                .nickname(post.getUser().getNickname())
-                .categoryId(post.getCategory().getId())
-                .categoryName(post.getCategory().getName())
-                .favorites(postFavorites)
-                .images(postImages)
-                .build();
+        return PostGetsResponse.from(post, postFavorites, postImages);
     }
 
     @Override
@@ -115,25 +79,7 @@ public class PostQueryServiceImpl implements PostQueryService {
         Slice<PostGetMyResponse> contents = posts.map(post -> {
             PostImageResponse postImageResponse = getThumbnailResponse(post);
 
-            return PostGetMyResponse.builder()
-                    .id(post.getId())
-                    .title(post.getTitle())
-                    .content(post.getContent())
-                    .methodOfReceive(post.getMethodOfReceive())
-                    .methodOfReturn(post.getMethodOfReturn())
-                    .price(post.getPrice())
-                    .deposit(post.getDeposit())
-                    .dailyRate(post.getDailyRate())
-                    .tradeStatus(post.getTradeStatus())
-                    .userId(post.getUser().getId())
-                    .username(post.getUser().getUsername())
-                    .address(post.getUser().getAddress())
-                    .nickname(post.getUser().getNickname())
-                    .categoryId(post.getCategory().getId())
-                    .categoryName(post.getCategory().getName())
-                    .favorites(favoritePostIds.contains(post.getId()))
-                    .image(postImageResponse)
-                    .build();
+            return PostGetMyResponse.from(post, favoritePostIds.contains(post.getId()), postImageResponse);
         });
 
         return SliceResponse.fromSlice(contents);
@@ -152,25 +98,7 @@ public class PostQueryServiceImpl implements PostQueryService {
         Slice<PostGetByCategoryResponse> contents = posts.map(post -> {
             PostImageResponse postImageResponse = getThumbnailResponse(post);
 
-            return PostGetByCategoryResponse.builder()
-                    .id(post.getId())
-                    .title(post.getTitle())
-                    .content(post.getContent())
-                    .methodOfReceive(post.getMethodOfReceive())
-                    .methodOfReturn(post.getMethodOfReturn())
-                    .price(post.getPrice())
-                    .deposit(post.getDeposit())
-                    .dailyRate(post.getDailyRate())
-                    .tradeStatus(post.getTradeStatus())
-                    .userId(post.getUser().getId())
-                    .username(post.getUser().getUsername())
-                    .address(post.getUser().getAddress())
-                    .nickname(post.getUser().getNickname())
-                    .categoryId(post.getCategory().getId())
-                    .categoryName(post.getCategory().getName())
-                    .favorites(favoritePostIds.contains(post.getId()))
-                    .image(postImageResponse)
-                    .build();
+            return PostGetByCategoryResponse.from(post, favoritePostIds.contains(post.getId()), postImageResponse);
         });
 
         return SliceResponse.fromSlice(contents);
@@ -185,25 +113,7 @@ public class PostQueryServiceImpl implements PostQueryService {
         Slice<PostGetByFavoritesResponse> contents = postFavorites.map(pf -> {
             PostImageResponse postImageResponse = getThumbnailResponse(pf.getPost());
 
-            return PostGetByFavoritesResponse.builder()
-                    .id(pf.getPost().getId())
-                    .title(pf.getPost().getTitle())
-                    .content(pf.getPost().getContent())
-                    .methodOfReceive(pf.getPost().getMethodOfReceive())
-                    .methodOfReturn(pf.getPost().getMethodOfReturn())
-                    .price(pf.getPost().getPrice())
-                    .deposit(pf.getPost().getDeposit())
-                    .dailyRate(pf.getPost().getDailyRate())
-                    .tradeStatus(pf.getPost().getTradeStatus())
-                    .userId(pf.getPost().getUser().getId())
-                    .username(pf.getPost().getUser().getUsername())
-                    .address(pf.getPost().getUser().getAddress())
-                    .nickname(pf.getPost().getUser().getNickname())
-                    .categoryId(pf.getPost().getCategory().getId())
-                    .categoryName(pf.getPost().getCategory().getName())
-                    .favorites(true)
-                    .image(postImageResponse)
-                    .build();
+            return PostGetByFavoritesResponse.from(pf, true, postImageResponse);
         });
 
         return SliceResponse.fromSlice(contents);
@@ -216,25 +126,7 @@ public class PostQueryServiceImpl implements PostQueryService {
         Slice<PostGetAllPublicResponse> content = posts.map(post -> {
             PostImageResponse postImageResponse = getThumbnailResponse(post);
 
-            return PostGetAllPublicResponse.builder()
-                    .id(post.getId())
-                    .title(post.getTitle())
-                    .content(post.getContent())
-                    .methodOfReceive(post.getMethodOfReceive())
-                    .methodOfReturn(post.getMethodOfReturn())
-                    .price(post.getPrice())
-                    .deposit(post.getDeposit())
-                    .dailyRate(post.getDailyRate())
-                    .tradeStatus(post.getTradeStatus())
-                    .userId(post.getUser().getId())
-                    .username(post.getUser().getUsername())
-                    .address(post.getUser().getAddress())
-                    .nickname(post.getUser().getNickname())
-                    .categoryId(post.getCategory().getId())
-                    .categoryName(post.getCategory().getName())
-                    .favorites(false)
-                    .image(postImageResponse)
-                    .build();
+            return PostGetAllPublicResponse.from(post, false, postImageResponse);
         });
 
         return SliceResponse.fromSlice(content);
@@ -246,25 +138,7 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         List<PostImageResponse> postImages = getImageResponseList(post);
 
-        return PostGetsPublicResponse.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .methodOfReceive(post.getMethodOfReceive())
-                .methodOfReturn(post.getMethodOfReturn())
-                .price(post.getPrice())
-                .deposit(post.getDeposit())
-                .dailyRate(post.getDailyRate())
-                .tradeStatus(post.getTradeStatus())
-                .userId(post.getUser().getId())
-                .username(post.getUser().getUsername())
-                .address(post.getUser().getAddress())
-                .nickname(post.getUser().getNickname())
-                .categoryId(post.getCategory().getId())
-                .categoryName(post.getCategory().getName())
-                .favorites(false)
-                .images(postImages)
-                .build();
+        return PostGetsPublicResponse.from(post, false, postImages);
     }
 
     @Override
@@ -292,11 +166,7 @@ public class PostQueryServiceImpl implements PostQueryService {
 
     private PostImageResponse toPostImageResponse(PostImage image) {
         if (image == null) return null;
-        return PostImageResponse.builder()
-                .url(image.getImage().getUrl())
-                .isThumbnail(image.getIsThumbnail())
-                .sortOrder(image.getSortOrder())
-                .build();
+        return PostImageResponse.create(image.getImage().getUrl(), image.getIsThumbnail(), image.getSortOrder());
     }
 
     private PostImageResponse getThumbnailResponse(Post post) {

@@ -1,13 +1,12 @@
 package com.golfRental.domain.post.dto.response;
 
+import com.golfRental.domain.post.entity.Post;
 import com.golfRental.domain.post.enums.MethodOfReceiveReturn;
 import com.golfRental.domain.post.enums.TradeStatus;
-import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-@Builder
 public record PostGetsResponse(
         Long id,
         String title,
@@ -27,4 +26,12 @@ public record PostGetsResponse(
         boolean favorites,
         List<PostImageResponse> images
 ) {
+    public static PostGetsResponse from(Post post, boolean favorites, List<PostImageResponse> postImages) {
+        return new PostGetsResponse(
+                post.getId(), post.getTitle(), post.getContent(), post.getMethodOfReceive(), post.getMethodOfReturn(),
+                post.getPrice(), post.getDeposit(), post.getDailyRate(), post.getTradeStatus(), post.getUser().getId(),
+                post.getUser().getUsername(), post.getUser().getAddress(), post.getUser().getNickname(),
+                post.getCategory().getId(), post.getCategory().getName(), favorites, postImages
+        );
+    }
 }

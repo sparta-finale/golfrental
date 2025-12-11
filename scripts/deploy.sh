@@ -36,7 +36,7 @@ CMDS=(
   "docker ps -a --filter name=golf-rental-redis --format '{{.Names}}' | grep -q golf-rental-redis || docker run -d --name golf-rental-redis --restart=always --network golf-rental-network -p 6379:6379 redis:7-alpine"
   "docker stop ${CONTAINER_NAME} || true"
   "docker rm   ${CONTAINER_NAME} || true"
-  "docker run -d --name ${CONTAINER_NAME} --restart=always --network golf-rental-network -p ${APP_PORT}:${APP_PORT} -e SPRING_PROFILES_ACTIVE=${SPRING_PROFILE} -e AWS_REGION=${AWS_REGION} -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e JAVA_OPTS='-Xms512m -Xmx1024m' ${FULL_URI}"
+  "docker run -d --name ${CONTAINER_NAME} --restart=always --network golf-rental-network -p ${APP_PORT}:${APP_PORT} -e SPRING_PROFILES_ACTIVE=${SPRING_PROFILE} -e AWS_REGION=${AWS_REGION} -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e JAVA_OPTS=\"${JAVA_OPTS}\" ${FULL_URI}"
 )
 
 # Bash 배열 → JSON 배열 변환 (jq 필수)

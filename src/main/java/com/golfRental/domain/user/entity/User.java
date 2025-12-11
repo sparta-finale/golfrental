@@ -4,7 +4,6 @@ import com.golfRental.common.entity.BaseEntity;
 import com.golfRental.domain.user.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -40,7 +39,6 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @Builder
     private User(
             String email, String password, String username, String phoneNumber, String address, String nickname
     ) {
@@ -51,6 +49,12 @@ public class User extends BaseEntity {
         this.address = address;
         this.nickname = nickname;
         this.role = UserRole.ROLE_USER;
+    }
+
+    public static User create(
+            String email, String password, String username, String phoneNumber, String address, String nickname
+    ) {
+        return new User(email, password, username, phoneNumber, address, nickname);
     }
 
     public void updateMyInfo(

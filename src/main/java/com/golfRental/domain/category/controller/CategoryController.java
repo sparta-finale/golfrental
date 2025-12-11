@@ -18,12 +18,6 @@ import java.util.List;
 @Tag(name = "카테고리 관리", description = "카테고리 관련 API")
 public interface CategoryController {
 
-    /**
-     * 카테고리 생성 API (관리자 전용)
-     *
-     * @param categoryCreateRequest 카테고리 생성 요청 DTO
-     * @return CategoryCreateResponse
-     */
     @Operation(
             summary = "카테고리 생성",
             description = "관리자가 새로운 카테고리를 생성합니다.",
@@ -38,11 +32,6 @@ public interface CategoryController {
     ResponseEntity<CommonApiResponse<CategoryCreateResponse>>
     createCategory(CategoryCreateRequest categoryCreateRequest);
 
-    /**
-     * 카테고리 목록 조회 API
-     *
-     * @return List<CategoryGetAllResponse>
-     */
     @Operation(
             summary = "카테고리 전체 조회",
             description = "모든 카테고리 목록을 조회합니다.",
@@ -53,12 +42,6 @@ public interface CategoryController {
     ResponseEntity<CommonApiResponse<List<CategoryGetAllResponse>>>
     getAllCategories();
 
-    /**
-     * 카테고리 상세 조회 API
-     *
-     * @param categoryId 조회할 카테고리 ID
-     * @return CategoryGetResponse
-     */
     @Operation(
             summary = "카테고리 상세 조회",
             description = "카테고리 ID로 상세 정보를 조회합니다.",
@@ -70,13 +53,6 @@ public interface CategoryController {
     ResponseEntity<CommonApiResponse<CategoryGetResponse>>
     getCategoryById(Long categoryId);
 
-    /**
-     * 카테고리 수정 API (관리자 전용)
-     *
-     * @param categoryId            수정할 카테고리 ID
-     * @param categoryUpdateRequest 카테고리 수정 요청 DTO
-     * @return CategoryUpdateResponse
-     */
     @Operation(
             summary = "카테고리 수정",
             description = "관리자가 카테고리 이름을 수정합니다.",
@@ -92,12 +68,6 @@ public interface CategoryController {
     ResponseEntity<CommonApiResponse<CategoryUpdateResponse>>
     updateCategory(Long categoryId, CategoryUpdateRequest categoryUpdateRequest);
 
-    /**
-     * 카테고리 삭제 API (관리자 전용)
-     *
-     * @param categoryId 삭제할 카테고리 ID
-     * @return void
-     */
     @Operation(
             summary = "카테고리 삭제",
             description = "관리자가 카테고리를 삭제합니다.",

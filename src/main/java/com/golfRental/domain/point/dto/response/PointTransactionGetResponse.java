@@ -1,11 +1,10 @@
 package com.golfRental.domain.point.dto.response;
 
+import com.golfRental.domain.point.entity.PointTransaction;
 import com.golfRental.domain.point.enums.PointTransactionType;
-import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-@Builder
 public record PointTransactionGetResponse(
         Long transactionId,
         Long amount,
@@ -13,4 +12,14 @@ public record PointTransactionGetResponse(
         Long balanceAfter,
         LocalDateTime createdAt
 ) {
+
+    public static PointTransactionGetResponse from(PointTransaction transaction) {
+        return new PointTransactionGetResponse(
+                transaction.getId(),
+                transaction.getAmount(),
+                transaction.getType(),
+                transaction.getBalanceAfter(),
+                transaction.getCreatedAt()
+        );
+    }
 }

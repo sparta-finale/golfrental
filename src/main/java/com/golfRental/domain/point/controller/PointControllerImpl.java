@@ -65,7 +65,7 @@ public class PointControllerImpl implements PointController {
 
         PointUseResponse response = pointCommandService.usePoints(
                 authUser.getUserId(),
-                request.getAmount()
+                request.amount()
         );
 
         return CommonApiResponse.success(

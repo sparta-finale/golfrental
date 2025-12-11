@@ -1,14 +1,13 @@
 package com.golfRental.domain.point.service.query;
 
-
 import com.golfRental.common.response.SliceResponse;
 import com.golfRental.domain.point.dto.response.PointTransactionGetResponse;
 import com.golfRental.domain.point.entity.PointTransaction;
 import com.golfRental.domain.point.repository.PointTransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,15 +28,8 @@ public class PointQueryServiceImpl implements PointQueryService {
         Slice<PointTransaction> transactions =
                 transactionRepository.findByUserId(userId, pageable);
 
-        Slice<PointTransactionGetResponse> contents = transactions.map(transaction ->
-                PointTransactionGetResponse.builder()
-                        .transactionId(transaction.getId())
-                        .amount(transaction.getAmount())
-                        .type(transaction.getType())
-                        .balanceAfter(transaction.getBalanceAfter())
-                        .createdAt(transaction.getCreatedAt())
-                        .build()
-        );
+        Slice<PointTransactionGetResponse> contents =
+                transactions.map(PointTransactionGetResponse::from);
 
         return SliceResponse.fromSlice(contents);
     }

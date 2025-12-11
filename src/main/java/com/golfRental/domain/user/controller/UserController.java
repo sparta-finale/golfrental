@@ -9,59 +9,80 @@ import com.golfRental.domain.user.dto.response.UserGetAllResponse;
 import com.golfRental.domain.user.dto.response.UserGetInfoResponse;
 import com.golfRental.domain.user.dto.response.UserGetMyInfoResponse;
 import com.golfRental.domain.user.dto.response.UserUpdateMyInfoResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
+@Tag(name = "회원 관리", description = "회원 관련 API")
 public interface UserController {
 
-    /**
-     * 내 정보 조회 API
-     *
-     * @param authUser 유저 토큰 정보
-     * @return UserGetMyInfoResponse
-     */
+    @Operation(
+            summary = "내 정보 조회",
+            description = "자신의 상세 정보를 조회합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "내 정보 조회 성공"),
+                    @ApiResponse(responseCode = "400", description = "해당 ID 불일치 실패")
+            }
+    )
     ResponseEntity<CommonApiResponse<UserGetMyInfoResponse>> getMyInfo(
             AuthUser authUser
     );
 
-    /**
-     * 유저 정보 단건 조회 API
-     *
-     * @param userId 조회할 유저 ID
-     * @return UserGetInfoResponse
-     */
+    @Operation(
+            summary = "유저 정보 상세 조회",
+            description = "유저 상세 정보를 조회합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "유저 정보 상세 조회 성공"),
+                    @ApiResponse(responseCode = "400", description = "해당 ID 불일치 실패")
+            }
+    )
     ResponseEntity<CommonApiResponse<UserGetInfoResponse>> getInfo(
             Long userId
     );
 
-    /**
-     * 유저 조회(ADMIN) API
-     *
-     * @return PageResponse<UserGetAllResponse>
-     */
+    @Operation(
+            summary = "모든 유저 정보 조회(ADMIN)",
+            description = "모든 유저 정보를 조회합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "모든 유저 정보 조회 성공")
+            }
+    )
     ResponseEntity<CommonApiResponse<PageResponse<UserGetAllResponse>>> getAll(
             Pageable pageable
     );
 
-    /**
-     * 내 정보 수정 API
-     *
-     * @param authUser                유저 토큰 정보
-     * @param userUpdateMyInfoRequest 내 정보 수정사항
-     * @return UserUpdateMyInfoResponse
-     */
+    @Operation(
+            summary = "내 정보 수정",
+            description = "내 정보를 수정합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "내 정보 수정 성공"),
+                    @ApiResponse(responseCode = "400", description = "이메일 중복 실패"),
+                    @ApiResponse(responseCode = "400", description = "닉네임 중복 실패"),
+                    @ApiResponse(responseCode = "400", description = "전화번호 중복 실패"),
+            }
+    )
     ResponseEntity<CommonApiResponse<UserUpdateMyInfoResponse>> updateMyInfo(
             AuthUser authUser,
             UserUpdateMyInfoRequest userUpdateMyInfoRequest
     );
 
-    /**
-     * 유저 비밀번호 수정 API
-     *
-     * @param authUser                  유저 토큰 정보
-     * @param userUpdatePasswordRequest 비밀번호 수정에 필요한 데이터
-     * @return void
-     */
+    @Operation(
+            summary = "내 비밀번호 수정",
+            description = "내 비밀번호를 수정합니다.",
+            security = {@SecurityRequirement(name = "bearerAuth")},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "내 비밀번호 수정 성공"),
+                    @ApiResponse(responseCode = "400", description = "현재 비밀번호 불일치 실패"),
+                    @ApiResponse(responseCode = "400", description = "현재 비밀번호와 수정하려는 비밀번호 동일 실패"),
+            }
+    )
     ResponseEntity<CommonApiResponse<Void>> changePassword(
             AuthUser authUser,
             UserUpdatePasswordRequest userUpdatePasswordRequest

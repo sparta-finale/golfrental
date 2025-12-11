@@ -28,12 +28,7 @@ public class CategoryQueryServiceImpl implements CategoryQueryService {
                 categoryRepository.findAllByDeletedAtIsNullOrderByNameAsc();
 
         return categories.stream()
-                .map(category ->
-                        CategoryGetAllResponse.builder()
-                                .categoryId(category.getId())
-                                .name(category.getName())
-                                .build()
-                )
+                .map(CategoryGetAllResponse::from)
                 .toList();
     }
 
@@ -42,10 +37,7 @@ public class CategoryQueryServiceImpl implements CategoryQueryService {
 
         Category category = findById(categoryId);
 
-        return CategoryGetResponse.builder()
-                .categoryId(category.getId())
-                .name(category.getName())
-                .build();
+        return CategoryGetResponse.from(category);
     }
 
     @Override

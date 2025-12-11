@@ -24,20 +24,17 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
     @Override
     public CategoryCreateResponse createCategory(CategoryCreateRequest request) {
 
-        if (categoryRepository.existsByNameAndNotDeleted(request.getName())) {
+        if (categoryRepository.existsByNameAndNotDeleted(request.name())) {
             throw new CategoryException(CategoryErrorCode.CATEGORY_DUPLICATED_NAME);
         }
 
         Category category = Category.builder()
-                .name(request.getName())
+                .name(request.name())
                 .build();
 
         Category saved = categoryRepository.save(category);
 
-        return CategoryCreateResponse.builder()
-                .categoryId(saved.getId())
-                .name(saved.getName())
-                .build();
+        return CategoryCreateResponse.from(saved);
     }
 
     @Override
@@ -46,17 +43,14 @@ public class CategoryCommandServiceImpl implements CategoryCommandService {
         Category category = categoryRepository.findByIdAndDeletedAtIsNull(categoryId)
                 .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
 
-        if (!category.getName().equals(request.getName())) {
-            if (categoryRepository.existsByNameAndNotDeleted(request.getName())) {
+        if (!category.getName().equals(request.name())) {
+            if (categoryRepository.existsByNameAndNotDeleted(request.name())) {
                 throw new CategoryException(CategoryErrorCode.CATEGORY_DUPLICATED_NAME);
             }
-            category.updateName(request.getName());
+            category.updateName(request.name());
         }
 
-        return CategoryUpdateResponse.builder()
-                .categoryId(category.getId())
-                .name(category.getName())
-                .build();
+        return CategoryUpdateResponse.from(category);
     }
 
     @Override

@@ -81,7 +81,7 @@ public class PostCommandServiceImpl implements PostCommandService {
         postImageRepository.saveAll(postImages);
 
         List<PostImageResponse> imagesResponse = postImages.stream()
-                .map(postImage -> PostImageResponse.create(
+                .map(postImage -> PostImageResponse.from(
                                 postImage.getImage().getUrl(), postImage.getIsThumbnail(), postImage.getSortOrder()
                         )
                 ).toList();
@@ -229,7 +229,7 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     private List<PostImageResponse> createPostImageResponses(Post post) {
         return post.getPostImages().stream()
-                .map(postImage -> PostImageResponse.create(
+                .map(postImage -> PostImageResponse.from(
                                 postImage.getImage().getUrl(), postImage.getIsThumbnail(), postImage.getSortOrder()
                         )
                 ).toList();

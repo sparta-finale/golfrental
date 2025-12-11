@@ -5,7 +5,7 @@ public record PostImageResponse(
         Boolean isThumbnail,
         Integer sortOrder
 ) {
-    public static PostImageResponse create(String url, Boolean isThumbnail, Integer sortOrder) {
+    public static PostImageResponse from(String url, Boolean isThumbnail, Integer sortOrder) {
         return new PostImageResponse(url, isThumbnail, sortOrder);
     }
 }

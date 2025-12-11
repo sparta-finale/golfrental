@@ -166,7 +166,7 @@ public class PostQueryServiceImpl implements PostQueryService {
 
     private PostImageResponse toPostImageResponse(PostImage image) {
         if (image == null) return null;
-        return PostImageResponse.create(image.getImage().getUrl(), image.getIsThumbnail(), image.getSortOrder());
+        return PostImageResponse.from(image.getImage().getUrl(), image.getIsThumbnail(), image.getSortOrder());
     }
 
     private PostImageResponse getThumbnailResponse(Post post) {

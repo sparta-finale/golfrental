@@ -47,23 +47,18 @@ public class PostCommandServiceImpl implements PostCommandService {
     @Override
     public PostCreateResponse createPost(Long userId, PostCreateRequest postCreateRequest) {
         User user = userQueryService.findById(userId);
-        Category category = categoryQueryService.findById(postCreateRequest.getCategoryId());
+        Category category = categoryQueryService.findById(postCreateRequest.categoryId());
 
-        Post post = Post.builder()
-                .title(postCreateRequest.getTitle())
-                .content(postCreateRequest.getContent())
-                .methodOfReceive(postCreateRequest.getMethodOfReceive())
-                .methodOfReturn(postCreateRequest.getMethodOfReturn())
-                .price(postCreateRequest.getPrice())
-                .deposit(postCreateRequest.getDeposit())
-                .dailyRate(postCreateRequest.getDailyRate())
-                .user(user)
-                .category(category)
-                .build();
+        Post post = Post.create(
+                postCreateRequest.title(), postCreateRequest.content(),
+                postCreateRequest.methodOfReceive(), postCreateRequest.methodOfReturn(),
+                postCreateRequest.price(), postCreateRequest.deposit(),
+                postCreateRequest.dailyRate(), user, category
+        );
 
         Post savedPost = postRepository.save(post);
 
-        List<Long> imageIds = postCreateRequest.getImages().stream()
+        List<Long> imageIds = postCreateRequest.images().stream()
                 .map(PostCreateRequest.PostImageInfoCreateRequest::imageId)
                 .toList();
 
@@ -77,44 +72,21 @@ public class PostCommandServiceImpl implements PostCommandService {
         Map<Long, Image> imageMap = images.stream()
                 .collect(toMap(Image::getId, identity()));
 
-        List<PostImage> postImages = postCreateRequest.getImages().stream()
-                .map(imageInfo -> PostImage.builder()
-                        .post(post)
-                        .image(imageMap.get(imageInfo.imageId()))
-                        .isThumbnail(imageInfo.isThumbnail())
-                        .sortOrder(imageInfo.sortOrder())
-                        .build()
+        List<PostImage> postImages = postCreateRequest.images().stream()
+                .map(imageInfo -> PostImage.create(
+                                imageInfo.isThumbnail(), imageInfo.sortOrder(), post, imageMap.get(imageInfo.imageId())
+                        )
                 ).toList();
 
         postImageRepository.saveAll(postImages);
 
         List<PostImageResponse> imagesResponse = postImages.stream()
-                .map(postImage -> PostImageResponse.builder()
-                        .url(postImage.getImage().getUrl())
-                        .isThumbnail(postImage.getIsThumbnail())
-                        .sortOrder(postImage.getSortOrder())
-                        .build()
+                .map(postImage -> PostImageResponse.from(
+                                postImage.getImage().getUrl(), postImage.getIsThumbnail(), postImage.getSortOrder()
+                        )
                 ).toList();
 
-        return PostCreateResponse.builder()
-                .id(savedPost.getId())
-                .title(savedPost.getTitle())
-                .content(savedPost.getContent())
-                .methodOfReceive(savedPost.getMethodOfReceive())
-                .methodOfReturn(savedPost.getMethodOfReturn())
-                .price(savedPost.getPrice())
-                .deposit(savedPost.getDeposit())
-                .dailyRate(savedPost.getDailyRate())
-                .tradeStatus(savedPost.getTradeStatus())
-                .userId(userId)
-                .username(user.getUsername())
-                .address(user.getAddress())
-                .nickname(user.getNickname())
-                .categoryId(category.getId())
-                .categoryName(category.getName())
-                .favorites(false)
-                .images(imagesResponse)
-                .build();
+        return PostCreateResponse.from(savedPost, user, category, imagesResponse);
     }
 
     @Override
@@ -129,10 +101,7 @@ public class PostCommandServiceImpl implements PostCommandService {
             throw new PostException(PostErrorCode.POST_DUPLICATION_FAVORITES); // Or a more specific error
         }
 
-        PostFavorites postFavorites = PostFavorites.builder()
-                .user(user)
-                .post(post)
-                .build();
+        PostFavorites postFavorites = PostFavorites.create(user, post);
 
         postFavoritesRepository.save(postFavorites);
     }
@@ -143,7 +112,7 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         Post post = findPostAndCheckOwner(userId, postId);
 
-        Category category = categoryQueryService.findById(postUpdateRequest.getCategoryId());
+        Category category = categoryQueryService.findById(postUpdateRequest.categoryId());
 
         post.update(postUpdateRequest, category);
 
@@ -151,25 +120,7 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         List<PostImageResponse> postImages = createPostImageResponses(post);
 
-        return PostUpdateResponse.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .methodOfReceive(post.getMethodOfReceive())
-                .methodOfReturn(post.getMethodOfReturn())
-                .price(post.getPrice())
-                .deposit(post.getDeposit())
-                .dailyRate(post.getDailyRate())
-                .tradeStatus(post.getTradeStatus())
-                .userId(post.getUser().getId())
-                .username(post.getUser().getUsername())
-                .address(post.getUser().getAddress())
-                .nickname(post.getUser().getNickname())
-                .categoryId(post.getCategory().getId())
-                .categoryName(post.getCategory().getName())
-                .favorites(postFavorites)
-                .images(postImages)
-                .build();
+        return PostUpdateResponse.from(post, postFavorites, postImages);
     }
 
     @Override
@@ -198,11 +149,9 @@ public class PostCommandServiceImpl implements PostCommandService {
     public PostUpdateStatusResponse updateStatusPost(Long userId, Long postId, PostUpdateStatusRequest postUpdateStatusRequest) {
         Post post = findPostAndCheckOwner(userId, postId);
 
-        post.updateStatus(postUpdateStatusRequest.getTradeStatus());
+        post.updateStatus(postUpdateStatusRequest.tradeStatus());
 
-        return PostUpdateStatusResponse.builder()
-                .tradeStatus(post.getTradeStatus())
-                .build();
+        return PostUpdateStatusResponse.from(post);
     }
 
     @Override
@@ -280,11 +229,9 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     private List<PostImageResponse> createPostImageResponses(Post post) {
         return post.getPostImages().stream()
-                .map(postImage -> PostImageResponse.builder()
-                        .url(postImage.getImage().getUrl())
-                        .isThumbnail(postImage.getIsThumbnail())
-                        .sortOrder(postImage.getSortOrder())
-                        .build())
-                .toList();
+                .map(postImage -> PostImageResponse.from(
+                                postImage.getImage().getUrl(), postImage.getIsThumbnail(), postImage.getSortOrder()
+                        )
+                ).toList();
     }
 }

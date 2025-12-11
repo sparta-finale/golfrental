@@ -29,39 +29,27 @@ public class UserQueryServiceImpl implements UserQueryService {
     public UserGetMyInfoResponse getMyInfo(Long myId) {
         User user = findById(myId);
 
-        return UserGetMyInfoResponse.builder()
-                .email(user.getEmail())
-                .username(user.getUsername())
-                .phoneNumber(user.getPhoneNumber())
-                .address(user.getAddress())
-                .nickname(user.getNickname())
-                .build();
+        return UserGetMyInfoResponse.create(
+                user.getEmail(), user.getUsername(), user.getPhoneNumber(), user.getAddress(), user.getNickname()
+        );
     }
 
     @Override
     public UserGetInfoResponse getInfo(Long userId) {
         User user = findById(userId);
 
-        return UserGetInfoResponse.builder()
-                .email(user.getEmail())
-                .username(user.getUsername())
-                .phoneNumber(user.getPhoneNumber())
-                .address(user.getAddress())
-                .nickname(user.getNickname())
-                .build();
+        return UserGetInfoResponse.create(
+                user.getEmail(), user.getUsername(), user.getPhoneNumber(), user.getAddress(), user.getNickname()
+        );
     }
 
     @Override
     public PageResponse<UserGetAllResponse> getAll(Pageable pageable) {
         Page<User> users = userRepository.findAllByDeletedAtIsNull(pageable);
 
-        Page<UserGetAllResponse> contents = users.map(user -> UserGetAllResponse.builder()
-                .email(user.getEmail())
-                .username(user.getUsername())
-                .phoneNumber(user.getPhoneNumber())
-                .address(user.getAddress())
-                .nickname(user.getNickname())
-                .build());
+        Page<UserGetAllResponse> contents = users.map(user -> UserGetAllResponse.create(
+                user.getEmail(), user.getUsername(), user.getPhoneNumber(), user.getAddress(), user.getNickname()
+        ));
 
         return PageResponse.fromPage(contents);
     }

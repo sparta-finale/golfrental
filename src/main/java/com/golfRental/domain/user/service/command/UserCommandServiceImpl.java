@@ -29,43 +29,39 @@ public class UserCommandServiceImpl implements UserCommandService {
     public UserUpdateMyInfoResponse updateMyInfo(Long userId, UserUpdateMyInfoRequest userUpdateMyInfoRequest) {
         User user = findById(userId);
 
-        if (userRepository.countByEmailAndIdNot(userUpdateMyInfoRequest.getEmail(), userId) > 0) {
+        if (userRepository.countByEmailAndIdNot(userUpdateMyInfoRequest.email(), userId) > 0) {
             throw new UserException(UserErrorCode.USER_DUPLICATE_EMAIL);
         }
-        if (userRepository.countByPhoneNumberAndIdNot(userUpdateMyInfoRequest.getPhoneNumber(), userId) > 0) {
+        if (userRepository.countByPhoneNumberAndIdNot(userUpdateMyInfoRequest.phoneNumber(), userId) > 0) {
             throw new UserException(UserErrorCode.USER_DUPLICATE_PHONE_NUMBER);
         }
-        if (userRepository.countByNicknameAndIdNot(userUpdateMyInfoRequest.getNickname(), userId) > 0) {
+        if (userRepository.countByNicknameAndIdNot(userUpdateMyInfoRequest.nickname(), userId) > 0) {
             throw new UserException(UserErrorCode.USER_DUPLICATE_NICKNAME);
         }
 
         user.updateMyInfo(
-                userUpdateMyInfoRequest.getEmail(), userUpdateMyInfoRequest.getUsername(),
-                userUpdateMyInfoRequest.getPhoneNumber(), userUpdateMyInfoRequest.getAddress(),
-                userUpdateMyInfoRequest.getNickname()
+                userUpdateMyInfoRequest.email(), userUpdateMyInfoRequest.username(),
+                userUpdateMyInfoRequest.phoneNumber(), userUpdateMyInfoRequest.address(),
+                userUpdateMyInfoRequest.nickname()
         );
 
-        return UserUpdateMyInfoResponse.builder()
-                .email(user.getEmail())
-                .username(user.getUsername())
-                .phoneNumber(user.getPhoneNumber())
-                .address(user.getAddress())
-                .nickname(user.getNickname())
-                .build();
+        return UserUpdateMyInfoResponse.create(
+                user.getEmail(), user.getUsername(), user.getPhoneNumber(), user.getAddress(), user.getNickname()
+        );
     }
 
     @Override
     public void updatePassword(Long userId, UserUpdatePasswordRequest userUpdatePasswordRequest) {
         User user = findById(userId);
 
-        if (!passwordEncoder.matches(userUpdatePasswordRequest.getOldPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(userUpdatePasswordRequest.oldPassword(), user.getPassword())) {
             throw new UserException(UserErrorCode.USER_NOT_EQUAL_PASSWORD);
         }
-        if (Objects.equals(userUpdatePasswordRequest.getOldPassword(), userUpdatePasswordRequest.getNewPassword())) {
+        if (Objects.equals(userUpdatePasswordRequest.oldPassword(), userUpdatePasswordRequest.newPassword())) {
             throw new UserException(UserErrorCode.USER_EQUAL_PASSWORD);
         }
 
-        String encodedNewPassword = passwordEncoder.encode(userUpdatePasswordRequest.getNewPassword());
+        String encodedNewPassword = passwordEncoder.encode(userUpdatePasswordRequest.newPassword());
 
         user.updatePassword(encodedNewPassword);
     }

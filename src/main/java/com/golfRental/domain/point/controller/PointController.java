@@ -10,8 +10,10 @@ import com.golfRental.domain.point.dto.response.PointUseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 
+@Tag(name = "포인트 관리", description = "포인트 관련 API")
 public interface PointController {
 
     @Operation(

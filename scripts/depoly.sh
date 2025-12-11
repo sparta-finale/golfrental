@@ -12,8 +12,8 @@ set -euo pipefail
 # ===== ECR 경로 파싱 =====
 REG_URI="$(echo "${FULL_URI}" | cut -d/ -f1)"
 REPO_AND_TAG="$(echo "${FULL_URI}" | cut -d/ -f2- )"
-REPO="$(echo "${REPO_AND_TAG}" | rev | cut -d: -f2- | rev)"
-TAG="$(echo "${REPO_AND_TAG}"  | awk -F: '{print $NF}')"
+REPO="${REPO_AND_TAG%:*}"
+TAG="${REPO_AND_TAG##*:}"
 
 # SSM 코멘트(100자 제한 방어)
 COMMENT="Deploy ${REPO}:${TAG}"
@@ -30,8 +30,12 @@ echo "[INFO] COMMENT=${COMMENT}"
 CMDS=(
   "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${REG_URI}"
   "docker pull ${FULL_URI}"
+  "docker ps -a --filter name=golf-rental-redis --format '{{.Names}}' | grep -q golf-rental-redis || docker run -d --name golf-rental-redis --restart=always -p
+    6379:6379 redis:7-alpine"
   "docker stop ${CONTAINER_NAME} || true"
   "docker rm   ${CONTAINER_NAME} || true"
+  "docker network create golf-rental-network || true"
+  "docker network connect golf-rental-network golf-rental-redis || true"
   "docker run -d --name ${CONTAINER_NAME} --restart=always -p ${APP_PORT}:${APP_PORT} -e SPRING_PROFILES_ACTIVE=${SPRING_PROFILE} ${FULL_URI}"
 )
 
@@ -58,13 +62,12 @@ for i in {1..30}; do
     --instance-id "${EC2_INSTANCE_ID}" \
     --query 'Status' \
     --output text \
-    --region "${AWS_REGION}") || true
-
+    --region "${AWS_REGION}") || echo "FailedToFetchStatus"
   echo "[INFO] SSM Status: ${STATUS}"
-
   case "${STATUS}" in
     Success) exit 0 ;;
     Failed|Cancelled|TimedOut) echo "[ERROR] SSM failed: ${STATUS}"; exit 1 ;;
+    FailedToFetchStatus) echo "[ERROR] Failed to fetch SSM command status."; exit 1 ;;
   esac
 
   sleep 5

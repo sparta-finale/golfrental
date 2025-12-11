@@ -21,13 +21,15 @@ public interface ImageController {
             security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "200", description = "Presigned URL 발급 성공"),
-                    @ApiResponse(responseCode = "400", description = "유효하지 않은 파일명 실패"),
-                    @ApiResponse(responseCode = "400", description = "유효하지 않은 Content-Type 실패"),
-                    @ApiResponse(responseCode = "400", description = "유효하지 않은 Primary-Type 실패"),
-                    @ApiResponse(responseCode = "400", description = "유효하지 않은 Sub-Type 실패"),
-                    @ApiResponse(responseCode = "400", description = "확장자와 Sub-Type 불일치 실패"),
-                    @ApiResponse(responseCode = "400", description = "지원하지 않는 파일 형식 실패"),
-                    @ApiResponse(responseCode = "500", description = " Presigned URL 생성에 실패")
+                    @ApiResponse(responseCode = "400", description =
+                            "잘못된 요청입니다. 가능한 원인은 다음과 같습니다:<br>" +
+                                    " - 유효하지 않은 파일명<br>" +
+                                    " - 유효하지 않은 Content-Type<br>" +
+                                    " - 유효하지 않은 Primary-Type<br>" +
+                                    " - 유효하지 않은 Sub-Type<br>" +
+                                    " - 확장자와 Sub-Type 불일치<br>" +
+                                    " - 지원하지 않는 파일 형식"),
+                    @ApiResponse(responseCode = "500", description = "Presigned URL 생성에 실패")
             }
     )
     ResponseEntity<CommonApiResponse<PresignedUrlResponse>> getPresignedUrl(
@@ -41,12 +43,14 @@ public interface ImageController {
             security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "201", description = "이미지 메타데이터 저장 성공"),
-                    @ApiResponse(responseCode = "400", description = "유효하지 않은 파일명 실패"),
-                    @ApiResponse(responseCode = "400", description = "지원하지 않는 파일 형식 실패"),
-                    @ApiResponse(responseCode = "400", description = "유효하지 않은 Content-Type 실패"),
-                    @ApiResponse(responseCode = "400", description = "유효하지 않은 Primary-Type 실패"),
-                    @ApiResponse(responseCode = "400", description = "유효하지 않은 Sub-Type 실패"),
-                    @ApiResponse(responseCode = "400", description = "확장자와 Sub-Type 불일치 실패")
+                    @ApiResponse(responseCode = "400", description =
+                            "잘못된 요청입니다. 가능한 원인은 다음과 같습니다:<br>" +
+                                    " - 유효하지 않은 파일명<br>" +
+                                    " - 지원하지 않는 파일 형식<br>" +
+                                    " - 유효하지 않은 Content-Type<br>" +
+                                    " - 유효하지 않은 Primary-Type<br>" +
+                                    " - 유효하지 않은 Sub-Type<br>" +
+                                    " - 확장자와 Sub-Type 불일치")
             }
     )
     ResponseEntity<CommonApiResponse<ImageSavedResponse>> saveImage(

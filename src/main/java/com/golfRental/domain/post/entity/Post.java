@@ -86,14 +86,22 @@ public class Post extends BaseEntity {
         this.category = category;
     }
 
+    public static Post create(
+            String title, String content, MethodOfReceiveReturn methodOfReceive,
+            MethodOfReceiveReturn methodOfReturn, BigDecimal price, BigDecimal deposit,
+            BigDecimal dailyRate, User user, Category category
+    ) {
+        return new Post(title, content, methodOfReceive, methodOfReturn, price, deposit, dailyRate, user, category);
+    }
+
     public void update(PostUpdateRequest postUpdateRequest, Category category) {
-        this.title = postUpdateRequest.getTitle();
-        this.content = postUpdateRequest.getContent();
-        this.methodOfReceive = postUpdateRequest.getMethodOfReceive();
-        this.methodOfReturn = postUpdateRequest.getMethodOfReturn();
-        this.price = postUpdateRequest.getPrice();
-        this.deposit = postUpdateRequest.getDeposit();
-        this.dailyRate = postUpdateRequest.getDailyRate();
+        this.title = postUpdateRequest.title();
+        this.content = postUpdateRequest.content();
+        this.methodOfReceive = postUpdateRequest.methodOfReceive();
+        this.methodOfReturn = postUpdateRequest.methodOfReturn();
+        this.price = postUpdateRequest.price();
+        this.deposit = postUpdateRequest.deposit();
+        this.dailyRate = postUpdateRequest.dailyRate();
         this.category = category;
     }
 

@@ -1,9 +1,10 @@
 package com.golfRental.domain.auth.dto.response;
 
-import lombok.Builder;
-
-@Builder
 public record AuthLoginResponse(
         String accessToken
 ) {
+
+    public static AuthLoginResponse from(String accessToken) {
+        return new AuthLoginResponse(accessToken);
+    }
 }

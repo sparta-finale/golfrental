@@ -1,8 +1,5 @@
 package com.golfRental.domain.user.dto.response;
 
-import lombok.Builder;
-
-@Builder
 public record UserGetAllResponse(
         String email,
         String username,
@@ -10,4 +7,9 @@ public record UserGetAllResponse(
         String address,
         String nickname
 ) {
+    public static UserGetAllResponse from(
+            String email, String username, String phoneNumber, String address, String nickname
+    ) {
+        return new UserGetAllResponse(email, username, phoneNumber, address, nickname);
+    }
 }

@@ -46,51 +46,35 @@ public class ImageCommandServiceImpl implements ImageCommandService {
 
     @Override
     public PresignedUrlResponse getPresignedUrl(PresignedUrlRequest presignedUrlRequest) {
-        String extension = getFileExtension(presignedUrlRequest.getFileName());
+        String extension = getFileExtension(presignedUrlRequest.fileName());
 
-        String s3Key = createS3Key(presignedUrlRequest.getType(), extension);
+        String s3Key = createS3Key(presignedUrlRequest.type(), extension);
 
-        validContentType(presignedUrlRequest.getContentType(), extension);
+        validContentType(presignedUrlRequest.contentType(), extension);
 
-        String presignedUrl = createPresignedUrl(s3Key, presignedUrlRequest.getContentType());
+        String presignedUrl = createPresignedUrl(s3Key, presignedUrlRequest.contentType());
 
         String fileUrl = createFileUrl(s3Key);
 
-        return PresignedUrlResponse.builder()
-                .presignedUrl(presignedUrl)
-                .fileUrl(fileUrl)
-                .s3Key(s3Key)
-                .contentType(presignedUrlRequest.getContentType())
-                .expiresIn((int) SIGNED_URL_DURATION.getSeconds())
-                .build();
+        return PresignedUrlResponse.from(
+                presignedUrl, fileUrl, s3Key, presignedUrlRequest.contentType(), (int) SIGNED_URL_DURATION.getSeconds()
+        );
     }
 
     @Override
     public ImageSavedResponse saveImage(ImageSaveRequest imageSaveRequest) {
         // 추구 검증 로직 추가적으로 더 늘릴 예정(contentType S3로부터 검증으로 수정, size 검증)
-        String extension = getFileExtension(imageSaveRequest.getFileName());
-        validContentType(imageSaveRequest.getContentType(), extension);
+        String extension = getFileExtension(imageSaveRequest.fileName());
+        validContentType(imageSaveRequest.contentType(), extension);
 
-        Image image = Image.builder()
-                .fileName(imageSaveRequest.getFileName())
-                .url(imageSaveRequest.getUrl())
-                .s3Key(imageSaveRequest.getS3Key())
-                .contentType(imageSaveRequest.getContentType())
-                .size(imageSaveRequest.getSize())
-                .type(imageSaveRequest.getType())
-                .build();
+        Image image = Image.create(
+                imageSaveRequest.url(), imageSaveRequest.fileName(), imageSaveRequest.s3Key(),
+                imageSaveRequest.contentType(), imageSaveRequest.size(), imageSaveRequest.type()
+        );
 
         Image savedImage = imageRepository.save(image);
 
-        return ImageSavedResponse.builder()
-                .id(savedImage.getId())
-                .fileName(savedImage.getFileName())
-                .url(savedImage.getUrl())
-                .s3Key(savedImage.getS3Key())
-                .contentType(savedImage.getContentType())
-                .size(savedImage.getSize())
-                .type(savedImage.getType().toString().toLowerCase())
-                .build();
+        return ImageSavedResponse.from(savedImage);
     }
 
     // =============================================================== //

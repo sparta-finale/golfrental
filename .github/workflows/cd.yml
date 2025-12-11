@@ -2,7 +2,7 @@ name: Deploy (dev)
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "dev", "fix/284-common" ]
 
 permissions:
   id-token: write

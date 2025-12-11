@@ -33,7 +33,7 @@ echo "[INFO] COMMENT=${COMMENT}"
 CMDS=(
   "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${REG_URI}"
   "docker pull ${FULL_URI}"
-  "docker network create golf-rental-network || true"
+  "docker network create ${REDIS_HOST} || true"
   "docker ps -a --filter name=${REDIS_HOST} --format '{{.Names}}' | grep -q ${REDIS_HOST} || docker run -d --name ${REDIS_HOST} --restart=always --network ${REDIS_HOST} -p ${REDIS_PORT}:${REDIS_PORT} redis:7-alpine"
   "docker stop ${CONTAINER_NAME} || true"
   "docker rm   ${CONTAINER_NAME} || true"

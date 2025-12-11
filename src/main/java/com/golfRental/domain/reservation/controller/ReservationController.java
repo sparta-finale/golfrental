@@ -40,7 +40,7 @@ public interface ReservationController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "예약 상세 조회 성공"),
                     @ApiResponse(responseCode = "401", description = "인증 실패"),
-                    @ApiResponse(responseCode = "403", description = "조회 권한 없음"),
+                    @ApiResponse(responseCode = "403", description = "예약 당사자만 조회 가능"),
                     @ApiResponse(responseCode = "404", description = "예약을 찾을 수 없음")
             }
     )
@@ -167,7 +167,7 @@ public interface ReservationController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "예약 상태 조회 성공"),
                     @ApiResponse(responseCode = "401", description = "인증 실패"),
-                    @ApiResponse(responseCode = "403", description = "조회 권한 없음"),
+                    @ApiResponse(responseCode = "403", description = "예약 당사자만 조회 가능"),
                     @ApiResponse(responseCode = "404", description = "예약을 찾을 수 없음")
             }
     )

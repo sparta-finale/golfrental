@@ -68,7 +68,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
         String accessToken = jwtUtil.createToken(user.getId(), user.getRole());
 
-        return AuthLoginResponse.create(accessToken);
+        return AuthLoginResponse.from(accessToken);
     }
 
     @Override

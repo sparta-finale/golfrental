@@ -4,7 +4,7 @@ public record AuthLoginResponse(
         String accessToken
 ) {
 
-    public static AuthLoginResponse create(String accessToken) {
+    public static AuthLoginResponse from(String accessToken) {
         return new AuthLoginResponse(accessToken);
     }
 }

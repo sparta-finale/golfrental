@@ -63,9 +63,7 @@ public interface UserController {
             security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "200", description = "내 정보 수정 성공"),
-                    @ApiResponse(responseCode = "400", description = "이메일 중복 실패"),
-                    @ApiResponse(responseCode = "400", description = "닉네임 중복 실패"),
-                    @ApiResponse(responseCode = "400", description = "전화번호 중복 실패"),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청:\n- 이메일 중복\n- 닉네임 중복\n- 전화번호 중복")
             }
     )
     ResponseEntity<CommonApiResponse<UserUpdateMyInfoResponse>> updateMyInfo(
@@ -79,8 +77,7 @@ public interface UserController {
             security = {@SecurityRequirement(name = "bearerAuth")},
             responses = {
                     @ApiResponse(responseCode = "200", description = "내 비밀번호 수정 성공"),
-                    @ApiResponse(responseCode = "400", description = "현재 비밀번호 불일치 실패"),
-                    @ApiResponse(responseCode = "400", description = "현재 비밀번호와 수정하려는 비밀번호 동일 실패"),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청:\n- 현재 비밀번호 불일치\n- 현재 비밀번호와 수정하려는 비밀번호 동일")
             }
     )
     ResponseEntity<CommonApiResponse<Void>> changePassword(

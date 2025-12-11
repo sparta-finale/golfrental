@@ -19,9 +19,7 @@ public interface AuthController {
             description = "새로운 회원을 등록합니다.",
             responses = {
                     @ApiResponse(responseCode = "201", description = "생성 성공"),
-                    @ApiResponse(responseCode = "409", description = "이메일 중복 실패"),
-                    @ApiResponse(responseCode = "409", description = "닉네임 중복 실패"),
-                    @ApiResponse(responseCode = "409", description = "전화번호 중복 실패")
+                    @ApiResponse(responseCode = "409", description = "중복으로 인한 생성 실패 (이메일, 닉네임, 또는 전화번호)")
             }
     )
     ResponseEntity<CommonApiResponse<Void>> signup(

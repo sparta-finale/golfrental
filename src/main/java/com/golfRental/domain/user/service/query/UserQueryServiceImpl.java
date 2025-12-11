@@ -29,7 +29,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     public UserGetMyInfoResponse getMyInfo(Long myId) {
         User user = findById(myId);
 
-        return UserGetMyInfoResponse.create(
+        return UserGetMyInfoResponse.from(
                 user.getEmail(), user.getUsername(), user.getPhoneNumber(), user.getAddress(), user.getNickname()
         );
     }
@@ -38,7 +38,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     public UserGetInfoResponse getInfo(Long userId) {
         User user = findById(userId);
 
-        return UserGetInfoResponse.create(
+        return UserGetInfoResponse.from(
                 user.getEmail(), user.getUsername(), user.getPhoneNumber(), user.getAddress(), user.getNickname()
         );
     }
@@ -47,7 +47,7 @@ public class UserQueryServiceImpl implements UserQueryService {
     public PageResponse<UserGetAllResponse> getAll(Pageable pageable) {
         Page<User> users = userRepository.findAllByDeletedAtIsNull(pageable);
 
-        Page<UserGetAllResponse> contents = users.map(user -> UserGetAllResponse.create(
+        Page<UserGetAllResponse> contents = users.map(user -> UserGetAllResponse.from(
                 user.getEmail(), user.getUsername(), user.getPhoneNumber(), user.getAddress(), user.getNickname()
         ));
 

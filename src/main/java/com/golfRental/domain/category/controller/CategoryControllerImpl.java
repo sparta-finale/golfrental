@@ -42,6 +42,7 @@ public class CategoryControllerImpl implements CategoryController {
                     @ApiResponse(responseCode = "403", description = "권한 없음")
             }
     )
+    @Override
     @PostMapping("/admin/categories")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CommonApiResponse<CategoryCreateResponse>> createCategory(
@@ -61,6 +62,7 @@ public class CategoryControllerImpl implements CategoryController {
                     @ApiResponse(responseCode = "200", description = "조회 성공")
             }
     )
+    @Override
     @GetMapping("/categories")
     public ResponseEntity<CommonApiResponse<List<CategoryGetAllResponse>>> getAllCategories() {
 
@@ -80,6 +82,7 @@ public class CategoryControllerImpl implements CategoryController {
                     @ApiResponse(responseCode = "404", description = "카테고리를 찾을 수 없음")
             }
     )
+    @Override
     @GetMapping("/categories/{categoryId}")
     public ResponseEntity<CommonApiResponse<CategoryGetResponse>> getCategoryById(
             @PathVariable Long categoryId
@@ -104,6 +107,7 @@ public class CategoryControllerImpl implements CategoryController {
                     @ApiResponse(responseCode = "404", description = "카테고리를 찾을 수 없음")
             }
     )
+    @Override
     @PutMapping("/admin/categories/{categoryId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CommonApiResponse<CategoryUpdateResponse>> updateCategory(
@@ -129,6 +133,7 @@ public class CategoryControllerImpl implements CategoryController {
                     @ApiResponse(responseCode = "404", description = "카테고리를 찾을 수 없음")
             }
     )
+    @Override
     @DeleteMapping("/admin/categories/{categoryId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CommonApiResponse<Void>> deleteCategory(

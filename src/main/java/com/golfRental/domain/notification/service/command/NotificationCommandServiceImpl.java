@@ -150,31 +150,61 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
         List<User> allUsers = userQueryService.findAll();
         int totalUsers = allUsers.size();
 
+// 2. Notification 엔티티 리스트 생성 (N+1 제거: User 객체 직접 사용)
+        List<Notification> notifications = allUsers.stream()
+                .map(user -> Notification.builder()
+                        .receiver(user)  // User 객체 직접 사용 (재조회 없음!)
+                        .title(request.getTitle())
+                        .content(request.getContent())
+                        .type(NotificationType.SYSTEM)
+                        .referenceId(null)
+                        .build())
+                .toList();
+
+        List<Notification> savedNotifications = notificationRepository.saveAll(notifications);
+        log.info("Batch Insert 완료 - 저장된 알림: {}개", savedNotifications.size());
+
         int successCount = 0;
         int failCount = 0;
 
-        for (User user : allUsers) {
+        for (Notification notification : savedNotifications) {
             try {
-                createNotification(
-                        NotificationCreateRequest.builder()
-                                .receiverId(user.getId())
-                                .title(request.getTitle())
-                                .content(request.getContent())
-                                .type(NotificationType.SYSTEM)
-                                .referenceId(null)
-                                .build()
+                // NotificationResponse 생성
+                NotificationResponse response = NotificationResponse.builder()
+                        .id(notification.getId())
+                        .receiverId(notification.getReceiver().getId())
+                        .title(notification.getTitle())
+                        .content(notification.getContent())
+                        .type(notification.getType())
+                        .referenceId(notification.getReferenceId())
+                        .isRead(notification.isRead())
+                        .createdAt(notification.getCreatedAt())
+                        .build();
+
+                // Redis 발행
+                NotificationEvent event = NotificationEvent.of(
+                        notification.getReceiver().getId(),
+                        response
                 );
+                notificationRedisPublisher.publish(event);
                 successCount++;
+
             } catch (Exception e) {
-                log.error("알림 전송 실패 - userId: {}", user.getId(), e);
+                log.error("Redis 발행 실패 - notificationId: {}, userId: {}",
+                        notification.getId(),
+                        notification.getReceiver().getId(),
+                        e);
                 failCount++;
+                // Redis 실패해도 DB에는 저장됨 (DB 우선)
             }
         }
 
+        log.info("관리자 공지 발송 완료 - 총: {}, 성공: {}, 실패: {}",
+                totalUsers, successCount, failCount);
+
         return BroadcastResponse.of(totalUsers, successCount, failCount);
     }
-
-
+    
 //    public void broadcast(NotificationDto notification) {
 //        if (emitters.isEmpty()) {
 //            log.debug("SSE 연결 없음, 브로드캐스트 전송 스킵 - type: {}", notification.type());

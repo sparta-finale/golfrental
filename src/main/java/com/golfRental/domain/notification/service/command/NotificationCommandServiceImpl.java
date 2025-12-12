@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -150,30 +151,50 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
         List<User> allUsers = userQueryService.findAll();
         int totalUsers = allUsers.size();
 
-        int successCount = 0;
-        int failCount = 0;
+// 2. Notification 엔티티 리스트 생성 (N+1 제거: User 객체 직접 사용)
+        List<Notification> notifications = allUsers.stream()
+                .map(user -> Notification.builder()
+                        .receiver(user)  // User 객체 직접 사용 (재조회 없음!)
+                        .title(request.getTitle())
+                        .content(request.getContent())
+                        .type(NotificationType.SYSTEM)
+                        .referenceId(null)
+                        .build())
+                .toList();
 
-        for (User user : allUsers) {
+        List<Notification> savedNotifications = notificationRepository.saveAll(notifications);
+
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failCount = new AtomicInteger(0);
+
+        savedNotifications.parallelStream().forEach(notification -> {
             try {
-                createNotification(
-                        NotificationCreateRequest.builder()
-                                .receiverId(user.getId())
-                                .title(request.getTitle())
-                                .content(request.getContent())
-                                .type(NotificationType.SYSTEM)
-                                .referenceId(null)
-                                .build()
+                // NotificationResponse 생성 (팩토리 메서드 사용)
+                NotificationResponse response = NotificationResponse.from(notification);
+
+                // Redis 발행
+                NotificationEvent event = NotificationEvent.of(
+                        notification.getReceiver().getId(),
+                        response
                 );
-                successCount++;
+                notificationRedisPublisher.publish(event);
+                successCount.incrementAndGet();
+
             } catch (Exception e) {
-                log.error("알림 전송 실패 - userId: {}", user.getId(), e);
-                failCount++;
+                log.error("Redis 발행 실패 - notificationId: {}, userId: {}",
+                        notification.getId(),
+                        notification.getReceiver().getId(),
+                        e);
+                failCount.incrementAndGet();
+                // Redis 실패해도 DB에는 저장됨 (DB 우선)
             }
-        }
+        });
 
-        return BroadcastResponse.of(totalUsers, successCount, failCount);
+        log.info("관리자 공지 발송 완료 - 총: {}, 성공: {}, 실패: {}",
+                totalUsers, successCount, failCount);
+
+        return BroadcastResponse.of(totalUsers, successCount.get(), failCount.get());
     }
-
 
 //    public void broadcast(NotificationDto notification) {
 //        if (emitters.isEmpty()) {

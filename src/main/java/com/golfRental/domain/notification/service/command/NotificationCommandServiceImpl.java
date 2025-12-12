@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -162,24 +163,14 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
                 .toList();
 
         List<Notification> savedNotifications = notificationRepository.saveAll(notifications);
-        log.info("Batch Insert 완료 - 저장된 알림: {}개", savedNotifications.size());
 
-        int successCount = 0;
-        int failCount = 0;
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failCount = new AtomicInteger(0);
 
-        for (Notification notification : savedNotifications) {
+        savedNotifications.parallelStream().forEach(notification -> {
             try {
-                // NotificationResponse 생성
-                NotificationResponse response = NotificationResponse.builder()
-                        .id(notification.getId())
-                        .receiverId(notification.getReceiver().getId())
-                        .title(notification.getTitle())
-                        .content(notification.getContent())
-                        .type(notification.getType())
-                        .referenceId(notification.getReferenceId())
-                        .isRead(notification.isRead())
-                        .createdAt(notification.getCreatedAt())
-                        .build();
+                // NotificationResponse 생성 (팩토리 메서드 사용)
+                NotificationResponse response = NotificationResponse.from(notification);
 
                 // Redis 발행
                 NotificationEvent event = NotificationEvent.of(
@@ -187,24 +178,24 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
                         response
                 );
                 notificationRedisPublisher.publish(event);
-                successCount++;
+                successCount.incrementAndGet();
 
             } catch (Exception e) {
                 log.error("Redis 발행 실패 - notificationId: {}, userId: {}",
                         notification.getId(),
                         notification.getReceiver().getId(),
                         e);
-                failCount++;
+                failCount.incrementAndGet();
                 // Redis 실패해도 DB에는 저장됨 (DB 우선)
             }
-        }
+        });
 
         log.info("관리자 공지 발송 완료 - 총: {}, 성공: {}, 실패: {}",
                 totalUsers, successCount, failCount);
 
-        return BroadcastResponse.of(totalUsers, successCount, failCount);
+        return BroadcastResponse.of(totalUsers, successCount.get(), failCount.get());
     }
-    
+
 //    public void broadcast(NotificationDto notification) {
 //        if (emitters.isEmpty()) {
 //            log.debug("SSE 연결 없음, 브로드캐스트 전송 스킵 - type: {}", notification.type());

@@ -71,6 +71,11 @@ public class SecurityConfig {
                                 "/api/v1/categories/*")
                         .permitAll()
 
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/public/posts",
+                                "/api/v1/public/posts/*")
+                        .permitAll()
+
                         .requestMatchers("/api/v1/admin/**")
                         .hasRole("ADMIN")
 

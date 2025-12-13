@@ -19,6 +19,7 @@ env:
   SPRING_PROFILE: dev
   REDIS_HOST: ${{secrets.REDIS_HOST}}
   REDIS_PORT: ${{secrets.REDIS_PORT}}
+  MONITORING_EC2_PRIVATE_IP: ${{ secrets.MONITORING_EC2_PRIVATE_IP }}
 
 jobs:
   deploy:

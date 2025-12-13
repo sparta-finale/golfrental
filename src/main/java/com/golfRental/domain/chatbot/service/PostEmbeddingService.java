@@ -18,6 +18,7 @@ import java.util.List;
 @Service
 public class PostEmbeddingService {
 
+    private static final int EMBEDDING_BATCH_SIZE = 100;
     private final PostQueryService postQueryService;
     private final EmbeddingModel embeddingModel;
     private final EmbeddingStore<TextSegment> postStore;
@@ -53,14 +54,14 @@ public class PostEmbeddingService {
             log.info("TextSegment 변환 완료 - {}개", allSegments.size());
 
             // 3. Chunk Batch 처리 (100개씩)
-            int batchSize = 100;
+
             int total = allSegments.size();
 
             log.info("Chunk Batch 임베딩 시작 - Batch Size: {}, 총 {}회 호출 예정",
-                    batchSize, (total + batchSize - 1) / batchSize);
+                    EMBEDDING_BATCH_SIZE, (total + EMBEDDING_BATCH_SIZE - 1) / EMBEDDING_BATCH_SIZE);
 
-            for (int i = 0; i < total; i += batchSize) {
-                int end = Math.min(i + batchSize, total);
+            for (int i = 0; i < total; i += EMBEDDING_BATCH_SIZE) {
+                int end = Math.min(i + EMBEDDING_BATCH_SIZE, total);
                 List<TextSegment> batchSegments = allSegments.subList(i, end);
 
                 // Batch 임베딩 (100개씩)
@@ -76,12 +77,13 @@ public class PostEmbeddingService {
             long endTime = System.currentTimeMillis();
             long durationMs = endTime - startTime;
             long durationSec = durationMs / 1000;
+            log.info("Post 임베딩 완료. 총 {}개, 소요 시간: {}초", total, durationSec);
 
         } catch (Exception e) {
             log.error("Post 임베딩 실패", e);
         }
     }
-    
+
     private TextSegment convertToTextSegment(Post post) {
         String text = String.format(
                 "제목: %s\n내용: %s\n카테고리: %s\n가격: %s원\n보증금: %s원\n일일 대여료: %s원\n수령 방법: %s\n반납 방법: %s\n거래 상태: %s",

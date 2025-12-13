@@ -48,8 +48,12 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
+                                "/swagger-ui.html")
+                        .permitAll()
+
+                        .requestMatchers(
+                                "/actuator/**")
+                        .permitAll()
 
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/signup",
@@ -57,12 +61,19 @@ public class SecurityConfig {
                         .permitAll()
 
                         .requestMatchers(HttpMethod.GET,
-                                "/api/v1/public/**")
+                                "/actuator/health",
+                                "/actuator/info",
+                                "/actuator/prometheus")
                         .permitAll()
 
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/categories",
                                 "/api/v1/categories/*")
+                        .permitAll()
+
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/public/posts",
+                                "/api/v1/public/posts/*")
                         .permitAll()
 
                         .requestMatchers("/api/v1/admin/**")

@@ -10,12 +10,39 @@ set -euo pipefail
 : "${SPRING_PROFILE:?SPRING_PROFILE required}"
 : "${REDIS_HOST:?REDIS_HOST required}"
 : "${REDIS_PORT:?REDIS_PORT required}"
+: "${MONITORING_EC2_PRIVATE_IP:?MONITORING_EC2_PRIVATE_IP required}"
 
 # ===== ECR 경로 파싱 =====
 REG_URI="$(echo "${FULL_URI}" | cut -d/ -f1)"
 REPO_AND_TAG="$(echo "${FULL_URI}" | cut -d/ -f2- )"
 REPO="${REPO_AND_TAG%:*}"
 TAG="${REPO_AND_TAG##*:}"
+
+# ===== promtail config =====
+PROMTAIL_CONFIG_CONTENT=$(cat <<EOF
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://${MONITORING_EC2_PRIVATE_IP}:3100/loki/api/v1/push
+
+scrape_configs:
+- job_name: golfrental-dev-logs
+  static_configs:
+  - targets:
+      - localhost
+    labels:
+      job: "golfrental-dev"
+      environment: "dev"
+      server: "dev-api"
+      application: "golf-rental"
+      __path__: /app-logs/*.log
+EOF
+)
 
 # SSM 코멘트(100자 제한 방어)
 COMMENT="Deploy ${REPO}:${TAG}"
@@ -34,9 +61,14 @@ CMDS=(
   "docker pull ${FULL_URI}"
   "docker network create golf-rental-network || true"
   "docker ps -a --filter name=golf-rental-redis --format '{{.Names}}' | grep -q golf-rental-redis || docker run -d --name golf-rental-redis --restart=always --network golf-rental-network -p 6379:6379 redis:7-alpine"
+  "sudo mkdir -p /app-logs && sudo chmod 777 /app-logs"
   "docker stop ${CONTAINER_NAME} || true"
   "docker rm   ${CONTAINER_NAME} || true"
-  "docker run -d --name ${CONTAINER_NAME} --restart=always --network golf-rental-network -p ${APP_PORT}:${APP_PORT} -e SPRING_PROFILES_ACTIVE=${SPRING_PROFILE} -e AWS_REGION=${AWS_REGION} -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e JAVA_OPTS='-Xms512m -Xmx1024m' ${FULL_URI}"
+  "docker run -d --name ${CONTAINER_NAME} --restart=always --network golf-rental-network -p ${APP_PORT}:${APP_PORT} -v /app-logs:/app-logs -e SPRING_PROFILES_ACTIVE=${SPRING_PROFILE} -e AWS_REGION=${AWS_REGION} -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e JAVA_OPTS='-Xms512m -Xmx1024m' ${FULL_URI}"
+  "echo '${PROMTAIL_CONFIG_CONTENT}' | sudo tee /etc/promtail-config.yml > /dev/null"
+  "docker stop promtail || true"
+  "docker rm promtail || true"
+  "docker run -d --name promtail --restart=unless-stopped --user root -v /etc/promtail-config.yml:/etc/promtail/config.yml:ro -v /app-logs:/app-logs:ro -v /tmp:/tmp grafana/promtail:3.5.8 -config.file=/etc/promtail/config.yml"
 )
 
 # Bash 배열 → JSON 배열 변환 (jq 필수)

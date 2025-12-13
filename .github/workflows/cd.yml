@@ -2,7 +2,7 @@ name: Deploy (dev)
 
 on:
   push:
-    branches: [ "dev", "infra/303-common)" ]
+    branches: [ "dev", "infra/303-common" ]
 
 permissions:
   id-token: write

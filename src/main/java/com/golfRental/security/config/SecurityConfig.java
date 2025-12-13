@@ -51,6 +51,11 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
 
+                        .requestMatchers(
+                                "/actuator/**"
+                        )
+                        .permitAll()
+
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/signup",
                                 "/api/v1/login")

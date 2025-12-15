@@ -9,9 +9,12 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "post_images", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"post_id", "image_id"})
-})
+@Table(
+        name = "post_images",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"post_id", "image_id"})
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostImage extends BaseEntity {
 

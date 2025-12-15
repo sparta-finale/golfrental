@@ -17,6 +17,7 @@ import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -120,6 +121,11 @@ public class PostQueryServiceImpl implements PostQueryService {
     }
 
     @Override
+    @Cacheable(
+            value = "postListCache",
+            key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort.toString()}",
+            unless = "#result == null || #result.content.isEmpty()"
+    )
     public SliceResponse<PostGetAllPublicResponse> getAllPublic(Pageable pageable) {
         Slice<Post> posts = postRepository.findAllOrderByStatus(pageable);
 

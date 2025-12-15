@@ -37,10 +37,10 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
     @Transactional
     public ReviewResponse createReview(Long currentUserId, ReviewCreateRequest request) {
         log.info("리뷰 생성 요청 - reservationId: {}, currentUserId: {}",
-                request.getReservationId(), currentUserId);
+                request.reservationId(), currentUserId);
 
         // 1. 예약 조회
-        Reservation reservation = reservationQueryService.findById(request.getReservationId());
+        Reservation reservation = reservationQueryService.findById(request.reservationId());
 
         // 2. 예약 상태 검증 (COMPLETED 상태만 리뷰 작성 가능)
         validateReservationStatus(reservation);
@@ -142,7 +142,7 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
         }
 
         // 3. 리뷰 수정
-        review.update(request.getUserScore(), request.getContent());
+        review.update(request.userScore(), request.content());
 
         return ReviewResponse.from(review);
     }

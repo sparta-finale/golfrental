@@ -36,7 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 
-/docs
 src/main/resources/application-local.yml
 
 .env
@@ -47,3 +46,9 @@ PerformanceLogInterceptor.java
 
 ### k6 Test ###
 k6
+
+# Ignore everything in docs except db/index
+/docs/*
+!/docs/db/
+!/docs/db/index/
+!/docs/db/index/*.sql

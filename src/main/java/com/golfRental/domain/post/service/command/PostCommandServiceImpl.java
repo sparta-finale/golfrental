@@ -21,6 +21,7 @@ import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -107,6 +108,7 @@ public class PostCommandServiceImpl implements PostCommandService {
     }
 
     @Override
+    @CacheEvict(value = "postListCache", allEntries = true)
     public PostUpdateResponse updatePost(Long userId, Long postId, PostUpdateRequest postUpdateRequest) {
         User user = userQueryService.findById(userId);
 
@@ -155,6 +157,7 @@ public class PostCommandServiceImpl implements PostCommandService {
     }
 
     @Override
+    @CacheEvict(value = "postListCache", allEntries = true)
     public void deletePost(Long userId, Long postId) {
         Post post = findPostAndCheckOwner(userId, postId);
 

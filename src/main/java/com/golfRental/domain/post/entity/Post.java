@@ -19,7 +19,12 @@ import java.util.List;
 
 @Entity
 @Getter
-@Table(name = "posts")
+@Table(
+        name = "posts",
+        indexes = {
+                @Index(name = "idx_post_deleted", columnList = "deleted_at")
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
 

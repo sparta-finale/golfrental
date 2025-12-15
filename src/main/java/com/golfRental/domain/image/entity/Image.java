@@ -9,7 +9,12 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "images")
+@Table(
+    name = "images",
+    indexes = {
+        @Index(name = "idx_image_deleted", columnList = "deleted_at")
+    }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Image extends BaseEntity {
 

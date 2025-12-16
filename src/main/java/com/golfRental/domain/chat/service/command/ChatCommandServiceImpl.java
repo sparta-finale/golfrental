@@ -18,6 +18,7 @@ import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,11 +39,11 @@ public class ChatCommandServiceImpl implements ChatCommandService {
     @Override
     @Transactional
     public ChatRoomResponse createChatRoom(Long currentUserId, ChatRoomCreateRequest request) {
-        if (chatRoomRepository.existsByReservationId(request.getReservationId())) {
+        if (chatRoomRepository.existsByReservationId(request.reservationId())) {
             throw new ChatException(ChatErrorCode.CHAT_ROOM_ALREADY_EXISTS);
         }
 
-        Reservation reservation = reservationQueryService.findById(request.getReservationId());
+        Reservation reservation = reservationQueryService.findById(request.reservationId());
         validateParticipant(reservation, currentUserId);
 
         ChatRoom chatRoom = ChatRoom.builder()
@@ -54,8 +55,8 @@ public class ChatCommandServiceImpl implements ChatCommandService {
         try {
             ChatRoom savedChatRoom = chatRoomRepository.saveAndFlush(chatRoom);
             return ChatRoomResponse.from(savedChatRoom);
-        } catch (org.springframework.dao.DataIntegrityViolationException e) {
-            log.warn("채팅방 생성 중 경쟁 상태 발생 가능성. reservationId: {}", request.getReservationId(), e);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("채팅방 생성 중 경쟁 상태 발생 가능성. reservationId: {}", request.reservationId(), e);
             throw new ChatException(ChatErrorCode.CHAT_ROOM_ALREADY_EXISTS);
         }
     }
@@ -73,7 +74,7 @@ public class ChatCommandServiceImpl implements ChatCommandService {
         ChatMessage message = ChatMessage.builder()
                 .chatRoom(chatRoom)
                 .sender(sender)
-                .content(request.getContent())
+                .content(request.content())
                 .build();
 
         ChatMessage savedMessage = chatMessageRepository.save(message);
@@ -82,7 +83,7 @@ public class ChatCommandServiceImpl implements ChatCommandService {
         ChatMessageEvent event = ChatMessageEvent.of(chatRoomId, response);
         chatRedisPublisher.publish(event);
         log.info("Redis 메시지 발행 성공 - messageId: {}", savedMessage.getId());
-        
+
         return response;
     }
 

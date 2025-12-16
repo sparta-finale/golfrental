@@ -32,7 +32,7 @@ public class ReservationNotificationListener {
             NotificationCreateRequest request = NotificationCreateRequest.of(
                     receiver.getId(),
                     "새로운 예약 요청",
-                    guest.getUsername() + "님이 예약을 요청했습니다.",
+                    String.format("%s님이 예약을 요청했습니다.", guest.getNickname()),
                     NotificationType.RESERVATION,
                     reservation.getId()
             );

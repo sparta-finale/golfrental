@@ -39,9 +39,9 @@ public class NotificationRedisSubscriber implements MessageListener {
             NotificationEvent event = objectMapper.readValue(body, NotificationEvent.class);
 
             log.info("Redis 알림 수신 - userId: {}, notificationId: {}",
-                    event.getUserId(), event.getNotification().id());
+                    event.userId(), event.notification().id());
 
-            sendToUser(event.getUserId(), event.getNotification());
+            sendToUser(event.userId(), event.notification());
 
         } catch (Exception e) {
             log.error("Redis 알림 처리 실패", e);

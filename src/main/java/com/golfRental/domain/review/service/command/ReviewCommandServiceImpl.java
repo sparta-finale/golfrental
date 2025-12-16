@@ -73,13 +73,13 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
 
     private void sendReviewNotification(User reviewer, User targetUser, Review review) {
         try {
-            NotificationCreateRequest notificationRequest = NotificationCreateRequest.builder()
-                    .receiverId(targetUser.getId())
-                    .title("새로운 리뷰")
-                    .content(reviewer.getUsername() + "님이 회원님에 대한 리뷰를 작성했습니다.")
-                    .type(NotificationType.REVIEW_CREATED)
-                    .referenceId(review.getId())
-                    .build();
+            NotificationCreateRequest notificationRequest = NotificationCreateRequest.of(
+                    targetUser.getId(),
+                    "새로운 리뷰",
+                    reviewer.getUsername() + "님이 회원님에 대한 리뷰를 작성했습니다.",
+                    NotificationType.REVIEW_CREATED,
+                    review.getId()
+            );
 
             notificationCommandService.createNotification(notificationRequest);
 

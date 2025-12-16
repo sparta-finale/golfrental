@@ -86,7 +86,7 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
 
     @Override
     public NotificationResponse createNotification(NotificationCreateRequest request) {
-        User receiver = userQueryService.findById(request.getReceiverId());
+        User receiver = userQueryService.findById(request.receiverId());
         Notification notification = request.toEntity(receiver);
         Notification savedNotification = notificationRepository.save(notification);
 
@@ -102,12 +102,12 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
                 .build();
 
         try {
-            NotificationEvent event = NotificationEvent.of(request.getReceiverId(), response);
+            NotificationEvent event = NotificationEvent.of(request.receiverId(), response);
             notificationRedisPublisher.publish(event);
             log.info("Redis 알림 발행 성공 - notificationId: {}", savedNotification.getId());
         } catch (Exception e) {
             log.error("Redis 알림 발행 실패 - notificationId: {}, userId: {}",
-                    savedNotification.getId(), request.getReceiverId(), e);
+                    savedNotification.getId(), request.receiverId(), e);
             // Redis 실패해도 알림은 DB에 저장됨 (DB 우선)
         }
 
@@ -155,8 +155,8 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
         List<Notification> notifications = allUsers.stream()
                 .map(user -> Notification.builder()
                         .receiver(user)  // User 객체 직접 사용 (재조회 없음!)
-                        .title(request.getTitle())
-                        .content(request.getContent())
+                        .title(request.title())
+                        .content(request.content())
                         .type(NotificationType.SYSTEM)
                         .referenceId(null)
                         .build())

@@ -5,6 +5,7 @@ import com.golfRental.domain.notification.enums.NotificationType;
 import com.golfRental.domain.notification.service.command.NotificationCommandService;
 import com.golfRental.domain.reservation.entity.Reservation;
 import com.golfRental.domain.reservation.event.*;
+import com.golfRental.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -24,15 +25,17 @@ public class ReservationNotificationListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleReservationCreated(ReservationCreatedEvent event) {
         Reservation reservation = event.getReservation();
+        User receiver = reservation.getHostUser();
+        User guest = reservation.getGuestUser();
+
         try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getHostUser().getId())
-                    .title("새로운 예약 요청")
-                    .content(String.format("%s님이 예약을 요청했습니다.",
-                            reservation.getGuestUser().getNickname()))
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
+            NotificationCreateRequest request = NotificationCreateRequest.of(
+                    receiver.getId(),
+                    "새로운 예약 요청",
+                    String.format("%s님이 예약을 요청했습니다.", guest.getNickname()),
+                    NotificationType.RESERVATION,
+                    reservation.getId()
+            );
 
             notificationCommandService.createNotification(request);
 
@@ -47,13 +50,13 @@ public class ReservationNotificationListener {
     public void handleReservationApproved(ReservationApprovedEvent event) {
         Reservation reservation = event.getReservation();
         try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getGuestUser().getId())
-                    .title("예약 승인")
-                    .content("예약이 승인되었습니다.")
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
+            NotificationCreateRequest request = NotificationCreateRequest.of(
+                    reservation.getGuestUser().getId(),
+                    "예약 승인",
+                    "예약이 승인되었습니다.",
+                    NotificationType.RESERVATION,
+                    reservation.getId()
+            );
 
             notificationCommandService.createNotification(request);
 
@@ -68,13 +71,13 @@ public class ReservationNotificationListener {
     public void handleReservationRejected(ReservationRejectedEvent event) {
         Reservation reservation = event.getReservation();
         try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getGuestUser().getId())
-                    .title("예약 거절")
-                    .content("예약이 거절되었습니다.")
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
+            NotificationCreateRequest request = NotificationCreateRequest.of(
+                    reservation.getGuestUser().getId(),
+                    "예약 거절",
+                    "예약이 거절되었습니다.",
+                    NotificationType.RESERVATION,
+                    reservation.getId()
+            );
 
             notificationCommandService.createNotification(request);
 
@@ -89,14 +92,13 @@ public class ReservationNotificationListener {
     public void handleReservationCancelled(ReservationCancelledEvent event) {
         Reservation reservation = event.getReservation();
         try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getHostUser().getId())
-                    .title("예약 취소")
-                    .content(String.format("%s님이 예약을 취소했습니다.",
-                            reservation.getGuestUser().getNickname()))
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
+            NotificationCreateRequest request = NotificationCreateRequest.of(
+                    reservation.getHostUser().getId(),
+                    "예약 취소",
+                    String.format("%s님이 예약을 취소했습니다.", reservation.getGuestUser().getNickname()),
+                    NotificationType.RESERVATION,
+                    reservation.getId()
+            );
 
             notificationCommandService.createNotification(request);
 
@@ -111,13 +113,13 @@ public class ReservationNotificationListener {
     public void handleRentalStarted(RentalStartedEvent event) {
         Reservation reservation = event.getReservation();
         try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getGuestUser().getId())
-                    .title("대여 시작")
-                    .content("대여가 시작되었습니다. 물품을 사용하실 수 있습니다.")
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
+            NotificationCreateRequest request = NotificationCreateRequest.of(
+                    reservation.getGuestUser().getId(),
+                    "대여 시작",
+                    "대여가 시작되었습니다. 물품을 사용하실 수 있습니다.",
+                    NotificationType.RESERVATION,
+                    reservation.getId()
+            );
 
             notificationCommandService.createNotification(request);
 
@@ -132,15 +134,13 @@ public class ReservationNotificationListener {
     public void handleReturnRequested(ReturnRequestedEvent event) {
         Reservation reservation = event.getReservation();
         try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getHostUser().getId())
-                    .title("반납 요청")
-                    .content(String.format("%s님이 반납을 요청했습니다.",
-                            reservation.getGuestUser().getNickname()))
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
-
+            NotificationCreateRequest request = NotificationCreateRequest.of(
+                    reservation.getHostUser().getId(),
+                    "반납 요청",
+                    String.format("%s님이 반납을 요청했습니다.", reservation.getGuestUser().getNickname()),
+                    NotificationType.RESERVATION,
+                    reservation.getId()
+            );
             notificationCommandService.createNotification(request);
 
         } catch (Exception e) {
@@ -154,14 +154,13 @@ public class ReservationNotificationListener {
     public void handleReturnCompleted(ReturnCompletedEvent event) {
         Reservation reservation = event.getReservation();
         try {
-            NotificationCreateRequest request = NotificationCreateRequest.builder()
-                    .receiverId(reservation.getGuestUser().getId())
-                    .title("반납 완료")
-                    .content("반납이 완료되었습니다. 이용해 주셔서 감사합니다.")
-                    .type(NotificationType.RESERVATION)
-                    .referenceId(reservation.getId())
-                    .build();
-
+            NotificationCreateRequest request = NotificationCreateRequest.of(
+                    reservation.getGuestUser().getId(),
+                    "반납 완료",
+                    "반납이 완료되었습니다. 이용해 주셔서 감사합니다.",
+                    NotificationType.RESERVATION,
+                    reservation.getId()
+            );
             notificationCommandService.createNotification(request);
 
         } catch (Exception e) {

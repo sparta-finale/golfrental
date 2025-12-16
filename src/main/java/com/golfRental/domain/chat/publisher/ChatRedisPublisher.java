@@ -19,9 +19,9 @@ public class ChatRedisPublisher {
         try {
             redisTemplate.convertAndSend(CHAT_CHANNEL, event);
             log.info("Redis 메시지 발행 성공 - chatRoomId: {}, messageId: {}",
-                    event.getChatRoomId(), event.getMessage().messageId());
+                    event.chatRoomId(), event.message().messageId());
         } catch (Exception e) {
-            log.error("Redis 메시지 발행 실패 - chatRoomId: {}", event.getChatRoomId(), e);
+            log.error("Redis 메시지 발행 실패 - chatRoomId: {}", event.chatRoomId(), e);
             throw new RuntimeException("Failed to publish message to Redis", e);
         }
     }

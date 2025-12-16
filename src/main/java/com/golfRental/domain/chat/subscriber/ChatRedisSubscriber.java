@@ -39,9 +39,9 @@ public class ChatRedisSubscriber implements MessageListener {
             ChatMessageEvent event = objectMapper.readValue(body, ChatMessageEvent.class);
 
             log.info("Redis 메시지 수신 - chatRoomId: {}, messageId: {}",
-                    event.getChatRoomId(), event.getMessage().messageId());
+                    event.chatRoomId(), event.message().messageId());
 
-            chatWebSocketHandler.broadcastToRoom(event.getChatRoomId(), event.getMessage());
+            chatWebSocketHandler.broadcastToRoom(event.chatRoomId(), event.message());
 
         } catch (Exception e) {
             log.error("Redis 메시지 처리 실패", e);

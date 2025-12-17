@@ -15,9 +15,13 @@ import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -29,35 +33,64 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
     private final PostQueryService postQueryService;
     private final UserQueryService userQueryService;
     private final ApplicationEventPublisher eventPublisher;
+    private final RedissonClient redissonClient;
 
     // 예약 생성
     @Override
     public ReservationCreateResponse createReservation(ReservationCreateRequest request, Long userId) {
 
-        Post post = postQueryService.findById(request.postId());
-        User guestUser = userQueryService.findById(userId);
-        User hostUser = post.getUser();
+        String lockKey = "reservation:post:" + request.postId();
+        RLock lock = redissonClient.getLock(lockKey);
 
-        // 검증 로직 시작
-        validateReservationCreation(post, guestUser, request);
+        try {
 
-        Reservation reservation = Reservation.builder()
-                .post(post)
-                .hostUser(hostUser)
-                .guestUser(guestUser)
-                .reservationStartAt(request.reservationStartAt())
-                .reservationEndAt(request.reservationEndAt())
-                .price(request.price())
-                .deposit(request.deposit())
-                .status(ReservationStatus.REQUESTED)
-                .build();
+            boolean available = lock.tryLock(3, 5, TimeUnit.SECONDS);
 
-        Reservation saved = reservationRepository.save(reservation);
+            if (!available) {
+                log.warn("예약 락 획득 실패 - postId: {}, userId: {}", request.postId(), userId);
+                throw new ReservationException(ReservationErrorCode.LOCK_ACQUISITION_FAILED);
+            }
 
-        // 예약 생성 이벤트 발행
-        eventPublisher.publishEvent(new ReservationCreatedEvent(saved));
+            log.info("예약 락 획득 성공 - postId: {}, lockKey: {}", request.postId(), lockKey);
 
-        return ReservationCreateResponse.from(saved);
+            Post post = postQueryService.findById(request.postId());
+            User guestUser = userQueryService.findById(userId);
+            User hostUser = post.getUser();
+
+            // 검증 로직 시작
+            validateReservationCreation(post, guestUser, request);
+
+            Reservation reservation = Reservation.builder()
+                    .post(post)
+                    .hostUser(hostUser)
+                    .guestUser(guestUser)
+                    .reservationStartAt(request.reservationStartAt())
+                    .reservationEndAt(request.reservationEndAt())
+                    .price(request.price())
+                    .deposit(request.deposit())
+                    .status(ReservationStatus.REQUESTED)
+                    .build();
+
+            Reservation saved = reservationRepository.save(reservation);
+
+            // 예약 생성 이벤트 발행
+            eventPublisher.publishEvent(new ReservationCreatedEvent(saved));
+
+            return ReservationCreateResponse.from(saved);
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("예약 락 인터럽트 - postId: {}, userId: {}", request.postId(), userId, e);
+            throw new ReservationException(ReservationErrorCode.LOCK_INTERRUPTED);
+
+        } finally {
+
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+                log.info("예약 락 해제 완료 - postId: {}, lockKey: {}", request.postId(), lockKey);
+
+            }
+        }
     }
 
     // 승인

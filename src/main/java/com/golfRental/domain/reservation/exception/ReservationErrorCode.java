@@ -26,7 +26,10 @@ public enum ReservationErrorCode implements ErrorCode {
     RESERVATION_SELF_BOOKING_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "자신의 게시글은 예약할 수 없습니다."),
     RESERVATION_INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "예약 종료일은 시작일보다 이후여야 합니다."),
     RESERVATION_POST_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "예약할 수 없는 상태의 게시글입니다."),
-    RESERVATION_DATE_CONFLICT(HttpStatus.BAD_REQUEST, "해당 기간에 이미 예약이 존재합니다.");
+    RESERVATION_DATE_CONFLICT(HttpStatus.BAD_REQUEST, "해당 기간에 이미 예약이 존재합니다."),
+    LOCK_INTERRUPTED(HttpStatus.INTERNAL_SERVER_ERROR, "예약 처리 중 오류가 발생했습니다."),
+    LOCK_ACQUISITION_FAILED(HttpStatus.CONFLICT, "다른 사용자가 예약 처리 중입니다. 잠시 후 다시 시도해주세요.");
+
 
     private final HttpStatus httpStatus;
     private final String message;

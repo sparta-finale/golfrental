@@ -7,5 +7,5 @@ public enum ReservationStatus {
     RENTED,      // 대여 중
     RETURNING,   // 반납 요청됨
     COMPLETED,   // 대여 완료
-    CANCELLED    // 게스트 취소
+    CANCELLED// 게스트 취소
 }

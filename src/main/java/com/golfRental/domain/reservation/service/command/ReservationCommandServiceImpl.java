@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 @Transactional
 public class ReservationCommandServiceImpl implements ReservationCommandService {
 
+    private static final long LOCK_WAIT_TIME_SECONDS = 3L;
+    private static final long LOCK_LEASE_TIME_SECONDS = 5L;
     private final ReservationRepository reservationRepository;
     private final PostQueryService postQueryService;
     private final UserQueryService userQueryService;
@@ -44,7 +46,7 @@ public class ReservationCommandServiceImpl implements ReservationCommandService 
 
         try {
 
-            boolean available = lock.tryLock(3, 5, TimeUnit.SECONDS);
+            boolean available = lock.tryLock(LOCK_WAIT_TIME_SECONDS, LOCK_LEASE_TIME_SECONDS, TimeUnit.SECONDS);
 
             if (!available) {
                 log.warn("예약 락 획득 실패 - postId: {}, userId: {}", request.postId(), userId);

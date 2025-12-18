@@ -9,11 +9,12 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
+import dev.langchain4j.store.embedding.redis.RedisEmbeddingStore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import redis.clients.jedis.JedisPooled;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +25,7 @@ public class LangChainConfig {
 
     @Value("${langchain.chat.memory.max-messages:10}")
     private int maxMessages;
-    
+
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
@@ -36,6 +37,25 @@ public class LangChainConfig {
 
     @Value("${gemini.api.max-tokens:2048}")
     private Integer maxTokens;
+
+    @Value("${spring.data.redis.host:localhost}")
+    private String redisHost;
+
+    @Value("${spring.data.redis.port:6379}")
+    private int redisPort;
+
+    // Redis Vector Store 설정
+    @Value("${redis.vector-store.post.index-name:post-embeddings}")
+    private String postIndexName;
+
+    @Value("${redis.vector-store.post.dimension:384}")
+    private int postDimension;
+
+    @Value("${redis.vector-store.document.index-name:document-embeddings}")
+    private String documentIndexName;
+
+    @Value("${redis.vector-store.document.dimension:384}")
+    private int documentDimension;
 
     @Bean
     public ChatLanguageModel chatLanguageModel() {
@@ -49,11 +69,21 @@ public class LangChainConfig {
                 .build();
     }
 
-    @Bean("postStore")
-    public EmbeddingStore<TextSegment> postStore() {
-        log.info("Post Vector Store 초기화");
+    @Bean
+    public JedisPooled jedisPooled() {
+        log.info("Redis Client 초기화 - host: {}, port: {}", redisHost, redisPort);
+        return new JedisPooled(redisHost, redisPort);
+    }
 
-        return new InMemoryEmbeddingStore<>();
+    @Bean("postStore")
+    public EmbeddingStore<TextSegment> postStore(JedisPooled jedisPooled) {
+
+        return RedisEmbeddingStore.builder()
+                .host(redisHost)
+                .port(redisPort)
+                .indexName(postIndexName)
+                .dimension(postDimension)
+                .build();
     }
 
     @Bean
@@ -64,10 +94,14 @@ public class LangChainConfig {
     }
 
     @Bean("documentStore")
-    public EmbeddingStore<TextSegment> documentStore() {
-        log.info("Document Vector Store 초기화");
+    public EmbeddingStore<TextSegment> documentStore(JedisPooled jedisPooled) {
 
-        return new InMemoryEmbeddingStore<>();
+        return RedisEmbeddingStore.builder()
+                .host(redisHost)
+                .port(redisPort)
+                .indexName(documentIndexName)
+                .dimension(documentDimension)
+                .build();
     }
 
     @Bean

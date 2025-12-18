@@ -77,6 +77,7 @@ public class LangChainConfig {
 
     @Bean("postStore")
     public EmbeddingStore<TextSegment> postStore(JedisPooled jedisPooled) {
+        log.info("Post Redis Vector Store 초기화 - index: {}, dimension: {}", postIndexName, postDimension);
 
         return RedisEmbeddingStore.builder()
                 .host(redisHost)
@@ -88,13 +89,14 @@ public class LangChainConfig {
 
     @Bean
     public EmbeddingModel embeddingModel() {
-        log.info("Embedding Model 초기화 - All-MiniLM-L6-v2");
+        log.info("Embedding Model 초기화 - All-MiniLM-L6-v2 (384 dimension)");
 
         return new AllMiniLmL6V2EmbeddingModel();
     }
 
     @Bean("documentStore")
     public EmbeddingStore<TextSegment> documentStore(JedisPooled jedisPooled) {
+        log.info("Document Redis Vector Store 초기화 - index: {}, dimension: {}", documentIndexName, documentDimension);
 
         return RedisEmbeddingStore.builder()
                 .host(redisHost)

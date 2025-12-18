@@ -124,7 +124,8 @@ public class PostQueryServiceImpl implements PostQueryService {
     @Cacheable(
             value = "postListCache",
             key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort.toString()}",
-            unless = "#result == null || #result.content.isEmpty()"
+            unless = "#result == null || #result.content.isEmpty()",
+            sync = true
     )
     public SliceResponse<PostGetAllPublicResponse> getAllPublic(Pageable pageable) {
         Slice<Post> posts = postRepository.findAllOrderByStatus(pageable);

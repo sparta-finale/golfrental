@@ -24,7 +24,7 @@ jobs:
           --health-retries 5
 
       redis:
-        image: redis:7-alpine
+        image: redis/redis-stack-server:latest
         ports:
           - 6379:6379
         options: >-
@@ -38,10 +38,11 @@ jobs:
       SPRING_DATASOURCE_MYSQL_USERNAME: ${{secrets.SPRING_DATASOURCE_MYSQL_USERNAME}}
       SPRING_DATASOURCE_MYSQL_PASSWORD: ${{secrets.SPRING_DATASOURCE_MYSQL_PASSWORD}}
 
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+
       JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
-
       GEMINI_API_KEY: ${{secrets.GEMINI_API_KEY}}
-
       AWS_S3_BUCKET: ${{secrets.AWS_S3_BUCKET}}
       AWS_REGION: ${{secrets.AWS_REGION}}
       AWS_ACCESS_KEY: ${{secrets.AWS_ACCESS_KEY}}

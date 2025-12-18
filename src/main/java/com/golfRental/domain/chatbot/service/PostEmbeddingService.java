@@ -10,26 +10,33 @@ import dev.langchain4j.store.embedding.EmbeddingStore;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
 public class PostEmbeddingService {
 
     private static final int EMBEDDING_BATCH_SIZE = 100;
+    private static final String REDIS_INIT_KEY = "post-embeddings:initialized";
+
     private final PostQueryService postQueryService;
     private final EmbeddingModel embeddingModel;
     private final EmbeddingStore<TextSegment> postStore;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public PostEmbeddingService(
             PostQueryService postQueryService,
             EmbeddingModel embeddingModel,
-            @Qualifier("postStore") EmbeddingStore<TextSegment> postStore) {
+            @Qualifier("postStore") EmbeddingStore<TextSegment> postStore,
+            RedisTemplate<String, String> redisTemplate) {
         this.postQueryService = postQueryService;
         this.embeddingModel = embeddingModel;
         this.postStore = postStore;
+        this.redisTemplate = redisTemplate;
     }
 
     @PostConstruct
@@ -37,47 +44,41 @@ public class PostEmbeddingService {
         long startTime = System.currentTimeMillis();
 
         try {
-            // 1. 전체 Post 조회 (이미 Fetch Join 적용됨)
+            Boolean isInitialized = redisTemplate.hasKey(REDIS_INIT_KEY);
+
+            if (Boolean.TRUE.equals(isInitialized)) {
+                long duration = System.currentTimeMillis() - startTime;
+                log.info("Post 임베딩 초기화 완료 - Redis 데이터 존재 ({}ms)", duration);
+                return;
+            }
+
+            log.info("Post 임베딩 생성 시작");
+
             List<Post> posts = postQueryService.findAll();
-            log.info("Post 조회 완료 - 총 {}개", posts.size());
 
             if (posts.isEmpty()) {
                 log.warn("임베딩할 Post가 없습니다");
                 return;
             }
 
-            // 2. TextSegment 변환
-            log.info("TextSegment 변환 시작");
             List<TextSegment> allSegments = posts.stream()
                     .map(this::convertToTextSegment)
                     .toList();
-            log.info("TextSegment 변환 완료 - {}개", allSegments.size());
-
-            // 3. Chunk Batch 처리 (100개씩)
 
             int total = allSegments.size();
-
-            log.info("Chunk Batch 임베딩 시작 - Batch Size: {}, 총 {}회 호출 예정",
-                    EMBEDDING_BATCH_SIZE, (total + EMBEDDING_BATCH_SIZE - 1) / EMBEDDING_BATCH_SIZE);
 
             for (int i = 0; i < total; i += EMBEDDING_BATCH_SIZE) {
                 int end = Math.min(i + EMBEDDING_BATCH_SIZE, total);
                 List<TextSegment> batchSegments = allSegments.subList(i, end);
 
-                // Batch 임베딩 (100개씩)
                 List<Embedding> batchEmbeddings = embeddingModel.embedAll(batchSegments).content();
-
-                // Vector Store 저장
                 postStore.addAll(batchEmbeddings, batchSegments);
-
-                log.info("Batch 처리 진행률: {}/{} ({} ~ {})",
-                        end, total, i + 1, end);
             }
 
-            long endTime = System.currentTimeMillis();
-            long durationMs = endTime - startTime;
-            long durationSec = durationMs / 1000;
-            log.info("Post 임베딩 완료. 총 {}개, 소요 시간: {}초", total, durationSec);
+            redisTemplate.opsForValue().set(REDIS_INIT_KEY, "true", 30, TimeUnit.DAYS);
+
+            long duration = (System.currentTimeMillis() - startTime) / 1000;
+            log.info("Post 임베딩 생성 완료 - 총 {}개, {}초", total, duration);
 
         } catch (Exception e) {
             log.error("Post 임베딩 실패", e);

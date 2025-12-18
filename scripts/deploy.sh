@@ -60,7 +60,7 @@ CMDS=(
   "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${REG_URI}"
   "docker pull ${FULL_URI}"
   "docker network create golf-rental-network || true"
-  "docker ps -a --filter name=golf-rental-redis --format '{{.Names}}' | grep -q golf-rental-redis || docker run -d --name golf-rental-redis --restart=always --network golf-rental-network -p 6379:6379 redis:7-alpine"
+  "docker ps -a --filter name=golf-rental-redis --format '{{.Names}}' | grep -q golf-rental-redis || docker run -d --name golf-rental-redis --restart=always --network golf-rental-network -p 6379:6379 redis/redis-stack-server:latest"
   "sudo mkdir -p /app-logs && sudo chmod 777 /app-logs"
   "docker stop ${CONTAINER_NAME} || true"
   "docker rm   ${CONTAINER_NAME} || true"

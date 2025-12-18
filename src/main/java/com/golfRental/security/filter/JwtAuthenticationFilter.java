@@ -32,6 +32,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final String BEARER_PREFIX = "bearer ";
+
     private final JwtUtil jwtUtil;
     private final ObjectMapper objectMapper;
 
@@ -61,26 +63,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /**
      * JWT 토큰 추출
-     * Authorization Header (Bearer)
-     * access_token Query Parameter (SSE 대응)
+     * 1. Authorization Header (Bearer, case-insensitive)
+     * 2. access_token Query Parameter (SSE 대응)
      */
     private String resolveToken(HttpServletRequest request) {
+
         // 1. Authorization Header 우선
         String authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return jwtUtil.substringToken(authorizationHeader);
+        if (authorizationHeader != null &&
+                authorizationHeader.toLowerCase().startsWith(BEARER_PREFIX)) {
+
+            return authorizationHeader.substring(BEARER_PREFIX.length());
         }
 
         // 2. SSE 대응: Query Parameter
         String accessToken = request.getParameter("access_token");
         if (accessToken != null && !accessToken.isBlank()) {
+            if (accessToken.toLowerCase().startsWith(BEARER_PREFIX)) {
+                return accessToken.substring(BEARER_PREFIX.length());
+            }
             return accessToken;
         }
 
         return null;
     }
 
-    // JWT 토큰을 검증하고 SecurityContext에 인증 정보를 설정하는 메서드
+    // JWT 토큰을 검증하고 SecurityContext에 인증 정보를 설정
     private boolean processAuthentication(
             String jwt,
             HttpServletRequest request,

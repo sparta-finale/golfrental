@@ -16,6 +16,7 @@ import com.golfRental.domain.user.entity.User;
 import com.golfRental.domain.user.service.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -29,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Transactional
 public class NotificationCommandServiceImpl implements NotificationCommandService {
 
-    private static final Long DEFAULT_TIMEOUT = 300_000L; //5분
+    private static final Long DEFAULT_TIMEOUT = 360000L;
     private final NotificationRepository notificationRepository;
     private final UserQueryService userQueryService;
     private final SseEmitterRepository sseEmitterRepository;
@@ -68,7 +69,34 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
         return emitter;
     }
 
-    private void sendNotification(Long userId, NotificationResponse notification) {
+    @Scheduled(fixedRate = 30000)
+    public void sendHeartbeat() {
+        int successCount = 0;
+        int failCount = 0;
+
+        for (Long userId : sseEmitterRepository.getAllUserIds()) {
+            SseEmitter emitter = sseEmitterRepository.get(userId);
+
+            if (emitter != null) {
+                try {
+                    emitter.send(SseEmitter.event()
+                            .name("heartbeat")
+                            .data("ping"));
+                    successCount++;
+                } catch (Exception e) {
+                    log.warn("하트비트 전송 실패 - userId: {}", userId, e);
+                    sseEmitterRepository.deleteById(userId);
+                    failCount++;
+                }
+            }
+        }
+
+        if (successCount > 0 || failCount > 0) {
+            log.debug("SSE 하트비트 전송 완료 - 성공: {}, 실패: {}", successCount, failCount);
+        }
+    }
+
+    public void sendNotification(Long userId, NotificationResponse notification) {
         SseEmitter emitter = sseEmitterRepository.get(userId);
 
         if (emitter != null) {

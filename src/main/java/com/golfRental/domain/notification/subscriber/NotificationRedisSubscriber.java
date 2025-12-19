@@ -3,6 +3,7 @@ package com.golfRental.domain.notification.subscriber;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.golfRental.domain.notification.dto.event.NotificationEvent;
 import com.golfRental.domain.notification.repository.SseEmitterRepository;
+import com.golfRental.domain.notification.service.command.NotificationCommandService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class NotificationRedisSubscriber implements MessageListener {
     private final RedisMessageListenerContainer container;
     private final SseEmitterRepository sseEmitterRepository;
     private final ObjectMapper objectMapper;
+    private final NotificationCommandService notificationCommandService;
 
     @PostConstruct
     public void init() {
@@ -41,7 +43,9 @@ public class NotificationRedisSubscriber implements MessageListener {
             log.info("Redis 알림 수신 - userId: {}, notificationId: {}",
                     event.userId(), event.notification().id());
 
-            sendToUser(event.userId(), event.notification());
+            notificationCommandService.sendNotification(
+                    event.userId(),
+                    event.notification());
 
         } catch (Exception e) {
             log.error("Redis 알림 처리 실패", e);

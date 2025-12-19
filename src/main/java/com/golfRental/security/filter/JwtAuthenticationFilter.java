@@ -32,37 +32,68 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final String BEARER_PREFIX = "bearer ";
+
     private final JwtUtil jwtUtil;
     private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest httpRequest,
-            @NonNull HttpServletResponse httpResponse,
+            HttpServletRequest request,
+            @NonNull HttpServletResponse response,
             @NonNull FilterChain chain
     ) throws ServletException, IOException {
-        // HTTP 요청 헤더에서 "Authorization" 헤더값을 가져옴
-        String authorizationHeader = httpRequest.getHeader("Authorization");
 
-        // Authorization 헤더가 없거나 "Bearer "로 시작하지 않으면 JWT 인증을 건너뜀
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            chain.doFilter(httpRequest, httpResponse);
+        // JWT 추출 로직 통합
+        String jwt = resolveToken(request);
+
+        // 토큰이 없으면 인증 시도 없이 다음 필터
+        if (jwt == null) {
+            chain.doFilter(request, response);
             return;
         }
-
-        String jwt = jwtUtil.substringToken(authorizationHeader);
 
         // JWT 검증 및 인증 설정
-        if (!processAuthentication(jwt, httpRequest, httpResponse)) {
+        if (!processAuthentication(jwt, request, response)) {
             return;
         }
 
-        // JWT 검증 성공 시 다음 필터로 요청 전달
-        chain.doFilter(httpRequest, httpResponse);
+        chain.doFilter(request, response);
     }
 
-    // JWT 토큰을 검증하고 SecurityContext에 인증 정보를 설정하는 메서드
-    private boolean processAuthentication(String jwt, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    /**
+     * JWT 토큰 추출
+     * 1. Authorization Header (Bearer, case-insensitive)
+     * 2. access_token Query Parameter (SSE 대응)
+     */
+    private String resolveToken(HttpServletRequest request) {
+
+        // 1. Authorization Header 우선
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null &&
+                authorizationHeader.toLowerCase().startsWith(BEARER_PREFIX)) {
+
+            return authorizationHeader.substring(BEARER_PREFIX.length());
+        }
+
+        // 2. SSE 대응: Query Parameter
+        String accessToken = request.getParameter("access_token");
+        if (accessToken != null && !accessToken.isBlank()) {
+            if (accessToken.toLowerCase().startsWith(BEARER_PREFIX)) {
+                return accessToken.substring(BEARER_PREFIX.length());
+            }
+            return accessToken;
+        }
+
+        return null;
+    }
+
+    // JWT 토큰을 검증하고 SecurityContext에 인증 정보를 설정
+    private boolean processAuthentication(
+            String jwt,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException {
         try {
             // JWT 토큰을 파싱하여 Claims(토큰에 담긴 정보) 추출
             Claims claims = jwtUtil.extractClaims(jwt);
@@ -98,7 +129,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return false;
 
         } catch (Exception e) {
-            log.error("예상치 못한 JWT 검증 오류: URI={}", request.getRequestURI(), e);
+            log.error("JWT 검증 중 서버 오류: URI={}", request.getRequestURI(), e);
             sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
 
             return false;
@@ -112,21 +143,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 커스텀 claim에서 사용자 권한 정보를 추출하여 enum으로 변환
         UserRole userRole = UserRole.of(claims.get("userRole", String.class));
 
-        // 추출한 정보로 인증된 사용자 객체 생성
         AuthUser authUser = new AuthUser(userId, userRole);
-        // Spring Security가 인식할 수 있는 Authentication 객체 생성
-        Authentication authenticationToken = new JwtAuthenticationToken(authUser);
-        // SecurityContext에 인증 정보 저장 - 이후 @AuthenticationPrincipal로 접근 가능
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        Authentication authentication = new JwtAuthenticationToken(authUser);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    private void sendErrorResponse(HttpServletResponse response, HttpStatus status, String message) throws IOException {
+    private void sendErrorResponse(
+            HttpServletResponse response,
+            HttpStatus status,
+            String message
+    ) throws IOException {
         response.setStatus(status.value());
         response.setContentType("application/json;charset=UTF-8");
+
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("status", status.name());
         errorResponse.put("code", status.value());
         errorResponse.put("message", message);
+
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }

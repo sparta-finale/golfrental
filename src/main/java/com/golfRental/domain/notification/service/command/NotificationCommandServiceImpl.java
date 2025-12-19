@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -30,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Transactional
 public class NotificationCommandServiceImpl implements NotificationCommandService {
 
-    private static final Long DEFAULT_TIMEOUT = 360000L;
+    private static final Long DEFAULT_TIMEOUT = 6 * 60 * 1000L;
     private final NotificationRepository notificationRepository;
     private final UserQueryService userQueryService;
     private final SseEmitterRepository sseEmitterRepository;
@@ -74,23 +75,21 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
         int successCount = 0;
         int failCount = 0;
 
-        for (Long userId : sseEmitterRepository.getAllUserIds()) {
-            SseEmitter emitter = sseEmitterRepository.get(userId);
+        for (Map.Entry<Long, SseEmitter> entry : sseEmitterRepository.getAllEntries()) {
+            Long userId = entry.getKey();
+            SseEmitter emitter = entry.getValue();
 
-            if (emitter != null) {
-                try {
-                    emitter.send(SseEmitter.event()
-                            .name("heartbeat")
-                            .data("ping"));
-                    successCount++;
-                } catch (Exception e) {
-                    log.warn("하트비트 전송 실패 - userId: {}", userId, e);
-                    sseEmitterRepository.deleteById(userId);
-                    failCount++;
-                }
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("heartbeat")
+                        .data("ping"));
+                successCount++;
+            } catch (Exception e) {
+                log.warn("하트비트 전송 실패 - userId: {}", userId, e);
+                sseEmitterRepository.deleteById(userId);
+                failCount++;
             }
         }
-
         if (successCount > 0 || failCount > 0) {
             log.debug("SSE 하트비트 전송 완료 - 성공: {}, 실패: {}", successCount, failCount);
         }

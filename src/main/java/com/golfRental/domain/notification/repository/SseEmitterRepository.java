@@ -30,6 +30,10 @@ public class SseEmitterRepository {
         return emitters.keySet();
     }
 
+    public Set<Map.Entry<Long, SseEmitter>> getAllEntries() {
+        return emitters.entrySet();
+    }
+
     public int size() {
         return emitters.size();
     }

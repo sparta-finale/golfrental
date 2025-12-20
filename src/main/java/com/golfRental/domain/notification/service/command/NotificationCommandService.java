@@ -11,6 +11,7 @@ public interface NotificationCommandService {
     //SSE 구독 API 구현
     SseEmitter subscribe(Long userId);
 
+    void sendNotification(Long userId, NotificationResponse notification);
 
     NotificationResponse createNotification(NotificationCreateRequest request);
 

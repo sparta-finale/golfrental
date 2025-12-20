@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -17,11 +18,24 @@ public class SseEmitterRepository {
         emitters.put(userId, emitter);
     }
 
+    public SseEmitter get(Long userId) {
+        return emitters.get(userId);
+    }
+
     public void deleteById(Long userId) {
         emitters.remove(userId);
     }
 
-    public SseEmitter get(Long userId) {
-        return emitters.get(userId);
+    public Set<Long> getAllUserIds() {
+        return emitters.keySet();
     }
+
+    public Set<Map.Entry<Long, SseEmitter>> getAllEntries() {
+        return emitters.entrySet();
+    }
+
+    public int size() {
+        return emitters.size();
+    }
+
 }

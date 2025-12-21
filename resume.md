@@ -99,6 +99,5 @@
 - **Backend**: Java, Spring Boot, Spring Security
 - **Real-time**: WebSocket, SSE (Server-Sent Events)
 - **Cache/Message Broker**: Redis, Redis Pub/Sub, Redisson
-- **AI/ML**
-- LangChain4j, Google Gemini API, Redis Vector Store (RediSearch)
-  • ​Infra​: Docker, GitHub Actions (CI/CD)
+- **AI/ML**: LangChain4j, Google Gemini API, Redis Vector Store (RediSearch)
+- **Infra**: Docker, GitHub Actions (CI/CD)

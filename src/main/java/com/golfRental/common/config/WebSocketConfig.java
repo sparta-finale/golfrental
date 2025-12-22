@@ -20,6 +20,12 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(chatWebSocketHandler, "/ws/chat/{chatRoomId}")
                 .addInterceptors(jwtHandshakeInterceptor)
-                .setAllowedOrigins("http://localhost:3000", "http://localhost:8080");
+                .setAllowedOrigins(
+                        "http://localhost:3000",
+                        "http://localhost:3001",
+                        "http://localhost:3002",
+                        "http://13.209.84.23",
+                        "http://13.209.84.23:3000"
+                );
     }
 }

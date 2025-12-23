@@ -80,3 +80,7 @@ logging:
 toss:
   secret-key: ${TOSS_SECRET_KEY}
   base-url: https://api.tosspayments.com/v1/payments
+
+# cors.allowed-origins는 환경별(application-*.yml)로 관리
+cors:
+  allowed-origins: ""

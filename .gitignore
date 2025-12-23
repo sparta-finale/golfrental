@@ -41,7 +41,6 @@ src/main/resources/application-local.yml
 .env
 *.http
 
-WebConfig.java
 PerformanceLogInterceptor.java
 
 ### k6 Test ###

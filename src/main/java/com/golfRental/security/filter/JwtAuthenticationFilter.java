@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,6 +37,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final ObjectMapper objectMapper;
+
+    /**
+     * 인증이 필요 없는 경로는 JWT 필터 자체를 타지 않음
+     */
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+
+        // CORS Preflight 요청은 무조건 제외
+        if (HttpMethod.OPTIONS.matches(request.getMethod())) {
+            return true;
+        }
+
+        return
+                // Auth
+                path.startsWith("/api/v1/login") ||
+                        path.startsWith("/api/v1/signup") ||
+
+                        // Public API
+                        path.startsWith("/api/v1/public") ||
+
+                        // Swagger / Actuator
+                        path.startsWith("/v3/api-docs") ||
+                        path.startsWith("/swagger-ui") ||
+                        path.startsWith("/actuator") ||
+
+                        // Static / Front entry
+                        path.equals("/") ||
+                        path.startsWith("/favicon") ||
+                        path.startsWith("/static") ||
+                        path.startsWith("/assets") ||
+                        path.endsWith(".html");
+    }
 
     @Override
     protected void doFilterInternal(
@@ -68,7 +102,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private String resolveToken(HttpServletRequest request) {
 
-        // 1. Authorization Header 우선
+        // 1. Authorization Header
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null &&
                 authorizationHeader.toLowerCase().startsWith(BEARER_PREFIX)) {
@@ -76,7 +110,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return authorizationHeader.substring(BEARER_PREFIX.length());
         }
 
-        // 2. SSE 대응: Query Parameter
+        // 2. SSE Query Parameter
         String accessToken = request.getParameter("access_token");
         if (accessToken != null && !accessToken.isBlank()) {
             if (accessToken.toLowerCase().startsWith(BEARER_PREFIX)) {
@@ -94,6 +128,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
+
         try {
             // JWT 토큰을 파싱하여 Claims(토큰에 담긴 정보) 추출
             Claims claims = jwtUtil.extractClaims(jwt);
@@ -104,32 +139,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             return true; // 검증 성공
 
-        } catch (SignatureException e) {
-            log.warn("JWT 서명 불일치: URI={}", request.getRequestURI(), e);
-            sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 서명입니다.");
-
-            return false;
-
-        } catch (MalformedJwtException e) {
-            log.warn("잘못된 JWT 형식: URI={}", request.getRequestURI(), e);
-            sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "잘못된 JWT 토큰입니다.");
-
+        } catch (SignatureException | MalformedJwtException | UnsupportedJwtException e) {
+            sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다.");
             return false;
 
         } catch (ExpiredJwtException e) {
-            log.warn("JWT 만료: userId={}, URI={}", e.getClaims().getSubject(), request.getRequestURI());
             sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "만료된 JWT 토큰입니다.");
-
-            return false;
-
-        } catch (UnsupportedJwtException e) {
-            log.warn("지원되지 않는 JWT: URI={}", request.getRequestURI(), e);
-            sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "지원되지 않는 JWT 토큰입니다.");
-
             return false;
 
         } catch (Exception e) {
-            log.error("JWT 검증 중 서버 오류: URI={}", request.getRequestURI(), e);
+            log.error("JWT 처리 중 서버 오류", e);
             sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
 
             return false;
@@ -153,14 +172,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpStatus status,
             String message
     ) throws IOException {
+
         response.setStatus(status.value());
         response.setContentType("application/json;charset=UTF-8");
 
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("status", status.name());
-        errorResponse.put("code", status.value());
-        errorResponse.put("message", message);
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", status.name());
+        body.put("code", status.value());
+        body.put("message", message);
 
-        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+        response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 }

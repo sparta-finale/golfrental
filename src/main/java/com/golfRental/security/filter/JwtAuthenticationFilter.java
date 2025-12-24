@@ -39,7 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
 
     /**
-     * 인증이 필요 없는 경로는 JWT 필터 자체를 타지 않음
+     * SecurityConfig의 permitAll 규칙과 정확히 일치하도록
+     * JWT 필터 제외 경로 + HTTP Method를 함께 검사
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -52,11 +53,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         return
                 // Auth
-                path.startsWith("/api/v1/login") ||
-                        path.startsWith("/api/v1/signup") ||
+                (HttpMethod.POST.matches(request.getMethod()) &&
+                        (path.startsWith("/api/v1/login") ||
+                                path.startsWith("/api/v1/signup"))) ||
 
                         // Public API
-                        path.startsWith("/api/v1/public") ||
+                        (HttpMethod.GET.matches(request.getMethod()) &&
+                                (path.startsWith("/api/v1/categories") ||
+                                        path.startsWith("/api/v1/public/posts"))) ||
 
                         // Swagger / Actuator
                         path.startsWith("/v3/api-docs") ||
@@ -140,17 +144,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return true; // 검증 성공
 
         } catch (SignatureException | MalformedJwtException | UnsupportedJwtException e) {
+            log.warn("유효하지 않은 JWT 토큰입니다. uri={}", request.getRequestURI());
             sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다.");
             return false;
 
         } catch (ExpiredJwtException e) {
+            log.warn(
+                    "만료된 JWT 토큰입니다. userId={}, uri={}",
+                    e.getClaims().getSubject(),
+                    request.getRequestURI()
+            );
             sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "만료된 JWT 토큰입니다.");
             return false;
 
         } catch (Exception e) {
             log.error("JWT 처리 중 서버 오류", e);
             sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
-
             return false;
         }
     }

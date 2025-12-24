@@ -54,37 +54,27 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        // Swagger / Actuator
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html")
-                        .permitAll()
+                                "/swagger-ui.html",
+                                "/actuator/**"
+                        ).permitAll()
 
-                        .requestMatchers(
-                                "/actuator/**")
-                        .permitAll()
-
+                        // Auth
                         .requestMatchers(HttpMethod.POST,
-                                "/api/v1/signup",
-                                "/api/v1/login")
-                        .permitAll()
+                                "/api/v1/login",
+                                "/api/v1/signup"
+                        ).permitAll()
 
+                        // Public API
                         .requestMatchers(HttpMethod.GET,
-                                "/actuator/health",
-                                "/actuator/info",
-                                "/actuator/prometheus")
-                        .permitAll()
+                                "/api/v1/categories/**",
+                                "/api/v1/public/posts/**"
+                        ).permitAll()
 
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/v1/categories",
-                                "/api/v1/categories/*")
-                        .permitAll()
-
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/v1/public/posts",
-                                "/api/v1/public/posts/*")
-                        .permitAll()
-
+                        // Admin
                         .requestMatchers("/api/v1/admin/**")
                         .hasRole("ADMIN")
 

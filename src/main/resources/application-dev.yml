@@ -40,7 +40,7 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: DEBUG
 
 cors:
-  allowed-origins: >
-    http://dev.golfrental.com,
-    http://13.209.84.23:3000,
-    https://golfrental-sepia.vercel.app
+  allowed-origins:
+    - http://dev.golfrental.com
+    - http://13.209.84.23:3000
+    - https://golfrental-sepia.vercel.app

@@ -54,6 +54,9 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        // Root (API 서버 진입점)
+                        .requestMatchers("/").permitAll()
+
                         // Swagger / Actuator
                         .requestMatchers(
                                 "/v3/api-docs/**",

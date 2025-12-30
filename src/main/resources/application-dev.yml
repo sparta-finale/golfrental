@@ -42,4 +42,5 @@ logging:
 cors:
   allowed-origins: >
     http://dev.golfrental.com,
-    http://13.209.84.23:3000
+    http://13.209.84.23:3000,
+    https://golfrental-sepia.vercel.app

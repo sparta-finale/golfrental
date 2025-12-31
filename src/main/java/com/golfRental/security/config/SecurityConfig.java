@@ -54,6 +54,9 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        // CORS Preflight (OPTIONS) 요청 전역 허용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         // Root (API 서버 진입점)
                         .requestMatchers("/").permitAll()
 

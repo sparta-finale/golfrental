@@ -108,7 +108,7 @@
 
 ### **협업 도구**
 
-![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white) ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white) ![Notion](https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white)
+![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white) <img src="https://img.shields.io/badge/-Swagger-%2385EA2D?style=for-the-badge&logo=swagger&logoColor=white"> ![Notion](https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white)
 
 </div>
 
@@ -334,23 +334,17 @@
 
 ```java
 // Before - 개별 호출
-for(Post post :posts){
-Embedding embedding = embeddingModel.embed(segment).content();  // 1,616번
-    postStore.
-
-add(embedding, segment);
+for (Post post : posts) {
+    Embedding embedding = embeddingModel.embed(segment).content();  // 1,616번
+    postStore.add(embedding, segment);
 }
 // 소요 시간: 23.8초
 
 // After - Batch 처리
-        for(
-int i = 0;
-i<total;i +=EMBEDDING_BATCH_SIZE){
-List<TextSegment> batchSegments = allSegments.subList(i, end);
-List<Embedding> batchEmbeddings = embeddingModel.embedAll(batchSegments).content();
-    postStore.
-
-addAll(batchEmbeddings, batchSegments);
+for (int i = 0; i < total; i += EMBEDDING_BATCH_SIZE) {
+    List<TextSegment> batchSegments = allSegments.subList(i, end);
+    List<Embedding> batchEmbeddings = embeddingModel.embedAll(batchSegments).content();
+    postStore.addAll(batchEmbeddings, batchSegments);
 }
 // 소요 시간: 15초
 ```
@@ -415,22 +409,16 @@ public void init() {
 
 ```java
 // Before - 개별 저장 (N+1 문제)
-for(User user :users){
-Notification notification = new Notification(user, ...);
-        notificationRepository.
-
-save(notification);  // 1,000번 DB 호출
+for (User user : users) {
+    Notification notification = new Notification(user, ...);
+    notificationRepository.save(notification);  // 1,000번 DB 호출
 }
 
 // After - Batch 저장
 List<Notification> notifications = users.stream()
-        .map(user -> new Notification(user, ...))
-        .
-
-toList();
-notificationRepository.
-
-saveAll(notifications);  // 1번 DB 호출
+    .map(user -> new Notification(user, ...))
+    .toList();
+notificationRepository.saveAll(notifications);  // 1번 DB 호출
 ```
 
 **결과:**
@@ -444,21 +432,13 @@ saveAll(notifications);  // 1번 DB 호출
 ```java
 // Before - 순차 발행
 notifications.forEach(notification ->
-        redisPublisher.
-
-publish(notification)  // 순차 처리 ~1.5초
+    redisPublisher.publish(notification)  // 순차 처리 ~1.5초
 );
 
 // After - 병렬 발행
-        notifications.
-
-parallelStream()
-    .
-
-forEach(notification ->
-        redisPublisher.
-
-publish(notification)  // 병렬 처리 ~0.1초
+notifications.parallelStream()
+    .forEach(notification ->
+        redisPublisher.publish(notification)  // 병렬 처리 ~0.1초
     );
 ```
 
@@ -510,29 +490,21 @@ publish(notification)  // 병렬 처리 ~0.1초
 String lockKey = "reservation:post:" + request.postId();
 RLock lock = redissonClient.getLock(lockKey);
 
-try{
-boolean available = lock.tryLock(3, 5, TimeUnit.SECONDS);
-    if(!available){
-        throw new
-
-ReservationException(LOCK_ACQUISITION_FAILED);
+try {
+    boolean available = lock.tryLock(3, 5, TimeUnit.SECONDS);
+    if (!available) {
+        throw new ReservationException(LOCK_ACQUISITION_FAILED);
     }
 
-// 락 안에서 검증 + 저장 (원자적 처리)
-validateReservationCreation(...);
-    reservationRepository.
+    // 락 안에서 검증 + 저장 (원자적 처리)
+    validateReservationCreation(...);
+    reservationRepository.save(reservation);
 
-save(reservation);
-
-}finally{
-        if(lock.
-
-isHeldByCurrentThread()){
-        lock.
-
-unlock();
+} finally {
+    if (lock.isHeldByCurrentThread()) {
+        lock.unlock();
     }
-            }
+}
 ```
 
 **핵심 설계:**
@@ -569,14 +541,12 @@ unlock();
 
 ```java
 // Before - 비효율적 순회
-for(Long userId :emitters.
-
-keySet()){  // N번 반복
-SseEmitter emitter = emitters.get(userId);  // N번 해시 조회
-    if(emitter !=null){
+for (Long userId : emitters.keySet()) {  // N번 반복
+    SseEmitter emitter = emitters.get(userId);  // N번 해시 조회
+    if (emitter != null) {
         // 하트비트 전송...
-        }
-        }
+    }
+}
 ```
 
 #### 💡 해결 과정
@@ -591,30 +561,19 @@ SseEmitter emitter = emitters.get(userId);  // N번 해시 조회
 
 ```java
 // After - 효율적 순회
-for(Map.Entry<Long, SseEmitter> entry :emitters.
+for (Map.Entry<Long, SseEmitter> entry : emitters.entrySet()) {
+    Long userId = entry.getKey();
+    SseEmitter emitter = entry.getValue();
 
-entrySet()){
-Long userId = entry.getKey();
-SseEmitter emitter = entry.getValue();
-
-    try{
-            emitter.
-
-send(SseEmitter.event().
-
-name("heartbeat").
-
-data("ping"));
-        }catch(
-IOException e){
-        emitters.
-
-remove(userId);  // 즉시 제거
-        log.
-
-info("좀비 연결 제거: userId={}",userId);
+    try {
+        emitter.send(SseEmitter.event()
+                .name("heartbeat")
+                .data("ping"));
+    } catch (IOException e) {
+        emitters.remove(userId);  // 즉시 제거
+        log.info("좀비 연결 제거: userId={}", userId);
     }
-            }
+}
 ```
 
 **개선 사항:**
@@ -783,7 +742,6 @@ cd golflender
 JWT_SECRET_KEY=your-secret-key-here
 # MySQL
 SPRING_DATASOURCE_MYSQL_URL=jdbc:mysql://localhost:3306/golfRental
-SPRING_DATASOURCE_MYSQL_DB_NAME=golfRental
 SPRING_DATASOURCE_MYSQL_USERNAME=root
 SPRING_DATASOURCE_MYSQL_PASSWORD=your-password
 # AWS S3

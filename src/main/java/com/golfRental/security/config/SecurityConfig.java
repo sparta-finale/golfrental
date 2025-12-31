@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
+import org.springframework.web.cors.CorsUtils;
 
 @Configuration
 @RequiredArgsConstructor
@@ -33,7 +34,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http
-                // WebConfig(WebMvcConfigurer)의 CORS 설정을 사용하도록 명시
+                // WebConfig(WebMvcConfigurer)의 CORS 설정을 사용
                 .cors(Customizer.withDefaults())
 
                 .csrf(AbstractHttpConfigurer::disable)
@@ -54,8 +55,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // CORS Preflight (OPTIONS) 요청 전역 허용
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // CORS Preflight 요청만 명확히 허용
+                        .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
 
                         // Root (API 서버 진입점)
                         .requestMatchers("/").permitAll()

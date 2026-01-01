@@ -62,7 +62,7 @@
 
 **개발 기간:** 2024.11 ~ 2024.12
 
-`GolfRental`은 골프 장비를 빌리고 대여하는 P2P 플랫폼입니다. 사용자 간 직거래를 지원하며, 실시간 채팅, AI 기반 챗봇, 스마트 알림 시스템을 통해 최상의 사용자 경험을 제공합니다.
+`GolfRental`은 골프 장비를 빌리고 대여하는 P2P 플랫폼입니다. 사용자 간 직거래를 지원하며, 실시간 채팅, AI 기반 챗봇, 스마트 알림 시스템을 통한 사용자 경험을 제공합니다.
 
 - **프론트엔드**: [https://golfrental-sepia.vercel.app](https://golfrental-sepia.vercel.app)
 - **백엔드 API**: http://dev.golfrental.com
@@ -179,48 +179,7 @@
 
 ## 7. API 명세
 
-자세한 API 문서는 [Swagger UI](http://dev.golfrental.com/swagger-ui/index.html)에서 확인할 수 있습니다.
-
-### 주요 API 엔드포인트
-
-#### 인증 (Auth)
-
-- `POST /api/v1/auth/signup` - 회원가입
-- `POST /api/v1/auth/login` - 로그인
-- `POST /api/v1/auth/refresh` - 토큰 갱신
-
-#### 게시글 (Post)
-
-- `GET /api/v1/posts` - 게시글 목록 조회
-- `GET /api/v1/posts/{id}` - 게시글 상세 조회
-- `POST /api/v1/posts` - 게시글 생성
-- `PUT /api/v1/posts/{id}` - 게시글 수정
-- `DELETE /api/v1/posts/{id}` - 게시글 삭제
-
-#### 예약 (Reservation)
-
-- `GET /api/v1/reservations` - 예약 목록 조회
-- `POST /api/v1/reservations` - 예약 생성
-- `PATCH /api/v1/reservations/{id}/status` - 예약 상태 변경
-
-#### 채팅 (Chat)
-
-- `GET /api/v1/chatrooms` - 채팅방 목록
-- `GET /api/v1/chatrooms/{id}` - 채팅방 상세
-- `POST /api/v1/chatrooms` - 채팅방 생성
-- `WebSocket /ws/chat/{chatRoomId}` - 실시간 채팅
-
-#### 알림 (Notification)
-
-- `GET /api/v1/notifications/subscribe` - SSE 구독
-- `GET /api/v1/notifications` - 알림 목록
-- `PATCH /api/v1/notifications/{id}/read` - 읽음 처리
-
-#### AI 챗봇 (Chatbot)
-
-- `POST /api/v1/chatbot/chat` - AI 챗봇 대화
-
-<br>
+자세한 API 문서는 [API 명세서](https://www.notion.so/ERD-API-2b64dacdf82080e9a64ec077a5d792cd?source=copy_link)에서 확인할 수 있습니다.
 
 ## 8. 기술적 의사결정
 
@@ -334,17 +293,23 @@
 
 ```java
 // Before - 개별 호출
-for (Post post : posts) {
-    Embedding embedding = embeddingModel.embed(segment).content();  // 1,616번
-    postStore.add(embedding, segment);
+for(Post post :posts){
+Embedding embedding = embeddingModel.embed(segment).content();  // 1,616번
+    postStore.
+
+add(embedding, segment);
 }
 // 소요 시간: 23.8초
 
 // After - Batch 처리
-for (int i = 0; i < total; i += EMBEDDING_BATCH_SIZE) {
-    List<TextSegment> batchSegments = allSegments.subList(i, end);
-    List<Embedding> batchEmbeddings = embeddingModel.embedAll(batchSegments).content();
-    postStore.addAll(batchEmbeddings, batchSegments);
+        for(
+int i = 0;
+i<total;i +=EMBEDDING_BATCH_SIZE){
+List<TextSegment> batchSegments = allSegments.subList(i, end);
+List<Embedding> batchEmbeddings = embeddingModel.embedAll(batchSegments).content();
+    postStore.
+
+addAll(batchEmbeddings, batchSegments);
 }
 // 소요 시간: 15초
 ```
@@ -409,16 +374,22 @@ public void init() {
 
 ```java
 // Before - 개별 저장 (N+1 문제)
-for (User user : users) {
-    Notification notification = new Notification(user, ...);
-    notificationRepository.save(notification);  // 1,000번 DB 호출
+for(User user :users){
+Notification notification = new Notification(user, ...);
+        notificationRepository.
+
+save(notification);  // 1,000번 DB 호출
 }
 
 // After - Batch 저장
 List<Notification> notifications = users.stream()
-    .map(user -> new Notification(user, ...))
-    .toList();
-notificationRepository.saveAll(notifications);  // 1번 DB 호출
+        .map(user -> new Notification(user, ...))
+        .
+
+toList();
+notificationRepository.
+
+saveAll(notifications);  // 1번 DB 호출
 ```
 
 **결과:**
@@ -432,13 +403,21 @@ notificationRepository.saveAll(notifications);  // 1번 DB 호출
 ```java
 // Before - 순차 발행
 notifications.forEach(notification ->
-    redisPublisher.publish(notification)  // 순차 처리 ~1.5초
+        redisPublisher.
+
+publish(notification)  // 순차 처리 ~1.5초
 );
 
 // After - 병렬 발행
-notifications.parallelStream()
-    .forEach(notification ->
-        redisPublisher.publish(notification)  // 병렬 처리 ~0.1초
+        notifications.
+
+parallelStream()
+    .
+
+forEach(notification ->
+        redisPublisher.
+
+publish(notification)  // 병렬 처리 ~0.1초
     );
 ```
 
@@ -490,21 +469,29 @@ notifications.parallelStream()
 String lockKey = "reservation:post:" + request.postId();
 RLock lock = redissonClient.getLock(lockKey);
 
-try {
-    boolean available = lock.tryLock(3, 5, TimeUnit.SECONDS);
-    if (!available) {
-        throw new ReservationException(LOCK_ACQUISITION_FAILED);
+try{
+boolean available = lock.tryLock(3, 5, TimeUnit.SECONDS);
+    if(!available){
+        throw new
+
+ReservationException(LOCK_ACQUISITION_FAILED);
     }
 
-    // 락 안에서 검증 + 저장 (원자적 처리)
-    validateReservationCreation(...);
-    reservationRepository.save(reservation);
+// 락 안에서 검증 + 저장 (원자적 처리)
+validateReservationCreation(...);
+    reservationRepository.
 
-} finally {
-    if (lock.isHeldByCurrentThread()) {
-        lock.unlock();
+save(reservation);
+
+}finally{
+        if(lock.
+
+isHeldByCurrentThread()){
+        lock.
+
+unlock();
     }
-}
+            }
 ```
 
 **핵심 설계:**
@@ -541,12 +528,14 @@ try {
 
 ```java
 // Before - 비효율적 순회
-for (Long userId : emitters.keySet()) {  // N번 반복
-    SseEmitter emitter = emitters.get(userId);  // N번 해시 조회
-    if (emitter != null) {
+for(Long userId :emitters.
+
+keySet()){  // N번 반복
+SseEmitter emitter = emitters.get(userId);  // N번 해시 조회
+    if(emitter !=null){
         // 하트비트 전송...
-    }
-}
+        }
+        }
 ```
 
 #### 💡 해결 과정
@@ -561,19 +550,32 @@ for (Long userId : emitters.keySet()) {  // N번 반복
 
 ```java
 // After - 효율적 순회
-for (Map.Entry<Long, SseEmitter> entry : emitters.entrySet()) {
-    Long userId = entry.getKey();
-    SseEmitter emitter = entry.getValue();
+for(Map.Entry<Long, SseEmitter> entry :emitters.
 
-    try {
-        emitter.send(SseEmitter.event()
-                .name("heartbeat")
-                .data("ping"));
-    } catch (IOException e) {
-        emitters.remove(userId);  // 즉시 제거
-        log.info("좀비 연결 제거: userId={}", userId);
+entrySet()){
+Long userId = entry.getKey();
+SseEmitter emitter = entry.getValue();
+
+    try{
+            emitter.
+
+send(SseEmitter.event()
+                .
+
+name("heartbeat")
+                .
+
+data("ping"));
+        }catch(
+IOException e){
+        emitters.
+
+remove(userId);  // 즉시 제거
+        log.
+
+info("좀비 연결 제거: userId={}",userId);
     }
-}
+            }
 ```
 
 **개선 사항:**

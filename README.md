@@ -66,14 +66,9 @@
 
 ## 2. 프로젝트 개요
 
-**개발 기간:** 2024.11 ~ 2024.12
+**개발 기간:** 2024.12 ~ 2024.12
 
 `GolfRental`은 골프 장비를 빌리고 대여하는 P2P 플랫폼입니다. 사용자 간 직거래를 지원하며, 실시간 채팅, AI 기반 챗봇, 스마트 알림 시스템을 통한 사용자 경험을 제공합니다.
-
-- **프론트엔드**: [https://golfrental-sepia.vercel.app](https://golfrental-sepia.vercel.app)
-- **백엔드 API**: http://dev.golfrental.com
-- **API 문서**: http://dev.golfrental.com/swagger-ui/index.html
-
 <br>
 
 ## 3. 주요 기술 스택
@@ -194,25 +189,24 @@
 ### 주요 의사결정 항목
 
 1. **실시간 통신**: WebSocket + SSE 병행 사용
-   - WebSocket: 양방향 채팅 기능
-   - SSE: 단방향 알림 기능
+    - WebSocket: 양방향 채팅 기능
+    - SSE: 단방향 알림 기능
 
 2. **AI 챗봇**: LangChain4j + Google Gemini 2.0 Flash
-   - Java 네이티브 통합, 빠른 응답 속도, 무료 tier
+    - Java 네이티브 통합, 빠른 응답 속도, 무료 tier
 
 3. **벡터 DB**: Redis Vector Store (RediSearch)
-   - 기존 Redis 인프라 활용, <1ms 응답 속도
+    - 기존 Redis 인프라 활용, <1ms 응답 속도
 
 4. **분산 락**: Redisson
-   - Pub/Sub 방식, 자동 해제, CPU 효율성
+    - Pub/Sub 방식, 자동 해제, CPU 효율성
 
 5. **메시지 브로커**: Redis Pub/Sub
-   - <1ms 지연시간, 기존 인프라 활용
+    - <1ms 지연시간, 기존 인프라 활용
 
 **👉 [상세 내용 보기](docs/기술적의사결정.md)**
 
 <br>
-
 
 ## 9. 트러블 슈팅 & 최적화 전략
 
@@ -221,27 +215,28 @@
 ### 주요 최적화 성과
 
 1. **[성능 최적화] AI 챗봇 임베딩 처리 36% 개선**
-   - Batch Embedding 적용: 네트워크 호출 95% 감소
-   - Redis 영속성 구현: 재시작 시간 100% 제거
+    - Batch Embedding 적용: 네트워크 호출 95% 감소
+    - Redis 영속성 구현: 재시작 시간 100% 제거
 
 2. **[성능 최적화] 관리자 공지 알림 발송 성능 92% 개선**
-   - Batch Insert: JDBC Statements 50% 감소
-   - 병렬 Redis 발행: 멀티코어 CPU 활용
+    - Batch Insert: JDBC Statements 50% 감소
+    - 병렬 Redis 발행: 멀티코어 CPU 활용
 
 3. **[동시성 제어] Redisson 분산 락으로 예약 중복 발생률 0% 달성**
-   - Post ID 기준 락으로 Race Condition 완전 차단
-   - 멀티 서버 환경에서 안정성 보장
+    - Post ID 기준 락으로 Race Condition 완전 차단
+    - 멀티 서버 환경에서 안정성 보장
 
 4. **[메모리 최적화] SSE 좀비 연결 제거**
-   - 하트비트 메커니즘: 메모리 누수 방지
-   - entrySet() 최적화: 조회 성능 개선
+    - 하트비트 메커니즘: 메모리 누수 방지
+    - entrySet() 최적화: 조회 성능 개선
 
 5. **[CI/CD 안정화] Redis Vector Store 테스트 환경 구축**
-   - Redis Stack 적용으로 CI 테스트 성공률 100% 달성
+    - Redis Stack 적용으로 CI 테스트 성공률 100% 달성
 
 **👉 [상세 내용 보기](docs/트러블슈팅.md)**
 
 <br>
+
 ## 10. 주요 기능
 
 ### 1. 실시간 알림 시스템 (SSE)
